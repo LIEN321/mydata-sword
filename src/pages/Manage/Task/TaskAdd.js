@@ -149,6 +149,7 @@ class TaskAdd extends PureComponent {
           ...values,
         };
         params.fieldMapping = this.state.fieldMappings;
+        params.dataFilter = this.state.filters;
         dispatch(TASK_SUBMIT(params));
       }
     });
@@ -167,16 +168,16 @@ class TaskAdd extends PureComponent {
 
   handleSaveFilter = filter => {
     const newData = [...this.state.filters];
-    const index = newData.findIndex(item => field.key === item.key);
+    const index = newData.findIndex(item => filter.key === item.key);
     if (index > -1) {
       const item = newData[index];
       newData.splice(index, 1, {
         ...item,
-        ...field,
+        ...filter,
       });
       this.setState({ filters: newData });
     } else {
-      newData.push(field);
+      newData.push(filter);
       this.setState({ filters: newData });
     }
   };
@@ -350,7 +351,7 @@ class TaskAdd extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label="数据过滤条件">
               <TaskDataFilterTable
-                dataFieldList={this.state.filters}
+                filters={this.state.filters}
                 handleSave={this.handleSaveFilter}
                 handleDelete={this.handleDeleteFilter}
               />

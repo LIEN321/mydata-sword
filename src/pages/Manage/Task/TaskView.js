@@ -7,6 +7,7 @@ import styles from '../../../layouts/Sword.less';
 import { TASK_DETAIL, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER } from '../../../actions/task';
 import TaskFieldMappingTable from './TaskFieldMappingTable';
 import { dataFields } from '../../../services/data';
+import TaskDataFilterTable from './TaskDataFilterTable';
 
 const FormItem = Form.Item;
 
@@ -138,6 +139,12 @@ class TaskView extends PureComponent {
                 readonly={true}
                 dataFieldList={this.state.dataFieldList}
                 initFieldMappings={detail.fieldMapping}
+              />
+            </FormItem>
+            <FormItem {...formItemLayout} label="数据过滤条件">
+              <TaskDataFilterTable
+                filters={detail.dataFilter}
+                readonly={true}
               />
             </FormItem>
             <FormItem {...formItemLayout} label="最后执行时间">

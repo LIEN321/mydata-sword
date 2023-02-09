@@ -31,19 +31,25 @@ class EditableCell extends React.Component {
   save = e => {
     const { record, handleSave } = this.props;
     this.form.validateFields((error, values) => {
-      if (error && error[e.currentTarget.id]) {
+      if (error && error[e.currentTarget.key]) {
         return;
       }
       this.toggleEdit();
-      handleSave(record.key, this.props.dataIndex, e.currentTarget.value);
+      handleSave(record.key, this.props.dataIndex, e.target.value);
       // ----------------------------------------------------------
     });
   };
 
+  handleSelectOp = (op) => {
+    const { record } = this.props;
+    record.op = op;
+  }
+
   getInput = () => {
     if (this.props.inputType === 'select') {
-      return <Select ref={node => (this.input = node)} onChange={this.save} placeholder={`请输入${this.props.title}`}>
+      return <Select ref={node => (this.input = node)} onChange={this.handleSelectOp} placeholder={`请输入${this.props.title}`}>
         <Select.Option value="=">=</Select.Option>
+        <Select.Option value="!=">!=</Select.Option>
         <Select.Option value=">">&gt;</Select.Option>
         <Select.Option value=">=">&gt;=</Select.Option>
         <Select.Option value="<">&lt;</Select.Option>
@@ -141,7 +147,7 @@ class TaskDataFilterTable extends React.Component {
         title: '操作',
         dataIndex: 'operation',
         render: (text, record) =>
-          this.state.fieldMappingList.length >= 1 ? (
+          this.state.filters.length >= 1 ? (
             <Popconfirm title="确认删除吗?" onConfirm={() => this.handleDelete(record.key)}>
               <a>删除</a>
             </Popconfirm>
@@ -151,30 +157,19 @@ class TaskDataFilterTable extends React.Component {
     }
   }
 
-  // componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps) {
+    let { filters } = nextProps;
+    if (filters) {
+    } else {
+      filters = [];
+    }
 
-  //   const filters = [];
-
-  //   const { dataFieldList, initFieldMappings } = nextProps;
-  //   if (dataFieldList) {
-  //     dataFieldList.map(dataField => {
-  //       const mapping = {
-  //         key: dataField.fieldCode
-  //         , dataFieldCode: dataField.fieldCode
-  //         , dataFieldName: dataField.fieldName
-  //         , apiFieldCode: (initFieldMappings ? (initFieldMappings[dataField.fieldCode] ? initFieldMappings[dataField.fieldCode] : null) : null)
-  //       };
-
-  //       filters.push(mapping);
-  //     });
-  //   }
-
-  //   this.setState({
-  //     filters: filters,
-  //     count: fieldMappings.length,
-  //     readonly: nextProps.readonly ? nextProps.readonly : false,
-  //   });
-  // }
+    this.setState({
+      filters: filters,
+      count: filters.length,
+      readonly: nextProps.readonly ? nextProps.readonly : false,
+    });
+  }
 
   componentWillUnmount() {
     this.setState({ filters: [], count: 0 });
@@ -182,19 +177,18 @@ class TaskDataFilterTable extends React.Component {
 
   handleAdd = () => {
     const { count, filters } = this.state;
-    const newDataField = {
-      id: '',
+    const newFilter = {
       k: '',
       op: '',
-      v: 0,
+      v: '',
       key: count,
     };
     this.setState({
-      filters: [...filters, newDataField],
+      filters: [...filters, newFilter],
       count: count + 1,
     });
 
-    this.props.handleSave(newDataField);
+    this.props.handleSave(newFilter);
   };
 
   handleSave = (key, dataIndex, value) => {
@@ -209,6 +203,15 @@ class TaskDataFilterTable extends React.Component {
     this.setState({ filters: newData });
 
     this.props.handleSave(item);
+
+    
+    console.info("key = " + key);
+    console.info("dataIndex = " + dataIndex);
+    console.info("value = " + value);
+
+    this.state.filters.map(f => {
+      console.info(f.k + " " + f.op + " " + f.v);
+    });
   };
 
   handleDelete = key => {

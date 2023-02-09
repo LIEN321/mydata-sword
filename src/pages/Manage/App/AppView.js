@@ -5,7 +5,6 @@ import { connect } from 'dva';
 import Panel from '../../../components/Panel';
 import styles from '../../../layouts/Sword.less';
 import { APP_DETAIL } from '../../../actions/app';
-import AppEditableTable from './AppEditableTable';
 
 const FormItem = Form.Item;
 

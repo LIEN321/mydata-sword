@@ -82,7 +82,7 @@ class Task extends PureComponent {
       <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
         <Col md={6} sm={24}>
           <FormItem label="查询名称">
-            {getFieldDecorator('name')(<Input placeholder="查询名称" />)}
+            {getFieldDecorator('taskName')(<Input placeholder="查询名称" />)}
           </FormItem>
         </Col>
         <Col>
@@ -180,11 +180,14 @@ class Task extends PureComponent {
         },
       },
       {
-        title: '最后执行时间<br/>/最后成功时间',
-        render: (text, redord, index) => {
-          let timeStr = record.lastRunTime + "<br/>" + record.lastSuccessTime;
-          return timeStr;
-        },
+        title: '最后执行时间',
+        dataIndex: 'lastRunTime',
+        width: 150,
+      },
+      {
+        title: '最后成功时间',
+        dataIndex: 'lastSuccessTime',
+        width: 150,
       },
       // {
       //   title: '字段映射',

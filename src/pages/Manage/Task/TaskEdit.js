@@ -6,6 +6,7 @@ import styles from '../../../layouts/Sword.less';
 import { TASK_DETAIL, TASK_SUBMIT, TASK_INIT, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER } from '../../../actions/task';
 import TaskFieldMappingTable from './TaskFieldMappingTable';
 import { dataFields } from '../../../services/data';
+import TaskDataFilterTable from './TaskDataFilterTable';
 
 const FormItem = Form.Item;
 
@@ -31,6 +32,7 @@ class TaskEdit extends PureComponent {
 
       dataFieldList: [],
       fieldMappings: {},
+      filters: [],
 
       isShowSubscribed: false,
       isShowTaskPeriod: true,
@@ -70,6 +72,7 @@ class TaskEdit extends PureComponent {
         isShowSubscribed: detail.opType != TASK_TYPE_PRODUCER,
         isShowTaskPeriod: detail.isSubscribed != TASK_SUBSCRIBED,
         initStatus: true,
+        filters: detail.dataFilter,
       });
     }
 
@@ -184,6 +187,7 @@ class TaskEdit extends PureComponent {
           ...values,
         };
         params.fieldMapping = this.state.fieldMappings;
+        params.dataFilter = this.state.filters;
         dispatch(TASK_SUBMIT(params));
       }
     });
@@ -198,6 +202,27 @@ class TaskEdit extends PureComponent {
       // 不订阅
       this.setState({ isShowTaskPeriod: true });
     }
+  };
+
+  handleSaveFilter = filter => {
+    const newData = [...this.state.filters];
+    const index = newData.findIndex(item => filter.key === item.key);
+    if (index > -1) {
+      const item = newData[index];
+      newData.splice(index, 1, {
+        ...item,
+        ...filter,
+      });
+      this.setState({ filters: newData });
+    } else {
+      newData.push(filter);
+      this.setState({ filters: newData });
+    }
+  };
+
+  handleDeleteFilter = key => {
+    const filters = [...this.state.filters];
+    this.setState({ filters: filters.filter(item => item.key !== key) });
   };
 
   render() {
@@ -368,6 +393,13 @@ class TaskEdit extends PureComponent {
                 dataFieldList={this.state.dataFieldList}
                 handleSave={this.handleSaveMapping}
                 initFieldMappings={detail.fieldMapping}
+              />
+            </FormItem>
+            <FormItem {...formItemLayout} label="数据过滤条件">
+              <TaskDataFilterTable
+                filters={this.state.filters}
+                handleSave={this.handleSaveFilter}
+                handleDelete={this.handleDeleteFilter}
               />
             </FormItem>
           </Card>
