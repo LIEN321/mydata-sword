@@ -18,7 +18,8 @@ export default [
     authority: ['administrator', 'admin', 'user', 'test', 'guest'],
     routes: [
       // dashboard
-      { path: '/', redirect: '/dashboard/workplace' },
+      //{ path: '/', redirect: '/dashboard/workplace' },
+      { path: '/', redirect: '/manage/workplace' },
       {
         path: '/result',
         routes: [
@@ -294,6 +295,9 @@ export default [
       {
         path: '/manage',
         routes: [
+          {
+            path: '/manage/workplace', component: './Manage/Dashboard/Workplace'
+          },
           {
             path: '/manage/data',
             routes: [
