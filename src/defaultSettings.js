@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Sword企业级开发平台',
+  title: 'MYDATA - 数据融合平台',
   clientId: 'sword', // 客户端id
   clientSecret: 'sword_secret', // 客户端密钥
   tenantMode: true, // 开启租户模式

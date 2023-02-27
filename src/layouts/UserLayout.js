@@ -27,7 +27,7 @@ const links = [
 
 const copyright = (
   <Fragment>
-    Copyright <Icon type="copyright" /> 2022 Tan Lien{' '}
+    Copyright <Icon type="copyright" /> 2023 Tan Lien{' '}
     <a
       key="github"
       title="git"
@@ -51,11 +51,11 @@ const UserLayout = ({ children }) => (
         <div className={styles.header}>
           <Link to="/">
             <img alt="logo" className={styles.logo} src={logo} />
-            <span className={styles.title}>MyData 数据集成平台</span>
+            <span className={styles.title}>MyData 数据融合平台</span>
           </Link>
         </div>
         <div className={styles.desc}>
-          MyData是以数据资产化为指导思想的数据平台，v1版本提供数据集成服务。
+          MyData是以数据资产化为指导思想的数据平台，v1版本提供数据融合服务。
         </div>
       </div>
       {children}
