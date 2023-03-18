@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Button, Col, Form, Input, Row, Modal, Table } from 'antd';
 import Panel from '../../../components/Panel';
-import { DATA_LIST, BIZ_FILE_LIST, BIZ_DATA_LIST } from '../../../actions/data';
+import { DATA_LIST, BIZ_FIELD_LIST, BIZ_DATA_LIST } from '../../../actions/data';
 import Grid from '../../../components/Sword/Grid';
 import { bizFieldList } from '@/services/data';
 
@@ -62,7 +62,7 @@ class Data extends PureComponent {
   showBizData = params => {
     const { dispatch } = this.props;
     const { id } = params;
-    dispatch(BIZ_FILE_LIST({ dataId: id }));
+    dispatch(BIZ_FIELD_LIST({ dataId: id }));
     dispatch(BIZ_DATA_LIST({ dataId: id }));
     this.setState({ bizDataModalVisible: true, currentData: params });
   };
@@ -115,6 +115,10 @@ class Data extends PureComponent {
         });
       }
     }
+    bizDataColumns.push({
+      title: "最后更新时间",
+      dataIndex: "_MD_UPDATE_TIME_"
+    });
 
     return (
       <Panel>

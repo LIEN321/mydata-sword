@@ -35,7 +35,7 @@ export function DATA_REMOVE(payload) {
   };
 }
 
-export function BIZ_FILE_LIST(payload) {
+export function BIZ_FIELD_LIST(payload) {
   return {
     type: `${DATA_NAMESPACE}/fetchBizFieldList`,
     payload,
