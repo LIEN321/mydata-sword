@@ -14,7 +14,7 @@ const FooterView = () => (
             title="git"
             target="_blank"
             rel="noopener noreferrer"
-            href="https://gitee.com/lientan/mydata-blade"
+            href="https://github.com/LienTan/mydata-blade"
           >
             <Icon type="github" />{' '}
           </a>
