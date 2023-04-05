@@ -1,8 +1,9 @@
 import { message } from 'antd';
 import router from 'umi/router';
 import { API_NAMESPACE } from '../actions/api';
-import { list, submit, detail, remove } from '../services/md_api';
+import { list, submit, detail, remove, debug } from '../services/md_api';
 import { select as appSelect } from '../services/app';
+import { select as envSelect } from '../services/env';
 
 export default {
   namespace: API_NAMESPACE,
@@ -14,7 +15,9 @@ export default {
     detail: {},
     init: {
       appList: [],
+      envList: [],
     },
+    debugResult: {},
   },
   effects: {
     *fetchList({ payload }, { call, put }) {
@@ -69,11 +72,24 @@ export default {
     },
     *fetchInit({ payload }, { call, put }) {
       const responseApp = yield call(appSelect, payload);
-      if (responseApp.success) {
+      const responseEnv = yield call(envSelect, payload);
+      if (responseApp.success && responseEnv.success) {
         yield put({
           type: 'saveInit',
           payload: {
             appList: responseApp.data,
+            envList: responseEnv.data,
+          },
+        });
+      }
+    },
+    *fetchDebug({ payload }, { call, put }) {
+      const response = yield call(debug, payload);
+      if (response.success) {
+        yield put({
+          type: 'saveDebug',
+          payload: {
+            debugResult: response.data,
           },
         });
       }
@@ -102,6 +118,12 @@ export default {
       return {
         ...state,
         init: action.payload,
+      };
+    },
+    saveDebug(state, action) {
+      return {
+        ...state,
+        debugResult: action.payload.debugResult,
       };
     },
   },

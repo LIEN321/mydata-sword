@@ -5,6 +5,7 @@ import Panel from '../../../components/Panel';
 import styles from '../../../layouts/Sword.less';
 import { API_DETAIL, API_SUBMIT, API_INIT } from '../../../actions/api';
 import ApiEditableTable from './ApiEditableTable';
+import ApiDebug from './ApiDebug';
 
 const FormItem = Form.Item;
 
@@ -19,6 +20,9 @@ class ApiEdit extends PureComponent {
     this.state = {
       reqHeaders: [],
       reqParams: [],
+      
+      visible: false,
+      envList: [],
     };
   }
 
@@ -35,7 +39,10 @@ class ApiEdit extends PureComponent {
 
   componentWillReceiveProps(nextProps) {
     const {
-      api: { detail },
+      api: {
+        detail,
+        init: { envList },
+      },
     } = nextProps;
 
     const { reqHeaders, reqParams } = detail;
@@ -57,6 +64,10 @@ class ApiEdit extends PureComponent {
       });
     }
     // }
+
+    this.setState({
+      envList: envList,
+    });
   }
 
   handleSubmit = e => {
@@ -124,13 +135,30 @@ class ApiEdit extends PureComponent {
     this.setState({ reqParams: reqParams.filter(item => item.key !== key) });
   };
 
+  showDebug = () => {
+    const { form } = this.props;
+    this.setState({
+      visible: true,
+      apiMethod: form.getFieldValue("apiMethod"),
+      apiUri: form.getFieldValue("apiUri"),
+    });
+  };
+
+  cancelDebug = () => {
+    this.setState({
+      visible: false,
+    });
+  }
+
   render() {
+    const { visible, apiMethod, apiUri, reqHeaders, reqParams } = this.state;
+
     const {
       form: { getFieldDecorator },
       api: { detail },
       submitting,
       api: {
-        init: { appList }
+        init: { appList, envList }
       }
     } = this.props;
 
@@ -147,9 +175,14 @@ class ApiEdit extends PureComponent {
     };
 
     const action = (
-      <Button type="primary" onClick={this.handleSubmit} loading={submitting}>
-        提交
-      </Button>
+      <>
+        <Button icon="right-circle" onClick={this.showDebug}>
+          调试
+        </Button>
+        <Button type="primary" onClick={this.handleSubmit} loading={submitting}>
+          提交
+        </Button>
+      </>
     );
 
     return (
@@ -284,6 +317,15 @@ class ApiEdit extends PureComponent {
             </FormItem>
           </Card>
         </Form>
+        <ApiDebug
+          visible={visible}
+          envList={envList}
+          apiMethod={apiMethod}
+          apiUri={apiUri}
+          reqHeaders={reqHeaders}
+          reqParams={reqParams}
+          onCancel={this.cancelDebug}
+        />
       </Panel>
     );
   }

@@ -41,3 +41,10 @@ export function API_INIT() {
     payload: {},
   };
 }
+
+export function API_DEBUG(payload) {
+  return {
+    type: `${API_NAMESPACE}/fetchDebug`,
+    payload,
+  };
+}

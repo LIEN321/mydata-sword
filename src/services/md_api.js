@@ -33,3 +33,10 @@ export async function syncTask(params) {
     method: 'PUT'
   });
 }
+
+export async function debug(params) {
+  return request(`/api/mydata-manage/api/debug`, {
+    method: 'POST',
+    body: params,
+  });
+}
