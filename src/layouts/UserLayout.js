@@ -27,13 +27,13 @@ const links = [
 
 const copyright = (
   <Fragment>
-    Copyright <Icon type="copyright" /> 2023 Tan Lien{' '}
+    Copyright <Icon type="copyright" /> 2023 LIEN{' '}
     <a
       key="github"
       title="git"
       target="_blank"
       rel="noopener noreferrer"
-      href="https://github.com/LienTan/mydata-blade"
+      href="https://github.com/LIEN321/mydata-blade"
     >
       <Icon type="github" />{' '}
     </a>
