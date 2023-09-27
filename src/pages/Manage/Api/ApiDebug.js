@@ -58,8 +58,8 @@ class ApiDebug extends PureComponent {
     const params = {
       httpMethod,
       httpUri,
-      // httpHeaders,
-      // httpParams,
+      httpHeaders,
+      httpParams,
       contentType,
     };
 
@@ -108,7 +108,8 @@ class ApiDebug extends PureComponent {
               </Select>
             </FormItem>
             <FormItem {...formItemLayout} label="选择Content-Type" onChange={this.handleChangeContentType}>
-              <Select allowClear placeholder="请选择Content-Type" defaultValue="application/json">
+              <Select allowClear placeholder="请选择Content-Type" defaultValue={""}>
+                <Select.Option value="">raw</Select.Option>
                 <Select.Option value="application/json">application/json</Select.Option>
               </Select>
             </FormItem>
