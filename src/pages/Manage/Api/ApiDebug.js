@@ -18,7 +18,7 @@ class ApiDebug extends PureComponent {
     this.state = {
       visible: false,
       apiUrl: '',
-      contentType: 'application/json',
+      contentType: '',
     };
   }
 
@@ -35,8 +35,8 @@ class ApiDebug extends PureComponent {
     this.updateApiUrl(env);
   }
 
-  handleChangeContentType = contentType => {
-    this.setState({ contentType : contentType });
+  handleChangeContentType = value => {
+    this.setState({ contentType : value });
   }
 
   updateApiUrl(env) {
@@ -107,8 +107,8 @@ class ApiDebug extends PureComponent {
                 ))}
               </Select>
             </FormItem>
-            <FormItem {...formItemLayout} label="选择Content-Type" onChange={this.handleChangeContentType}>
-              <Select allowClear placeholder="请选择Content-Type" defaultValue={""}>
+            <FormItem {...formItemLayout} label="选择Content-Type">
+              <Select allowClear placeholder="请选择Content-Type" defaultValue={""} onChange={this.handleChangeContentType}>
                 <Select.Option value="">raw</Select.Option>
                 <Select.Option value="application/json">application/json</Select.Option>
               </Select>
