@@ -121,7 +121,7 @@ class EnvAdd extends PureComponent {
               {getFieldDecorator('envPrefix', {
                 rules: [
                   {
-                    required: true,
+                    required: false,
                     message: '请输入前置路径',
                   },
                 ],
