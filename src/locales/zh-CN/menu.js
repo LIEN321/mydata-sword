@@ -55,6 +55,7 @@ export default {
   'menu.mydata_manage.app': '应用管理',
   'menu.mydata_manage.api': 'API管理',
   'menu.mydata_manage.env': '环境管理',
+  'button.env_var.name': '变量管理',
   'menu.mydata_manage.task': '任务管理',
   // ------------------------------------------------
 };
