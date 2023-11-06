@@ -182,15 +182,17 @@ class EnvVar extends PureComponent {
       {
         title: '变量名',
         dataIndex: 'varName',
+        width: '200px',
       },
       {
         title: '变量值',
         dataIndex: 'varValue',
+        width: '500px',
       },
       {
         title: '操作',
         dataIndex: 'action',
-        width: '200px',
+        width: '100px',
         render: (text, record) => (
           <Fragment>
             <div style={{ textAlign: 'center' }}>
@@ -205,12 +207,12 @@ class EnvVar extends PureComponent {
                   删除
                 </a>
               </Fragment>
-              <Divider type="vertical" />
+              {/* <Divider type="vertical" />
               <Fragment key="view">
                 <a title="查看" onClick={() => this.handleClick('env_var_view', record)}>
                   查看
                 </a>
-              </Fragment>
+              </Fragment> */}
             </div>
           </Fragment>
         ),
