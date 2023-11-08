@@ -85,7 +85,7 @@ class EnvVar extends PureComponent {
         }
       });
     } else if (code === 'env_var_delete') {
-      const { id } = record;
+      const { id, envId, varName } = record;
       const { params } = this.state;
       const refresh = this.handleSearch;
       Modal.confirm({
@@ -95,7 +95,7 @@ class EnvVar extends PureComponent {
         okType: 'danger',
         cancelText: '取消',
         onOk() {
-          removeEnvVar({ ids: id }).then(resp => {
+          removeEnvVar({ ids: id, envId: envId, varName: varName }).then(resp => {
             if (resp.success) {
               message.success(resp.msg);
               refresh(params);
@@ -112,7 +112,7 @@ class EnvVar extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { viewMode } = this.state;
-    if(viewMode === true){
+    if (viewMode === true) {
       this.handleStateCancel();
       return;
     }
