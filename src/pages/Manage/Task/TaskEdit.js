@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Form, Input, Card, Button, Select, Radio } from 'antd';
+import { Form, Input, Card, Button, Select, Radio, notification } from 'antd';
 import { connect } from 'dva';
 import Panel from '../../../components/Panel';
 import styles from '../../../layouts/Sword.less';
@@ -39,6 +39,17 @@ class TaskEdit extends PureComponent {
     };
   }
 
+  renderWarning = task => {
+    if (task.taskStatus == 1) {
+      notification['warning']({
+        message: '请注意',
+        description:
+          '任务运行中，请在提交修改后手动重启！',
+        duration: 10,
+      });
+    }
+  }
+
   componentWillMount() {
     const {
       dispatch,
@@ -74,6 +85,8 @@ class TaskEdit extends PureComponent {
         initStatus: true,
         filters: detail.dataFilter,
       });
+
+      this.renderWarning(detail);
     }
 
     if (!apiUrl) {
@@ -318,7 +331,7 @@ class TaskEdit extends PureComponent {
               {getFieldDecorator('dataId', {
                 rules: [
                   {
-                    required: true,
+                    required: false,
                     message: '请选择数据项',
                   },
                 ],

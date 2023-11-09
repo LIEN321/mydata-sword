@@ -276,7 +276,7 @@ class TaskAdd extends PureComponent {
               {getFieldDecorator('dataId', {
                 rules: [
                   {
-                    required: true,
+                    required: false,
                     message: '请选择数据项',
                   },
                 ],

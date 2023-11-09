@@ -4,7 +4,7 @@ import { Button, Col, Form, Input, Row, Tag, message, Modal, Divider, Table } fr
 import Panel from '../../../components/Panel';
 import { TASK_LIST, TASK_LOG_LIST } from '../../../actions/task';
 import Grid from '../../../components/Sword/Grid';
-import { startTask, stopTask } from '../../../services/task';
+import { executeTask, startTask, stopTask } from '../../../services/task';
 
 const FormItem = Form.Item;
 
@@ -67,6 +67,28 @@ class Task extends PureComponent {
     });
   };
 
+  handleExecute = taskId => {
+    const { dispatch } = this.props;
+
+    Modal.confirm({
+      title: '执行确认',
+      content: '是否执行一次所选任务?',
+      okText: '确定',
+      // okType: 'danger',
+      cancelText: '取消',
+      async onOk() {
+        const response = await executeTask(taskId);
+        if (response.success) {
+          message.success('任务已触发执行，请在日志中查看结果！');
+          // dispatch(TASK_LIST());
+        } else {
+          message.error(response.msg || '任务执行失败！');
+        }
+      },
+      onCancel() { },
+    });
+  };
+
   // ============ 查询 ===============
   handleSearch = params => {
     const { dispatch } = this.props;
@@ -102,13 +124,9 @@ class Task extends PureComponent {
   renderActionButton = (keys, rows) => (
     <Fragment key="copy">
       <Divider type="vertical" />
-      <a
-        onClick={() => {
-          this.showLogList(rows[0]);
-        }}
-      >
-        日志
-      </a>
+      <a onClick={() => { this.handleExecute(rows[0].id); }}>运行一次</a>
+      <Divider type="vertical" />
+      <a onClick={() => { this.showLogList(rows[0]); }}>日志</a>
     </Fragment>
   );
 
@@ -196,16 +214,16 @@ class Task extends PureComponent {
       {
         title: '状态',
         dataIndex: 'taskStatus',
-        width: 120,
+        width: 130,
         render: (text, record, index) => {
           const { id, taskStatus } = record;
           let color, status;
           if (taskStatus == 0) {
             color = 'lightgray';
-            status = '停止';
+            status = '已停止';
           } else if (taskStatus == 1) {
             color = 'green';
-            status = '运行';
+            status = '运行中';
           } else if (taskStatus == 2) {
             color = 'red';
             status = '异常';
@@ -287,6 +305,7 @@ class Task extends PureComponent {
           data={data}
           columns={columns}
           renderActionButton={this.renderActionButton}
+          actionColumnWidth={280}
         />
         <Modal
           title="查看日志"
@@ -299,14 +318,13 @@ class Task extends PureComponent {
           ]}
           onCancel={this.closeLogList}
         >
-          <Table
+          {this.state.logModalVisible && <Table
             columns={logColumns}
             dataSource={logs.list}
             pagination={logs.pagination}
             onChange={this.handleSearchLog}
             expandedRowRender={record => <div dangerouslySetInnerHTML={{ __html: `${record.taskDetail.replaceAll('\n', '</br>')}`, }}></div>}
-
-          />
+          />}
         </Modal>
       </Panel>
     );
