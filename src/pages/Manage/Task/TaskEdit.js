@@ -7,6 +7,7 @@ import { TASK_DETAIL, TASK_SUBMIT, TASK_INIT, TASK_SUBSCRIBED, TASK_TYPE_PRODUCE
 import TaskFieldMappingTable from './TaskFieldMappingTable';
 import { dataFields } from '../../../services/data';
 import TaskDataFilterTable from './TaskDataFilterTable';
+import TaskVarMappingTable from './TaskVarMappingTable';
 
 const FormItem = Form.Item;
 
@@ -33,6 +34,7 @@ class TaskEdit extends PureComponent {
       dataFieldList: [],
       fieldMappings: {},
       filters: [],
+      varMappings: [],
 
       isShowSubscribed: false,
       isShowTaskPeriod: true,
@@ -84,6 +86,7 @@ class TaskEdit extends PureComponent {
         isShowTaskPeriod: detail.isSubscribed != TASK_SUBSCRIBED,
         initStatus: true,
         filters: detail.dataFilter,
+        varMappings: detail.fieldVarMapping,
       });
 
       this.renderWarning(detail);
@@ -201,6 +204,7 @@ class TaskEdit extends PureComponent {
         };
         params.fieldMapping = this.state.fieldMappings;
         params.dataFilter = this.state.filters;
+        params.fieldVarMapping = this.state.varMappings;
         dispatch(TASK_SUBMIT(params));
       }
     });
@@ -236,6 +240,27 @@ class TaskEdit extends PureComponent {
   handleDeleteFilter = key => {
     const filters = [...this.state.filters];
     this.setState({ filters: filters.filter(item => item.key !== key) });
+  };
+
+  handleSaveVarMapping = filter => {
+    const newData = [...this.state.varMappings];
+    const index = newData.findIndex(item => filter.key === item.key);
+    if (index > -1) {
+      const item = newData[index];
+      newData.splice(index, 1, {
+        ...item,
+        ...filter,
+      });
+      this.setState({ varMappings: newData });
+    } else {
+      newData.push(filter);
+      this.setState({ varMappings: newData });
+    }
+  };
+
+  handleDeleteVarMapping = key => {
+    const varMappings = [...this.state.varMappings];
+    this.setState({ varMappings: varMappings.filter(item => item.key !== key) });
   };
 
   render() {
@@ -413,6 +438,13 @@ class TaskEdit extends PureComponent {
                 filters={this.state.filters}
                 handleSave={this.handleSaveFilter}
                 handleDelete={this.handleDeleteFilter}
+              />
+            </FormItem>
+            <FormItem {...formItemLayout} label="数据存入变量">
+              <TaskVarMappingTable
+                varMappings={this.state.varMappings}
+                handleSave={this.handleSaveVarMapping}
+                handleDelete={this.handleDeleteVarMapping}
               />
             </FormItem>
           </Card>

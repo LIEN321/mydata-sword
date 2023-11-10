@@ -8,6 +8,7 @@ import { TASK_DETAIL, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER } from '../../../actio
 import TaskFieldMappingTable from './TaskFieldMappingTable';
 import { dataFields } from '../../../services/data';
 import TaskDataFilterTable from './TaskDataFilterTable';
+import TaskVarMappingTable from './TaskVarMappingTable';
 
 const FormItem = Form.Item;
 
@@ -144,6 +145,12 @@ class TaskView extends PureComponent {
             <FormItem {...formItemLayout} label="数据过滤条件">
               <TaskDataFilterTable
                 filters={detail.dataFilter}
+                readonly={true}
+              />
+            </FormItem>
+            <FormItem {...formItemLayout} label="数据存入变量">
+              <TaskVarMappingTable
+                varMappings={detail.fieldVarMapping}
                 readonly={true}
               />
             </FormItem>
