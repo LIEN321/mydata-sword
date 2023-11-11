@@ -36,6 +36,12 @@ export async function stopTask(taskId) {
   });
 }
 
+export async function executeTask(taskId) {
+  return request(`/api/mydata-manage/task/execute/${taskId}`, {
+    method: 'POST',
+  });
+}
+
 export async function taskLogList(params) {
   return request(`/api/mydata-manage/task/logs?${stringify(params)}`);
 }

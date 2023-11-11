@@ -1,10 +1,11 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Button, Col, Form, Input, Row, message, Modal, Divider, Tag } from 'antd';
+import { Button, Col, Form, Input, Row, message, Modal, Divider, Tag, Drawer } from 'antd';
 import Panel from '../../../components/Panel';
 import { ENV_LIST } from '../../../actions/env';
 import Grid from '../../../components/Sword/Grid';
 import { syncTask } from '../../../services/env';
+import EnvVar from '../EnvVar/EnvVar';
 
 const FormItem = Form.Item;
 
@@ -14,6 +15,16 @@ const FormItem = Form.Item;
 }))
 @Form.create()
 class Env extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      drawerTitle: '',
+      drawerVisible: false,
+      envId: null,
+    };
+  }
+
   // ============ 查询 ===============
   handleSearch = params => {
     const { dispatch } = this.props;
@@ -68,6 +79,23 @@ class Env extends PureComponent {
     });
   };
 
+  handleBtnCallBack = payload => {
+    const { btn, keys, rows } = payload;
+    if (btn.code === 'env_var') {
+      // alert('env_var click');
+      // alert(rows[0].id);
+      this.setState({
+        drawerTitle: rows[0].envName,
+        drawerVisible: true,
+        envId : rows[0].id,
+      });
+    }
+  };
+
+  onCloseDrawer = () => {
+    this.setState({ drawerVisible: false });
+  };
+
   render() {
     const code = 'env';
 
@@ -76,6 +104,8 @@ class Env extends PureComponent {
       loading,
       env: { data },
     } = this.props;
+
+    const { drawerTitle, drawerVisible, envId } = this.state;
 
     const columns = [
       {
@@ -89,10 +119,12 @@ class Env extends PureComponent {
       {
         title: '编辑时间',
         dataIndex: 'updateTime',
+        width: '150px',
       },
       {
         title: '同步任务时间',
         dataIndex: 'syncTaskTime',
+        width: '250px',
         render: (text, record, index) => {
           const { id, syncTaskTime, updateTime } = record;
           let color = 'green';
@@ -124,7 +156,18 @@ class Env extends PureComponent {
           loading={loading}
           data={data}
           columns={columns}
+          btnCallBack={this.handleBtnCallBack}
+          actionColumnWidth={250}
         />
+        <Drawer
+          title={`[${drawerTitle}] 变量管理`}
+          visible={drawerVisible}
+          width={1000}
+          //closable={false}
+          onClose={this.onCloseDrawer}
+        >
+          {drawerVisible && <EnvVar envId={envId} />}
+        </Drawer>
       </Panel>
     );
   }
