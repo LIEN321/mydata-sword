@@ -226,7 +226,7 @@ class Task extends PureComponent {
             status = '运行中';
           } else if (taskStatus == 2) {
             color = 'red';
-            status = '异常';
+            status = '异　常';
           } else {
             color = 'black';
             status = '--';
