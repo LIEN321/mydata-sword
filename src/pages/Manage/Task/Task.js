@@ -323,7 +323,7 @@ class Task extends PureComponent {
             dataSource={logs.list}
             pagination={logs.pagination}
             onChange={this.handleSearchLog}
-            expandedRowRender={record => <div dangerouslySetInnerHTML={{ __html: `${record.taskDetail.replaceAll('\n', '</br>')}`, }}></div>}
+            expandedRowRender={record => <div style={{'overflow-wrap': 'anywhere'}} dangerouslySetInnerHTML={{ __html: `${record.taskDetail.replaceAll('\n', '</br>')}`, }}></div>}
           />}
         </Modal>
       </Panel>
