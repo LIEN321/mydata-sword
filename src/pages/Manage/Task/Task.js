@@ -226,7 +226,7 @@ class Task extends PureComponent {
             status = '运行中';
           } else if (taskStatus == 2) {
             color = 'red';
-            status = '异常';
+            status = '异　常';
           } else {
             color = 'black';
             status = '--';
@@ -323,7 +323,7 @@ class Task extends PureComponent {
             dataSource={logs.list}
             pagination={logs.pagination}
             onChange={this.handleSearchLog}
-            expandedRowRender={record => <div dangerouslySetInnerHTML={{ __html: `${record.taskDetail.replaceAll('\n', '</br>')}`, }}></div>}
+            expandedRowRender={record => <div style={{'overflow-wrap': 'anywhere'}} dangerouslySetInnerHTML={{ __html: `${record.taskDetail.replaceAll('\n', '</br>')}`, }}></div>}
           />}
         </Modal>
       </Panel>

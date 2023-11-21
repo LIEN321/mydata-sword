@@ -223,7 +223,7 @@ class TaskVarMappingTable extends React.Component {
     return (
       <div>
         <Button onClick={this.handleAdd} type="primary" style={{ marginBottom: 16, display: this.state.readonly ? 'none' : 'block' }}>
-          添加条件
+          添加
         </Button>
         <Table
           components={components}

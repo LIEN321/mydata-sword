@@ -124,7 +124,7 @@ export default class GlobalHeaderRight extends PureComponent {
     }
     return (
       <div className={className} style={{ marginRight: 8 }}>
-        <HeaderSearch
+        {/* <HeaderSearch
           className={`${styles.action} ${styles.search}`}
           placeholder={formatMessage({ id: 'component.globalHeader.search' })}
           dataSource={[
@@ -138,18 +138,18 @@ export default class GlobalHeaderRight extends PureComponent {
           onPressEnter={value => {
             console.log('enter', value); // eslint-disable-line
           }}
-        />
+        /> */}
         <Tooltip title={formatMessage({ id: 'component.globalHeader.help' })}>
           <a
             target="_blank"
-            href="https://ant.design/docs/react/introduce-cn"
+            href="http://www.mydata.work/docs#/"
             rel="noopener noreferrer"
             className={styles.action}
           >
             <Icon type="question-circle-o" />
           </a>
         </Tooltip>
-        <NoticeIcon
+        {/* <NoticeIcon
           className={styles.action}
           count={currentUser.unreadCount}
           onItemClick={(item, tabProps) => {
@@ -195,7 +195,7 @@ export default class GlobalHeaderRight extends PureComponent {
             emptyImage="https://gw.alipayobjects.com/zos/rmsportal/HsIsxMZiWKrNUavQUXqx.svg"
             {...loadMoreProps}
           />
-        </NoticeIcon>
+        </NoticeIcon> */}
         {currentUser.name ? (
           <HeaderDropdown overlay={menu} style={{ marginRight: 8 }}>
             <span className={`${styles.action} ${styles.account}`}>
