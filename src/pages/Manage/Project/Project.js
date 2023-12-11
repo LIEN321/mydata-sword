@@ -114,7 +114,7 @@ class Project extends PureComponent {
           renderActionButton={this.renderActionButton}
           actionColumnWidth={250}
         />
-        <Drawer
+        {this.state.dataManageVisible && <Drawer
           title={this.state.projectName}
           width="80%"
           visible={this.state.dataManageVisible}
@@ -124,7 +124,7 @@ class Project extends PureComponent {
             projectId={this.state.projectId}
             projectName={this.state.projectName}
           />
-        </Drawer>
+        </Drawer>}
       </Panel>
     );
   }
