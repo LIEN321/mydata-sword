@@ -1,13 +1,14 @@
 import React, { Fragment, PureComponent } from 'react';
 import { connect } from 'dva';
-import { Button, Col, Form, Input, Row, Modal, Table, Card, message, Divider } from 'antd';
+import { Button, Col, Form, Input, Row, Modal, Table, Card, message, Divider, Icon, Select } from 'antd';
 import Panel from '../../../../components/Panel';
-import { DATA_LIST, BIZ_FIELD_LIST, BIZ_DATA_LIST } from '../../../../actions/data';
+import { BIZ_FIELD_LIST, BIZ_DATA_LIST, PROJECT_DATA_LIST, DATA_INIT } from '../../../../actions/data';
 import Grid from '../../../../components/Sword/Grid';
 import { bizFieldList, detail as dataDetail, submit as submitData, remove as removeData } from '../../../../services/data';
 import styles from '../../../../layouts/Sword.less';
 import EditableTable from '../../Data/EditableTable';
 import func from '@/utils/Func';
+import mdStyle from '../../../../layouts/Mydata.less'
 
 const FormItem = Form.Item;
 
@@ -24,6 +25,11 @@ class ProjectData extends PureComponent {
       currentData: {},
       bizDataModalVisible: false,
 
+      // 运行环境列表
+      envList: {},
+      //当前所选环境id
+      currentEnvId: null,
+
       // 数据项表单可见性
       dataFormVisible: false,
       // 数据项记录
@@ -34,6 +40,12 @@ class ProjectData extends PureComponent {
       params: {},
     };
   }
+
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch(DATA_INIT());
+  }
+
   // ============ 查询 ===============
   handleSearch = params => {
     const {
@@ -42,8 +54,11 @@ class ProjectData extends PureComponent {
     } = this.props;
     // 所属项目id
     params.projectId = projectId;
+    if (params.envId == null) {
+      params.envId = this.state.currentEnvId;
+    }
     this.setState({ params });
-    dispatch(DATA_LIST(params));
+    dispatch(PROJECT_DATA_LIST(params));
   };
 
   // ============ 查询表单 ===============
@@ -190,11 +205,41 @@ class ProjectData extends PureComponent {
     this.setState({ dataFields: dataFields.filter(item => item.key !== key) });
   };
 
-  renderLeftButton = () => (
-    <Button icon="plus" type="primary" onClick={() => this.handleClick('data_add')}>
-      新增数据项
-    </Button>
-  );
+  handleChangeEnv = envId => {
+    const { params } = this.state;
+    // 所属环境
+    params.envId = envId;
+    this.setState({ currentEnvId: envId });
+    this.handleSearch(params);
+  }
+
+  renderLeftButton = () => {
+    const {
+      data: {
+        init: { envList },
+      },
+    } = this.props;
+    return (
+      <Fragment>
+        <span style={{fontWeight: 'bold'}}>选择环境查看集成情况：</span>
+        <Select allowClear placeholder="请选择所属环境" onChange={this.handleChangeEnv} style={{ width: 200 }}>
+          {envList.map(e => (
+            <Select.Option key={e.id} value={e.id}>
+              {e.envName}
+            </Select.Option>
+          ))}
+        </Select>
+        <Divider type='vertical' />
+        <Button icon="plus" type="primary" onClick={() => this.handleClick('data_add')}>
+          新增数据项
+        </Button>
+      </Fragment>
+    );
+  }
+
+  renderRightButton = () => {
+
+  };
 
   render() {
     const code = 'data';
@@ -227,12 +272,47 @@ class ProjectData extends PureComponent {
         },
       },
       {
+        title: '来源应用',
+        dataIndex: 'provideAppCount',
+        render: (text, record, index) => {
+          const { provideAppCount } = record;
+          return <>{provideAppCount ? provideAppCount : '-'}</>
+        }
+      },
+      {
+        title: '消费应用',
+        dataIndex: 'consumeAppCount',
+        render: (text, record, index) => {
+          const { consumeAppCount } = record;
+          return <>{consumeAppCount ? consumeAppCount : '-'}</>
+        }
+      },
+      {
+        title: '同步任务',
+        render: (text, record, index) => {
+          const { runningTaskCount, stoppedTaskCount, failedTaskCount } = record;
+          return <>
+            <Icon type="play-circle" className={mdStyle.taskRunning} /> {runningTaskCount ? runningTaskCount : '-'}
+            <Divider type='vertical' />
+            <Icon type="close-circle" className={mdStyle.taskFailed} /> {failedTaskCount ? failedTaskCount : '-'}
+            <Divider type='vertical' />
+            <Icon type="stop" className={mdStyle.taskStopped} /> {stoppedTaskCount ? stoppedTaskCount : '-'}
+          </>
+        },
+      },
+      {
         title: '操作',
         dataIndex: 'action',
-        width: '100px',
+        width: '200px',
         render: (text, record) => (
           <Fragment>
             <div style={{ textAlign: 'center' }}>
+              <Fragment key="tasks">
+                <a title="任务管理" onClick={() => this.handleClick('manage_task', record)}>
+                  任务管理
+                </a>
+              </Fragment>
+              <Divider type="vertical" />
               <Fragment key="edit">
                 <a title="修改" onClick={() => this.handleClick('data_edit', record)}>
                   修改
@@ -285,6 +365,7 @@ class ProjectData extends PureComponent {
           onSearch={this.handleSearch}
           renderSearchForm={this.renderSearchForm}
           renderLeftButton={this.renderLeftButton}
+          renderRightButton={this.renderRightButton}
           loading={loading}
           data={data}
           columns={columns}

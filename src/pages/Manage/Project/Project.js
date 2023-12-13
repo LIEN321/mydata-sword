@@ -115,7 +115,7 @@ class Project extends PureComponent {
           actionColumnWidth={250}
         />
         {this.state.dataManageVisible && <Drawer
-          title={this.state.projectName}
+          title={`集成管理 - ${this.state.projectName}`}
           width="80%"
           visible={this.state.dataManageVisible}
           onClose={this.closeManageData}

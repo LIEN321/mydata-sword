@@ -1,7 +1,8 @@
 import { message } from 'antd';
 import router from 'umi/router';
 import { DATA_NAMESPACE } from '../actions/data';
-import { list, submit, detail, remove, bizFieldList, bizDataList } from '../services/data';
+import { list, projectDataList, submit, detail, remove, bizFieldList, bizDataList } from '../services/data';
+import { select as envSelect } from '../services/env';
 
 export default {
   namespace: DATA_NAMESPACE,
@@ -16,10 +17,40 @@ export default {
       list: [],
       pagination: false,
     },
+    init: {
+      envList: []
+    },
   },
   effects: {
+    *fetchInit({ payload }, { call, put }) {
+      const responseEnv = yield call(envSelect, payload);
+      if (responseEnv.success) {
+        yield put({
+          type: 'saveInit',
+          payload: {
+            envList: responseEnv.data,
+          },
+        });
+      }
+    },
     *fetchList({ payload }, { call, put }) {
       const response = yield call(list, payload);
+      if (response.success) {
+        yield put({
+          type: 'saveList',
+          payload: {
+            list: response.data.records,
+            pagination: {
+              total: response.data.total,
+              current: response.data.current,
+              pageSize: response.data.size,
+            },
+          },
+        });
+      }
+    },
+    *fetchProjectDataList({ payload }, { call, put }) {
+      const response = yield call(projectDataList, payload);
       if (response.success) {
         yield put({
           type: 'saveList',
@@ -97,6 +128,12 @@ export default {
     },
   },
   reducers: {
+    saveInit(state, action) {
+      return {
+        ...state,
+        init: action.payload,
+      };
+    },
     saveList(state, action) {
       return {
         ...state,
