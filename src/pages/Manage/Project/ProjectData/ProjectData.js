@@ -1,6 +1,6 @@
 import React, { Fragment, PureComponent } from 'react';
 import { connect } from 'dva';
-import { Button, Col, Form, Input, Row, Modal, Table, Card, message, Divider, Icon, Select } from 'antd';
+import { Button, Col, Form, Input, Row, Modal, Table, Card, message, Divider, Icon, Select, Drawer } from 'antd';
 import Panel from '../../../../components/Panel';
 import { BIZ_FIELD_LIST, BIZ_DATA_LIST, PROJECT_DATA_LIST, DATA_INIT } from '../../../../actions/data';
 import Grid from '../../../../components/Sword/Grid';
@@ -8,7 +8,8 @@ import { bizFieldList, detail as dataDetail, submit as submitData, remove as rem
 import styles from '../../../../layouts/Sword.less';
 import EditableTable from '../../Data/EditableTable';
 import func from '@/utils/Func';
-import mdStyle from '../../../../layouts/Mydata.less'
+import mdStyle from '../../../../layouts/mydata.less'
+import DataTask from './DataTask';
 
 const FormItem = Form.Item;
 
@@ -26,9 +27,10 @@ class ProjectData extends PureComponent {
       bizDataModalVisible: false,
 
       // 运行环境列表
-      envList: {},
+      // envList: {},
       //当前所选环境id
-      currentEnvId: null,
+      // currentEnvId: null,
+      currentEnv: null,
 
       // 数据项表单可见性
       dataFormVisible: false,
@@ -38,10 +40,13 @@ class ProjectData extends PureComponent {
       dataFields: [],
       // 查询参数
       params: {},
+
+      // 数据同步任务可见性
+      dataTaskVisible: false,
     };
   }
 
-  componentDidMount() {
+  componentWillMount() {
     const { dispatch } = this.props;
     dispatch(DATA_INIT());
   }
@@ -54,8 +59,8 @@ class ProjectData extends PureComponent {
     } = this.props;
     // 所属项目id
     params.projectId = projectId;
-    if (params.envId == null) {
-      params.envId = this.state.currentEnvId;
+    if (params.envId == null && this.state.currentEnv) {
+      params.envId = this.state.currentEnv.id;
     }
     this.setState({ params });
     dispatch(PROJECT_DATA_LIST(params));
@@ -108,6 +113,7 @@ class ProjectData extends PureComponent {
     this.setState({ bizDataModalVisible: false, currentData: {} });
   };
 
+  // 新增、编辑、删除
   handleClick = (code, record) => {
     if (code === 'data_add') {
       this.setState({
@@ -151,7 +157,9 @@ class ProjectData extends PureComponent {
       });
     }
   };
+  // ------------------------------------------------------------
 
+  // 提交数据项
   handleSubmitData = e => {
     e.preventDefault();
     const { dataFields, params, detail: { id } } = this.state;
@@ -176,6 +184,7 @@ class ProjectData extends PureComponent {
     });
   };
 
+  // 关闭数据项表单
   handleCloseDataForm = () => {
     this.setState({
       dataFormVisible: false,
@@ -183,7 +192,9 @@ class ProjectData extends PureComponent {
       dataFields: [],
     });
   };
+  // ------------------------------------------------------------
 
+  // 更新字段
   handleSaveField = field => {
     const newData = [...this.state.dataFields];
     const index = newData.findIndex(item => field.key === item.key);
@@ -200,46 +211,80 @@ class ProjectData extends PureComponent {
     }
   };
 
+  // 删除字段
   handleDeleteField = key => {
     const dataFields = [...this.state.dataFields];
     this.setState({ dataFields: dataFields.filter(item => item.key !== key) });
   };
+  // ------------------------------------------------------------
 
+  // 切换环境
   handleChangeEnv = envId => {
+    const env = this.findEnv(envId);
+    this.setState({ currentEnv: env });
+
     const { params } = this.state;
-    // 所属环境
     params.envId = envId;
-    this.setState({ currentEnvId: envId });
     this.handleSearch(params);
   }
 
-  renderLeftButton = () => {
+  findEnv(envId) {
     const {
       data: {
         init: { envList },
       },
     } = this.props;
-    return (
-      <Fragment>
-        <span style={{fontWeight: 'bold'}}>选择环境查看集成情况：</span>
-        <Select allowClear placeholder="请选择所属环境" onChange={this.handleChangeEnv} style={{ width: 200 }}>
-          {envList.map(e => (
-            <Select.Option key={e.id} value={e.id}>
-              {e.envName}
-            </Select.Option>
-          ))}
-        </Select>
-        <Divider type='vertical' />
-        <Button icon="plus" type="primary" onClick={() => this.handleClick('data_add')}>
-          新增数据项
-        </Button>
-      </Fragment>
-    );
+    const newEnvList = [...envList];
+    const index = newEnvList.findIndex(env => env.id === envId);
+    const env = newEnvList[index];
+    return env;
+  }
+  // ------------------------------------------------------------
+
+  // 打开任务管理
+  handleManageTask = (data) => {
+    const { currentEnv } = this.state;
+    if (func.isEmpty(currentEnv)) {
+      message.warn('请先选择环境！');
+      return;
+    }
+    this.setState({ currentData: data });
+    this.setState({ dataTaskVisible: true });
   }
 
-  renderRightButton = () => {
+  // 关闭任务管理
+  handleCloseTask = () => {
+    this.setState({ dataTaskVisible: false });
+    const { params } = this.state;
+    this.handleSearch(params);
+  }
 
-  };
+  // ------------------------------------------------------------
+  renderLeftButton = () => {
+    // const {
+    //   data: {
+    //     init: { envList },
+    //   },
+    // } = this.props;
+    // return (
+    //   <Fragment>
+    //     <span style={{ fontWeight: 'bold' }}>选择环境查看集成情况：</span>
+    //     <Select allowClear placeholder="请选择所属环境" onChange={this.handleChangeEnv} style={{ width: 200 }}>
+    //       {envList.map(e => (
+    //         <Select.Option key={e.id} value={e.id}>
+    //           {e.envName}
+    //         </Select.Option>
+    //       ))}
+    //     </Select>
+    //     <Divider type='vertical' />
+    return <Button icon="plus" type="primary" onClick={() => this.handleClick('data_add')}>
+      新增数据项
+    </Button>
+    //   </Fragment>
+    // );
+  }
+
+  renderRightButton = () => { };
 
   render() {
     const code = 'data';
@@ -247,12 +292,14 @@ class ProjectData extends PureComponent {
     const {
       form,
       loading,
-      data: { data, bizField, bizData },
+      data: { data, bizField, bizData,
+        init: { envList },
+      },
     } = this.props;
     const { getFieldDecorator } = form;
 
-    const { currentData, detail, dataFields } = this.state;
-    const { projectName } = this.props;
+    const { currentData, detail, dataFields, currentEnv } = this.state;
+    const { projectId, projectName } = this.props;
 
     const columns = [
       {
@@ -308,7 +355,7 @@ class ProjectData extends PureComponent {
           <Fragment>
             <div style={{ textAlign: 'center' }}>
               <Fragment key="tasks">
-                <a title="任务管理" onClick={() => this.handleClick('manage_task', record)}>
+                <a title="任务管理" onClick={() => this.handleManageTask(record)}>
                   任务管理
                 </a>
               </Fragment>
@@ -359,6 +406,20 @@ class ProjectData extends PureComponent {
 
     return (
       <div>
+        <Card bordered={false}>
+          <span style={{ fontWeight: 'bold' }}>选择环境查看集成情况：</span>
+          <Select allowClear placeholder="请选择所属环境" onChange={this.handleChangeEnv} style={{ width: 200 }}>
+            {envList.map(e => (
+              <Select.Option key={e.id} value={e.id}>
+                {e.envName}
+              </Select.Option>
+            ))}
+          </Select>
+          {/* <Divider type='vertical' />
+          <Button icon="plus" type="primary" onClick={() => this.handleClick('data_add')}>
+            新增数据项
+          </Button> */}
+        </Card>
         <Grid
           // code={code}
           form={form}
@@ -432,6 +493,28 @@ class ProjectData extends PureComponent {
             onChange={this.handleSearchBizData}
           />
         </Modal>
+
+        {/* 数据项的同步任务 */}
+        {currentEnv && <Drawer
+          title={
+            <>
+              数据项：<span>{currentData.dataName}</span>
+              <Divider type='vertical' />
+              环境：<span style={{ color: 'red' }}>{currentEnv.envName}</span>
+              <Divider type='vertical' />
+              前置路径：{currentEnv.envPrefix}
+            </>
+          }
+          visible={this.state.dataTaskVisible}
+          onClose={this.handleCloseTask}
+          width="80%"
+        >
+          <DataTask
+            env={currentEnv}
+            data={currentData}
+            projectId={projectId}
+          />
+        </Drawer>}
       </div>
     );
   }
