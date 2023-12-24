@@ -1,14 +1,15 @@
 import React, { PureComponent } from 'react';
-import { Form, Input, Card, Button } from 'antd';
+import { Form, Input, Card, Button, Select } from 'antd';
 import { connect } from 'dva';
 import Panel from '../../../components/Panel';
 import styles from '../../../layouts/Sword.less';
-import { ENV_SUBMIT } from '../../../actions/env';
+import { ENV_INIT, ENV_SUBMIT } from '../../../actions/env';
 import EnvEditableTable from './EnvEditableTable';
 
 const FormItem = Form.Item;
 
-@connect(({ loading }) => ({
+@connect(({env, loading }) => ({
+  env,
   submitting: loading.effects['env/submit'],
 }))
 @Form.create()
@@ -19,6 +20,11 @@ class EnvAdd extends PureComponent {
       globalHeaders: [],
       globalParams: [],
     };
+  }
+
+  componentWillMount() {
+    const { dispatch } = this.props;
+    dispatch(ENV_INIT());
   }
 
   handleSubmit = e => {
@@ -83,6 +89,10 @@ class EnvAdd extends PureComponent {
     const {
       form: { getFieldDecorator },
       submitting,
+      env: {
+        init: { projectList },
+      },
+      location: { query }
     } = this.props;
 
     const formItemLayout = {
@@ -107,6 +117,25 @@ class EnvAdd extends PureComponent {
       <Panel title="新增" back="/manage/env" action={action}>
         <Form hideRequiredMark style={{ marginTop: 8 }}>
           <Card className={styles.card} bordered={false}>
+            <FormItem {...formItemLayout} label="选择项目">
+              {getFieldDecorator('projectId', {
+                rules: [
+                  {
+                    required: true,
+                    message: '请选择项目',
+                  },
+                ],
+                initialValue: query.projectId,
+              })(
+                <Select allowClear placeholder="请选择项目">
+                  {projectList.map(p => (
+                    <Select.Option key={p.id} value={p.id}>
+                      {p.projectName} ({p.projectCode})
+                    </Select.Option>
+                  ))}
+                </Select>
+              )}
+            </FormItem>
             <FormItem {...formItemLayout} label="环境名称">
               {getFieldDecorator('envName', {
                 rules: [

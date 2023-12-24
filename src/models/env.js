@@ -2,6 +2,7 @@ import { message } from 'antd';
 import router from 'umi/router';
 import { ENV_NAMESPACE } from '../actions/env';
 import { list, submit, detail, remove } from '../services/env';
+import { select as projectSelect } from '../services/project';
 
 export default {
   namespace: ENV_NAMESPACE,
@@ -11,8 +12,22 @@ export default {
       pagination: false,
     },
     detail: {},
+    init: {
+      projectList: []
+    },
   },
   effects: {
+    *fetchInit({ payload }, { call, put }) {
+      const responseProject = yield call(projectSelect, payload);
+      if (responseProject.success) {
+        yield put({
+          type: 'saveInit',
+          payload: {
+            projectList: responseProject.data,
+          },
+        });
+      }
+    },
     *fetchList({ payload }, { call, put }) {
       const response = yield call(list, payload);
       if (response.success) {
@@ -65,6 +80,12 @@ export default {
     },
   },
   reducers: {
+    saveInit(state, action) {
+      return {
+        ...state,
+        init: action.payload,
+      };
+    },
     saveList(state, action) {
       return {
         ...state,

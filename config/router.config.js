@@ -299,6 +299,17 @@ export default [
             path: '/manage/workplace', component: './Manage/Dashboard/Workplace'
           },
           {
+            path: '/manage/project',
+            routes: [
+              { path: '/manage/project', redirect: '/manage/project/list' },
+              { path: '/manage/project/list', component: './Manage/Project/Project' },
+              { path: '/manage/project/add', component: './Manage/Project/ProjectAdd' },
+              { path: '/manage/project/edit/:id', component: './Manage/Project/ProjectEdit' },
+              { path: '/manage/project/view/:id', component: './Manage/Project/ProjectView' },
+              { path: '/manage/project/data/:projectId', component: './Manage/Project/ProjectData/ProjectData' },
+            ],
+          },
+          {
             path: '/manage/data',
             routes: [
               { path: '/manage/data', redirect: '/manage/data/list' },

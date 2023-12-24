@@ -7,6 +7,14 @@ export function DATA_LIST(payload) {
   };
 }
 
+export function PROJECT_DATA_LIST(payload) {
+  return {
+    type: `${DATA_NAMESPACE}/fetchProjectDataList`,
+    payload,
+  };
+}
+
+
 export function DATA_DETAIL(id) {
   return {
     type: `${DATA_NAMESPACE}/fetchDetail`,
@@ -46,5 +54,12 @@ export function BIZ_DATA_LIST(payload) {
   return {
     type: `${DATA_NAMESPACE}/fetchBizDataList`,
     payload,
+  };
+}
+
+export function DATA_INIT() {
+  return {
+    type: `${DATA_NAMESPACE}/fetchInit`,
+    payload: {},
   };
 }

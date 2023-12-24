@@ -1,13 +1,15 @@
 import React, { PureComponent } from 'react';
-import { Form, Input, Card, Button, Select, Radio, notification } from 'antd';
+import { Form, Input, Card, Button, Select, Radio, Modal, message, notification } from 'antd';
 import { connect } from 'dva';
-import Panel from '../../../components/Panel';
-import styles from '../../../layouts/Sword.less';
-import { TASK_DETAIL, TASK_SUBMIT, TASK_INIT, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER } from '../../../actions/task';
-import TaskFieldMappingTable from './TaskFieldMappingTable';
-import { dataFields } from '../../../services/data';
-import TaskDataFilterTable from './TaskDataFilterTable';
-import TaskVarMappingTable from './TaskVarMappingTable';
+import Panel from '../../../../components/Panel';
+import styles from '../../../../layouts/Sword.less';
+import { TASK_SUBMIT, TASK_INIT_API, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER, TASK_DETAIL } from '../../../../actions/task';
+import { submit as submitTask, detail as taskDetail } from '../../../../services/task';
+import TaskFieldMappingTable from '../../Task/TaskFieldMappingTable';
+import { dataFields } from '../../../../services/data';
+import TaskDataFilterTable from '../../Task/TaskDataFilterTable';
+import TaskVarMappingTable from '../../Task/TaskVarMappingTable';
+import form from '@/locales/en-US/form';
 
 const FormItem = Form.Item;
 
@@ -16,12 +18,11 @@ const FormItem = Form.Item;
   submitting: loading.effects['task/submit'],
 }))
 @Form.create()
-class TaskEdit extends PureComponent {
+class DataTaskForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      initStatus: false,
-
+      detail: null,
       apiUrl: '',
       opType: null,
 
@@ -41,33 +42,45 @@ class TaskEdit extends PureComponent {
     };
   }
 
-  renderWarning = task => {
-    if (task.taskStatus == 1) {
-      notification['warning']({
-        message: '请注意',
-        description:
-          '任务运行中，请在提交修改后手动重启！',
-        duration: 10,
-      });
-    }
-  }
-
   componentWillMount() {
-    const {
-      dispatch,
-      match: {
-        params: { id },
-      },
-    } = this.props;
-    dispatch(TASK_INIT());
-    dispatch(TASK_DETAIL(id));
+    const { dispatch, opType, data, currentTask } = this.props;
+    dispatch(TASK_INIT_API({ opType }));
+    this.loadDataFieldList(data.id);
+
+    if (currentTask && currentTask.id) {
+      taskDetail({ id: currentTask.id }).then(resp => {
+        if (resp.success) {
+          const detail = resp.data;
+          this.setState({ detail });
+          this.setState({ apiUrl: detail.apiUrl });
+          this.setState({
+            fieldMappings: detail.fieldMapping,
+            isShowSubscribed: detail.opType != TASK_TYPE_PRODUCER,
+            isShowTaskPeriod: detail.isSubscribed != TASK_SUBSCRIBED,
+            initStatus: true,
+            filters: detail.dataFilter,
+            varMappings: detail.fieldVarMapping,
+          });
+          this.renderWarning(detail);
+        }
+      });
+      // dispatch(TASK_DETAIL(currentTask.id));
+    }
+
+    if (opType == TASK_TYPE_PRODUCER) {
+      // 提供数据
+      this.setState({ isShowSubscribed: false, isShowTaskPeriod: true });
+    } else {
+      // 消费数据
+      this.setState({ isShowSubscribed: true, isShowTaskPeriod: false });
+    }
   }
 
   componentWillReceiveProps(nextProps) {
     const {
-      task: { detail },
       task: {
         init: { envList, apiList },
+        // detail,
       },
     } = nextProps;
 
@@ -76,31 +89,24 @@ class TaskEdit extends PureComponent {
       apiList: apiList,
     });
 
-    const { initStatus, apiUrl, opType } = this.state;
+    const { initStatus, apiUrl, detail } = this.state;
 
-    if (!initStatus && detail.id) {
-      this.loadDataFieldList(detail.dataId);
-      this.setState({
-        fieldMappings: detail.fieldMapping,
-        isShowSubscribed: detail.opType != TASK_TYPE_PRODUCER,
-        isShowTaskPeriod: detail.isSubscribed != TASK_SUBSCRIBED,
-        initStatus: true,
-        filters: detail.dataFilter,
-        varMappings: detail.fieldVarMapping,
-      });
+    // if (!apiUrl && detail) {
+    //   this.setState({ apiUrl: detail.apiUrl });
+    // }
 
-      this.renderWarning(detail);
+    if (!initStatus && detail && detail.id) {
+      // this.setState({
+      //   fieldMappings: detail.fieldMapping,
+      //   isShowSubscribed: detail.opType != TASK_TYPE_PRODUCER,
+      //   isShowTaskPeriod: detail.isSubscribed != TASK_SUBSCRIBED,
+      //   initStatus: true,
+      //   filters: detail.dataFilter,
+      //   varMappings: detail.fieldVarMapping,
+      // });
+
+      // this.renderWarning(detail);
     }
-
-    if (!apiUrl) {
-      this.setState({ apiUrl: detail.apiUrl });
-      this.findEnv(detail.envId);
-    }
-    if (!opType) {
-      this.setState({ opType: detail.opType == 1 ? "提供数据" : "消费数据" });
-      this.findApi(detail.apiId);
-    }
-
   }
 
   findEnv(envId) {
@@ -126,30 +132,19 @@ class TaskEdit extends PureComponent {
 
   handleChangeApi = apiId => {
     const api = this.findApi(apiId);
-    if (api) {
-      this.state.opType = api.opType == 1 ? "提供数据" : "消费数据";
-    } else {
-      this.state.opType = "";
-    }
+    this.state.currentApi = api;
+    // if (api) {
+    //   this.state.opType = api.opType == 1 ? "提供数据" : "消费数据";
+    // } else {
+    //   this.state.opType = "";
+    // }
     this.updateApiUrl();
-
-    const opType = api.opType;
-    if (opType == TASK_TYPE_PRODUCER) {
-      // 提供数据
-      this.setState({ isShowSubscribed: false, isShowTaskPeriod: true });
-    } else {
-      // 消费数据
-      this.setState({ isShowSubscribed: true, isShowTaskPeriod: false });
-    }
   }
 
   updateApiUrl() {
-    const { form } = this.props;
-    let { currentEnv, currentApi } = this.state;
-    if (currentEnv == null) {
-      const envId = form.getFieldValue("envId");
-      currentEnv = this.findEnv(envId);
-    }
+    const { form, env } = this.props;
+    let { currentApi } = this.state;
+
     if (currentApi == null) {
       const appApiId = form.getFieldValue("apiId");
       currentApi = this.findApi(appApiId);
@@ -157,8 +152,8 @@ class TaskEdit extends PureComponent {
 
     let apiUrl = '';
 
-    if (currentEnv != null && currentApi != null) {
-      apiUrl = currentEnv.envPrefix + currentApi.apiUri;
+    if (env != null && currentApi != null) {
+      apiUrl = env.envPrefix + currentApi.apiUri;
     }
 
     this.setState({ apiUrl });
@@ -189,23 +184,32 @@ class TaskEdit extends PureComponent {
 
   handleSubmit = e => {
     e.preventDefault();
-    const {
-      dispatch,
-      match: {
-        params: { id },
-      },
-      form,
-    } = this.props;
+    const { dispatch, form, env, data, projectId, closeTaskForm, currentTask } = this.props;
+
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         const params = {
-          id,
           ...values,
         };
+        if (currentTask) {
+          params.id = currentTask.id;
+        }
         params.fieldMapping = this.state.fieldMappings;
         params.dataFilter = this.state.filters;
         params.fieldVarMapping = this.state.varMappings;
-        dispatch(TASK_SUBMIT(params));
+        params.envId = env.id;
+        params.dataId = data.id;
+        params.projectId = projectId;
+        // dispatch(TASK_SUBMIT(params));
+        submitTask(params).then(resp => {
+          if (resp.success) {
+            message.success(resp.msg);
+            form.resetFields();
+            closeTaskForm();
+          } else {
+            message.error(resp.msg || '提交失败');
+          }
+        });
       }
     });
   };
@@ -263,17 +267,41 @@ class TaskEdit extends PureComponent {
     this.setState({ varMappings: varMappings.filter(item => item.key !== key) });
   };
 
+  handleClose = () => {
+    const { form, closeTaskForm } = this.props;
+    form.resetFields();
+    closeTaskForm();
+  }
+
+  renderWarning = task => {
+    if (task.taskStatus == 1) {
+      notification['warning']({
+        message: '请注意',
+        description:
+          '任务运行中，请在提交修改后手动重启！',
+        duration: 10,
+      });
+    }
+  }
+
   render() {
     const {
       form: { getFieldDecorator },
-      task: { detail },
       submitting,
       task: {
-        init: { envList, apiList, dataList },
+        init: { apiList },
+        //   detail,
       },
+      env,
+      data,
+      projectId,
+      opType,
     } = this.props;
 
-    const { apiUrl, opType } = this.state;
+    console.info("DataTaskForm detail = ");
+    console.info(detail);
+
+    const { apiUrl, detail } = this.state;
 
     const formItemLayout = {
       labelCol: {
@@ -294,7 +322,14 @@ class TaskEdit extends PureComponent {
     );
 
     return (
-      <Panel title="修改" back="/manage/task" action={action}>
+
+      <Modal
+        title={`定时任务`}
+        width="80%"
+        visible={this.props.taskFormVisible}
+        onOk={this.handleSubmit}
+        onCancel={this.handleClose}
+      >
         <Form hideRequiredMark style={{ marginTop: 8 }}>
           <Card className={styles.card} bordered={false}>
             <FormItem {...formItemLayout} label="任务名称">
@@ -305,10 +340,10 @@ class TaskEdit extends PureComponent {
                     message: '请输入任务名称',
                   },
                 ],
-                initialValue: detail.taskName,
+                initialValue: detail ? detail.taskName : '',
               })(<Input placeholder="请输入任务名称" />)}
             </FormItem>
-            <FormItem {...formItemLayout} label="所属环境">
+            {/* <FormItem {...formItemLayout} label="所属环境">
               {getFieldDecorator('envId', {
                 rules: [
                   {
@@ -316,7 +351,6 @@ class TaskEdit extends PureComponent {
                     message: '请选择所属环境',
                   },
                 ],
-                initialValue: detail.envId,
               })(
                 <Select allowClear placeholder="请选择所属环境" onChange={this.handleChangeEnv}>
                   {envList.map(e => (
@@ -326,7 +360,7 @@ class TaskEdit extends PureComponent {
                   ))}
                 </Select>
               )}
-            </FormItem>
+            </FormItem> */}
             <FormItem {...formItemLayout} label="选择API">
               {getFieldDecorator('apiId', {
                 rules: [
@@ -335,7 +369,7 @@ class TaskEdit extends PureComponent {
                     message: '请选择API',
                   },
                 ],
-                initialValue: detail.apiId,
+                initialValue: detail ? detail.apiId : '',
               })(
                 <Select allowClear placeholder="请选择API" onChange={this.handleChangeApi}>
                   {apiList.map(a => (
@@ -350,9 +384,9 @@ class TaskEdit extends PureComponent {
               {apiUrl}
             </FormItem>
             <FormItem {...formItemLayout} label="任务类型">
-              {opType}
+              {opType == TASK_TYPE_PRODUCER ? "提供数据" : "消费数据"}
             </FormItem>
-            <FormItem {...formItemLayout} label="数据项">
+            {/* <FormItem {...formItemLayout} label="数据项">
               {getFieldDecorator('dataId', {
                 rules: [
                   {
@@ -360,7 +394,6 @@ class TaskEdit extends PureComponent {
                     message: '请选择数据项',
                   },
                 ],
-                initialValue: detail.dataId,
               })(
                 <Select allowClear placeholder="请选择数据项" onChange={this.handleChangeData}>
                   {dataList.map(d => (
@@ -370,7 +403,7 @@ class TaskEdit extends PureComponent {
                   ))}
                 </Select>
               )}
-            </FormItem>
+            </FormItem> */}
 
             {this.state.isShowSubscribed && (<FormItem {...formItemLayout} label="订阅数据" extra="订阅模式：区别于定时模式，只当有提供新数据后才推送数据；">
               {getFieldDecorator('isSubscribed', {
@@ -380,7 +413,7 @@ class TaskEdit extends PureComponent {
                     message: '请选择是否为订阅任务',
                   },
                 ],
-                initialValue: detail.isSubscribed,
+                initialValue: detail ? detail.isSubscribed : 1,
               })(
                 // <Input placeholder="请输入是否为订阅任务：0-不订阅，1-订阅" />
                 <Radio.Group buttonStyle="solid" onChange={this.handleChangeSubscribed}>
@@ -398,7 +431,7 @@ class TaskEdit extends PureComponent {
                     message: '请输入任务周期',
                   },
                 ],
-                initialValue: detail.taskPeriod,
+                initialValue: detail ? detail.taskPeriod : '',
               })(
                 // <Input placeholder="请输入任务周期" />
                 <Radio.Group buttonStyle="solid">
@@ -420,17 +453,17 @@ class TaskEdit extends PureComponent {
                 rules: [
                   {
                     required: false,
-                    message: '请输入JSON字段层级前缀',
+                    message: '请输入字段层级前缀',
                   },
                 ],
-                initialValue: detail.apiFieldPrefix,
+                initialValue: detail ? detail.apiFieldPrefix : '',
               })(<Input placeholder="请输入JSON字段层级前缀" />)}
             </FormItem>
             <FormItem {...formItemLayout} label="字段映射">
               <TaskFieldMappingTable
                 dataFieldList={this.state.dataFieldList}
                 handleSave={this.handleSaveMapping}
-                initFieldMappings={detail.fieldMapping}
+                initFieldMappings={detail ? detail.fieldMapping : {}}
               />
             </FormItem>
             <FormItem {...formItemLayout} label="数据过滤条件">
@@ -449,9 +482,9 @@ class TaskEdit extends PureComponent {
             </FormItem>
           </Card>
         </Form>
-      </Panel>
+      </Modal>
     );
   }
 }
 
-export default TaskEdit;
+export default DataTaskForm;

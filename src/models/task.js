@@ -1,7 +1,7 @@
 import { message } from 'antd';
 import router from 'umi/router';
 import { TASK_NAMESPACE } from '../actions/task';
-import { list, submit, detail, remove, taskLogList } from '../services/task';
+import { list, submit, detail, remove, taskLogList, dataTasks } from '../services/task';
 import { select as envSelect } from '../services/env';
 import { select as dataSelect } from '../services/data';
 import { select as apiSelect } from '../services/md_api';
@@ -14,6 +14,7 @@ export default {
       list: [],
       pagination: false,
     },
+    dataTasks: { producerTasks: [], consumerTasks: [] },
     detail: {},
     init: {
       envList: [],
@@ -38,6 +39,17 @@ export default {
               current: response.data.current,
               pageSize: response.data.size,
             },
+          },
+        });
+      }
+    },
+    *fetchDataTasks({ payload }, { call, put }) {
+      const response = yield call(dataTasks, payload);
+      if (response.success) {
+        yield put({
+          type: 'saveDataTasks',
+          payload: {
+            dataTasks: response.data,
           },
         });
       }
@@ -93,6 +105,17 @@ export default {
         });
       }
     },
+    *fetchInitApi({ payload }, { call, put }) {
+      const responseApi = yield call(apiSelect, payload);
+      if (responseApi.success) {
+        yield put({
+          type: 'saveInit',
+          payload: {
+            apiList: responseApi.data,
+          },
+        });
+      }
+    },
     *fetchTaskLogList({ payload }, { call, put }) {
       const response = yield call(taskLogList, payload);
       if (response.success) {
@@ -115,6 +138,12 @@ export default {
       return {
         ...state,
         data: action.payload,
+      };
+    },
+    saveDataTasks(state, action) {
+      return {
+        ...state,
+        dataTasks: action.payload.dataTasks,
       };
     },
     saveDetail(state, action) {

@@ -4,16 +4,15 @@ import { Form, Card, Button } from 'antd';
 import { connect } from 'dva';
 import Panel from '../../../components/Panel';
 import styles from '../../../layouts/Sword.less';
-import { ENV_DETAIL } from '../../../actions/env';
-import EnvEditableTable from './EnvEditableTable';
+import { PROJECT_DETAIL } from '../../../actions/project';
 
 const FormItem = Form.Item;
 
-@connect(({ env }) => ({
-  env,
+@connect(({ project }) => ({
+  project,
 }))
 @Form.create()
-class EnvView extends PureComponent {
+class ProjectView extends PureComponent {
   componentWillMount() {
     const {
       dispatch,
@@ -21,7 +20,7 @@ class EnvView extends PureComponent {
         params: { id },
       },
     } = this.props;
-    dispatch(ENV_DETAIL(id));
+    dispatch(PROJECT_DETAIL(id));
   }
 
   handleEdit = () => {
@@ -30,12 +29,12 @@ class EnvView extends PureComponent {
         params: { id },
       },
     } = this.props;
-    router.push(`/manage/env/edit/${id}`);
+    router.push(`/manage/project/edit/${id}`);
   };
 
   render() {
     const {
-      env: { detail },
+      project: { detail },
     } = this.props;
 
     const formItemLayout = {
@@ -57,29 +56,17 @@ class EnvView extends PureComponent {
     );
 
     return (
-      <Panel title="查看" back="/manage/env" action={action}>
+      <Panel title="查看" back="/manage/project" action={action}>
         <Form hideRequiredMark style={{ marginTop: 8 }}>
           <Card className={styles.card} bordered={false}>
-            <FormItem {...formItemLayout} label="所属项目">
+            <FormItem {...formItemLayout} label="项目名称">
               <span>{detail.projectName}</span>
             </FormItem>
-            <FormItem {...formItemLayout} label="环境名称">
-              <span>{detail.envName}</span>
+            <FormItem {...formItemLayout} label="项目编号">
+              <span>{detail.projectCode}</span>
             </FormItem>
-            <FormItem {...formItemLayout} label="前置路径">
-              <span>{detail.envPrefix}</span>
-            </FormItem>
-            <FormItem {...formItemLayout} label="全局Headers">
-              <EnvEditableTable
-                tableValues={detail.globalHeaders}
-                readonly={true}
-              />
-            </FormItem>
-            <FormItem {...formItemLayout} label="全局Params">
-              <EnvEditableTable
-                tableValues={detail.globalParams}
-                readonly={true}
-              />
+            <FormItem {...formItemLayout} label="项目描述">
+              <span>{detail.projectDesc}</span>
             </FormItem>
           </Card>
         </Form>
@@ -87,4 +74,4 @@ class EnvView extends PureComponent {
     );
   }
 }
-export default EnvView;
+export default ProjectView;
