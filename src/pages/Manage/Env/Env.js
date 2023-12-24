@@ -109,6 +109,10 @@ class Env extends PureComponent {
 
     const columns = [
       {
+        title: '所属项目',
+        dataIndex: 'projectName',
+      },
+      {
         title: '环境名称',
         dataIndex: 'envName',
       },

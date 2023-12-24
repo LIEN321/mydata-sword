@@ -372,7 +372,7 @@ class TaskEdit extends PureComponent {
               )}
             </FormItem>
 
-            {this.state.isShowSubscribed && (<FormItem {...formItemLayout} label="订阅数据" extra="订阅模式：区别于定时模式，只当有数据发生变化时才推送消费；">
+            {this.state.isShowSubscribed && (<FormItem {...formItemLayout} label="订阅数据" extra="订阅模式：区别于定时模式，只当有提供新数据后才推送数据；">
               {getFieldDecorator('isSubscribed', {
                 rules: [
                   {

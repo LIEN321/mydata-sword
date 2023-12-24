@@ -60,6 +60,9 @@ class EnvView extends PureComponent {
       <Panel title="查看" back="/manage/env" action={action}>
         <Form hideRequiredMark style={{ marginTop: 8 }}>
           <Card className={styles.card} bordered={false}>
+            <FormItem {...formItemLayout} label="所属项目">
+              <span>{detail.projectName}</span>
+            </FormItem>
             <FormItem {...formItemLayout} label="环境名称">
               <span>{detail.envName}</span>
             </FormItem>

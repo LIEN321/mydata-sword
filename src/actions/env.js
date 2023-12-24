@@ -34,3 +34,10 @@ export function ENV_REMOVE(payload) {
     payload,
   };
 }
+
+export function ENV_INIT() {
+  return {
+    type: `${ENV_NAMESPACE}/fetchInit`,
+    payload: {},
+  };
+}

@@ -23,3 +23,7 @@ export async function remove(params) {
     body: func.toFormData(params),
   });
 }
+
+export async function select(params) {
+  return request(`/api/mydata-manage/project/select?${stringify(params)}`);
+}
