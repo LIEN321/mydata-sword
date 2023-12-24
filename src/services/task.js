@@ -6,6 +6,10 @@ export async function list(params) {
   return request(`/api/mydata-manage/task/list?${stringify(params)}`);
 }
 
+export async function dataTasks(params) {
+  return request(`/api/mydata-manage/task/data_tasks?${stringify(params)}`);
+}
+
 export async function submit(params) {
   return request('/api/mydata-manage/task/submit', {
     method: 'POST',

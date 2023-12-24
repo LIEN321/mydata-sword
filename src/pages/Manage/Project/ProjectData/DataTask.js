@@ -1,13 +1,13 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { PureComponent, Fragment, forwardRef } from 'react';
 import { connect } from 'dva';
-import { Button, Col, Form, Input, Row, Tag, message, Modal, Divider, Table, Card, List, Icon } from 'antd';
+import { Button, Col, Form, Input, Row, Tag, message, Modal, Divider, Table, Card, List, Icon, notification, Drawer } from 'antd';
 import Panel from '../../../../components/Panel';
-import { TASK_LIST, TASK_LOG_LIST } from '../../../../actions/task';
+import { TASK_LIST, TASK_LOG_LIST, DATA_TASKS, TASK_STATUS_RUNNING } from '../../../../actions/task';
 import Grid from '../../../../components/Sword/Grid';
-import { executeTask, startTask, stopTask } from '../../../../services/task';
+import { executeTask, startTask, stopTask, remove } from '../../../../services/task';
 import styles from './style.less';
 import mdStyle from '../../../../layouts/mydata.less'
-import DataTaskAdd from './DataTaskAdd';
+import DataTaskForm from './DataTaskForm';
 
 const FormItem = Form.Item;
 
@@ -21,10 +21,31 @@ class DataTask extends PureComponent {
     super(props);
 
     this.state = {
+      currentTask: {},
       taskFormVisible: false,
       logModalVisible: false,
     };
   }
+
+  componentDidMount() {
+    this.handleLoadTasks();
+  }
+
+  // 查询数据项的任务列表
+  handleLoadTasks = () => {
+    const { dispatch, env, data, projectId } = this.props;
+    const params = { projectId: projectId, envId: env.id, dataId: data.id };
+    dispatch(DATA_TASKS(params));
+  }
+
+  handleRefresh = () => {
+    this.handleLoadTasks();
+    // message.info("刷新成功");
+    notification.info({
+      message: '刷新成功'
+    });
+  }
+  // ------------------------------------------------------------
 
   // ============ 启停任务 ===============
   handleStart = taskId => {
@@ -36,11 +57,11 @@ class DataTask extends PureComponent {
       okText: '确定',
       // okType: 'danger',
       cancelText: '取消',
-      async onOk() {
+      onOk: async () => {
         const response = await startTask(taskId);
         if (response.success) {
           message.success(response.msg);
-          dispatch(TASK_LIST());
+          this.handleLoadTasks();
         } else {
           message.error(response.msg || '启动失败');
         }
@@ -58,11 +79,11 @@ class DataTask extends PureComponent {
       okText: '确定',
       okType: 'danger',
       cancelText: '取消',
-      async onOk() {
+      onOk: async () => {
         const response = await stopTask(taskId);
         if (response.success) {
           message.success(response.msg);
-          dispatch(TASK_LIST());
+          this.handleLoadTasks();
         } else {
           message.error(response.msg || '任务停止失败！');
         }
@@ -134,6 +155,7 @@ class DataTask extends PureComponent {
     </Fragment>
   );
 
+  // 显示日志
   showLogList = params => {
     const { dispatch } = this.props;
     const { id } = params;
@@ -145,17 +167,75 @@ class DataTask extends PureComponent {
     const { currentTask } = this.state;
     dispatch(TASK_LOG_LIST({ ...pagination, taskId: currentTask.id }));
   };
-
+  // 关闭日志
   closeLogList = () => {
-    this.setState({ logModalVisible: false });
+    this.setState({ logModalVisible: false, currentTask: {} });
   };
+  // ------------------------------------------------------------
 
+  // 显示新增任务表单
   handleAddTask = (opType) => {
-    this.setState({ opType: opType, taskFormVisible: true });
+    this.setState({ opType: opType, taskFormVisible: true, currentTask: {} });
   };
+  // 显示编辑任务表单
+  handleEditTask = (task) => {
+    this.setState({ opType: task.opType, taskFormVisible: true, currentTask: task });
+  };
+  // 关闭任务表单
   closeTaskForm = () => {
-    this.setState({ opType: null, taskFormVisible: false });
+    this.setState({ opType: null, taskFormVisible: false, currentTask: {} });
+    this.handleLoadTasks();
   }
+
+  // 删除任务
+  handleDelete = (id) => {
+    Modal.confirm({
+      title: '删除确认',
+      content: '确定删除选中记录?',
+      okText: '确定',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        const response = await remove({ ids: id });
+        if (response.success) {
+          message.success(response.msg);
+          this.handleLoadTasks();
+        } else {
+          message.error(response.msg || '删除失败');
+        }
+      },
+      onCancel() { },
+    });
+  }
+  // ------------------------------------------------------------
+
+  renderTaskCard = (task) => {
+    const taskStatusStyle = [{}, mdStyle.runningCard, mdStyle.failedCard, mdStyle.stoppedCard];
+    const { env } = this.props;
+
+    return <Card
+      key={task.id}
+      title={task.taskName}
+      // hoverable
+      className={[styles.card, taskStatusStyle[task.taskStatus]]}
+      actions={[
+        task.taskStatus == TASK_STATUS_RUNNING ? <Icon type="pause" onClick={() => { this.handleStop(task.id) }} /> : <Icon type="play-circle" onClick={() => { this.handleStart(task.id) }} />,
+        <Icon type="redo" onClick={() => { this.handleExecute(task.id); }} />,
+        <Icon type="history" onClick={() => { this.showLogList(task); }} />,
+        <Icon type="edit" onClick={() => { this.handleEditTask(task) }} />,
+        <Icon type="delete" onClick={() => { this.handleDelete(task.id) }} />,
+      ]}
+    // extra={
+    //   <Icon type="edit" onClick={() => { this.handleEditTask(task) }} />
+    // }
+    >
+      {/* <Card.Meta title={<a>{task.taskName}</a>} /> */}
+      <p>{task.apiUrl.replace(env.envPrefix, '')}</p>
+      <p>运行周期：{task.taskPeriod}</p>
+      <p>最后执行：{task.lastRunTime}</p>
+      <p>最后成功：{task.lastSuccessTime}</p>
+    </Card>
+  };
 
   render() {
     const code = 'task';
@@ -163,7 +243,7 @@ class DataTask extends PureComponent {
     const {
       form,
       loading,
-      task: { logs },
+      task: { logs, dataTasks },
       env,
       data,
       projectId,
@@ -296,61 +376,39 @@ class DataTask extends PureComponent {
     ];
 
     return (
-      <>
+      <Drawer
+        title={
+          <>
+            数据项：<span>{data.dataName}</span>
+            <Divider type='vertical' />
+            环境：<span style={{ color: 'red' }}>{env.envName}</span>
+            <Divider type='vertical' />
+            前置路径：{env.envPrefix}
+            <Divider type='vertical' />
+            <Button onClick={this.handleRefresh}>
+              <Icon type="reload" />刷新
+            </Button>
+
+          </>
+        }
+        visible={this.props.dataTaskVisible}
+        onClose={this.props.handleCloseTask}
+        width="80%"
+      >
+        {/* <Button onClick={this.handleRefresh}>
+          <Icon type="reload" />刷新
+        </Button> */}
         <Row>
           <Col span={6} style={{ textAlign: 'center' }}>
-            <Card title="提供数据" className={styles.card} >
+            <Card title="提供数据">
               <div style={{ textAlign: 'left' }}>
-                <Card
-                  hoverable
-                  className={[styles.card, mdStyle.runningCard]}
-                  actions={[
-                    <Icon type="pause" />,
-                    <Icon type="redo" />,
-                    <Icon type="history" />,
-                    <Icon type="delete" />,
-                  ]}
-                >
-                  <Card.Meta title={<a>{'人事系统'}</a>} />
-                  <p>{'http://192.168.2.80:8901/mydata-test/test/hr_user'.replace(env.envPrefix, '')}</p>
-                  <p>运行周期：0 0/30 * * * ?</p>
-                  <p>最后执行：2023-12-16 18:00:00	</p>
-                  <p>最后成功：2023-12-16 18:00:00</p>
-                </Card>
-                <Divider />
-                <Card
-                  hoverable
-                  className={[styles.card, mdStyle.failedCard]}
-                  actions={[
-                    <Icon type="play-circle" />,
-                    <Icon type="redo" />,
-                    <Icon type="history" />,
-                    <Icon type="delete" />,
-                  ]}
-                >
-                  <Card.Meta title={<a>{'人事系统'}</a>} />
-                  <p>{'http://192.168.2.80:8901/mydata-test/test/save_oa_user'.replace(env.envPrefix, '')}</p>
-                  <p>运行周期：0 0/30 * * * ?</p>
-                  <p>最后执行：2023-12-16 18:00:00	</p>
-                  <p>最后成功：2023-12-16 18:00:00</p>
-                </Card>
-                <Divider />
-                <Card
-                  hoverable
-                  className={[styles.card, mdStyle.stoppedCard]}
-                  actions={[
-                    <Icon type="play-circle" />,
-                    <Icon type="redo" />,
-                    <Icon type="history" />,
-                    <Icon type="delete" />,
-                  ]}
-                >
-                  <Card.Meta title={<a>{'人事系统'}</a>} />
-                  <p>{'http://192.168.2.80:8901/mydata-test/test/save_cms_user'.replace(env.envPrefix, '')}</p>
-                  <p>运行周期：0 0/30 * * * ?</p>
-                  <p>最后执行：2023-12-16 18:00:00	</p>
-                  <p>最后成功：2023-12-16 18:00:00</p>
-                </Card>
+                <Row gutter={[16, 16]}>
+                  {dataTasks.producerTasks.map(t => (
+                    <Col span={24}>
+                      {this.renderTaskCard(t)}
+                    </Col>
+                  ))}
+                </Row>
                 <Divider />
                 <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(1)}>
                   <Icon type="plus" /> 新增任务
@@ -363,122 +421,13 @@ class DataTask extends PureComponent {
           </Col>
           <Col span={17} style={{ textAlign: 'center' }}>
             <Card title="消费数据">
-
               <div style={{ textAlign: 'left' }}>
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Card
-                      hoverable
-                      className={[styles.card, mdStyle.runningCard]}
-                      actions={[
-                        <Icon type="pause" />,
-                        <Icon type="redo" />,
-                        <Icon type="history" />,
-                        <Icon type="delete" />,
-                      ]}
-                    >
-                      <Card.Meta title={<a>{'人事系统'}</a>} />
-                      <p>{'http://192.168.2.80:8901/mydata-test/test/save_cms_user'.replace(env.envPrefix, '')}</p>
-                      <p>运行周期：0 0/30 * * * ?</p>
-                      <p>最后执行：2023-12-16 18:00:00	</p>
-                      <p>最后成功：2023-12-16 18:00:00</p>
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card
-                      hoverable
-                      className={[styles.card, mdStyle.failedCard]}
-                      actions={[
-                        <Icon type="play-circle" />,
-                        <Icon type="redo" />,
-                        <Icon type="history" />,
-                        <Icon type="delete" />,
-                      ]}
-                    >
-                      <Card.Meta title={<a>{'人事系统'}</a>} />
-                      <p></p>
-                      <p>运行周期：0 0/30 * * * ?</p>
-                      <p>最后执行：2023-12-16 18:00:00	</p>
-                      <p>最后成功：2023-12-16 18:00:00</p>
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card
-                      hoverable
-                      className={[styles.card, mdStyle.stoppedCard]}
-                      actions={[
-                        <Icon type="play-circle" />,
-                        <Icon type="redo" />,
-                        <Icon type="history" />,
-                        <Icon type="delete" />,
-                      ]}
-                    >
-                      <Card.Meta title={<a>{'人事系统'}</a>} />
-                      <p></p>
-                      <p>运行周期：0 0/30 * * * ?</p>
-                      <p>最后执行：2023-12-16 18:00:00	</p>
-                      <p>最后成功：2023-12-16 18:00:00</p>
-                    </Card>
-                  </Col>
-                </Row>
-
-                <Divider />
-
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Card
-                      hoverable
-                      className={[styles.card, mdStyle.runningCard]}
-                      actions={[
-                        <Icon type="pause" />,
-                        <Icon type="redo" />,
-                        <Icon type="history" />,
-                        <Icon type="delete" />,
-                      ]}
-                    >
-                      <Card.Meta title={<a>{'人事系统'}</a>} />
-                      <p></p>
-                      <p>运行周期：0 0/30 * * * ?</p>
-                      <p>最后执行：2023-12-16 18:00:00	</p>
-                      <p>最后成功：2023-12-16 18:00:00</p>
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card
-                      hoverable
-                      className={[styles.card, mdStyle.failedCard]}
-                      actions={[
-                        <Icon type="play-circle" />,
-                        <Icon type="redo" />,
-                        <Icon type="history" />,
-                        <Icon type="delete" />,
-                      ]}
-                    >
-                      <Card.Meta title={<a>{'人事系统'}</a>} />
-                      <p></p>
-                      <p>运行周期：0 0/30 * * * ?</p>
-                      <p>最后执行：2023-12-16 18:00:00	</p>
-                      <p>最后成功：2023-12-16 18:00:00</p>
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card
-                      hoverable
-                      className={[styles.card, mdStyle.stoppedCard]}
-                      actions={[
-                        <Icon type="play-circle" />,
-                        <Icon type="redo" />,
-                        <Icon type="history" />,
-                        <Icon type="delete" />,
-                      ]}
-                    >
-                      <Card.Meta title={<a>{'人事系统'}</a>} />
-                      <p></p>
-                      <p>运行周期：0 0/30 * * * ?</p>
-                      <p>最后执行：2023-12-16 18:00:00	</p>
-                      <p>最后成功：2023-12-16 18:00:00</p>
-                    </Card>
-                  </Col>
+                <Row gutter={[16, 16]}>
+                  {dataTasks.consumerTasks.map(t => (
+                    <Col span={8}>
+                      {this.renderTaskCard(t)}
+                    </Col>
+                  ))}
                 </Row>
                 <Divider />
                 <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(2)}>
@@ -490,13 +439,14 @@ class DataTask extends PureComponent {
           </Col>
         </Row>
 
-        {this.state.taskFormVisible && <DataTaskAdd
+        {this.state.taskFormVisible && <DataTaskForm
           env={env}
           data={data}
           projectId={projectId}
           opType={this.state.opType}
           taskFormVisible={this.state.taskFormVisible}
           closeTaskForm={this.closeTaskForm}
+          currentTask={this.state.currentTask}
         />}
 
         <Modal
@@ -518,7 +468,7 @@ class DataTask extends PureComponent {
             expandedRowRender={record => <div style={{ 'overflow-wrap': 'anywhere' }} dangerouslySetInnerHTML={{ __html: `${record.taskDetail.replaceAll('\n', '</br>')}`, }}></div>}
           />}
         </Modal>
-      </>
+      </Drawer>
     );
   }
 }

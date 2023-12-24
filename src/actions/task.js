@@ -5,10 +5,23 @@ export const TASK_TYPE_PRODUCER = 1;
 export const TASK_TYPE_CONSUMER = 2;
 /** 订阅数据变更 */
 export const TASK_SUBSCRIBED = 1;
+/** 运行状态 */
+export const TASK_STATUS_RUNNING = 1;
+/** 失败状态 */
+export const TASK_STATUS_FAILED = 2;
+/** 停止状态 */
+export const TASK_STATUS_STOPPED = 3;
 
 export function TASK_LIST(payload) {
   return {
     type: `${TASK_NAMESPACE}/fetchList`,
+    payload,
+  };
+}
+
+export function DATA_TASKS(payload) {
+  return {
+    type: `${TASK_NAMESPACE}/fetchDataTasks`,
     payload,
   };
 }
@@ -45,6 +58,13 @@ export function TASK_INIT() {
   return {
     type: `${TASK_NAMESPACE}/fetchInit`,
     payload: {},
+  };
+}
+
+export function TASK_INIT_API(payload) {
+  return {
+    type: `${TASK_NAMESPACE}/fetchInitApi`,
+    payload,
   };
 }
 

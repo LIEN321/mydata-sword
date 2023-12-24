@@ -1,14 +1,15 @@
 import React, { PureComponent } from 'react';
-import { Form, Input, Card, Button, Select, Radio, Modal, message } from 'antd';
+import { Form, Input, Card, Button, Select, Radio, Modal, message, notification } from 'antd';
 import { connect } from 'dva';
 import Panel from '../../../../components/Panel';
 import styles from '../../../../layouts/Sword.less';
-import { TASK_SUBMIT, TASK_INIT, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER } from '../../../../actions/task';
-import { submit as submitTask } from '../../../../services/task';
+import { TASK_SUBMIT, TASK_INIT_API, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER, TASK_DETAIL } from '../../../../actions/task';
+import { submit as submitTask, detail as taskDetail } from '../../../../services/task';
 import TaskFieldMappingTable from '../../Task/TaskFieldMappingTable';
 import { dataFields } from '../../../../services/data';
 import TaskDataFilterTable from '../../Task/TaskDataFilterTable';
 import TaskVarMappingTable from '../../Task/TaskVarMappingTable';
+import form from '@/locales/en-US/form';
 
 const FormItem = Form.Item;
 
@@ -17,10 +18,11 @@ const FormItem = Form.Item;
   submitting: loading.effects['task/submit'],
 }))
 @Form.create()
-class DataTaskAdd extends PureComponent {
+class DataTaskForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      detail: null,
       apiUrl: '',
       opType: null,
 
@@ -41,9 +43,29 @@ class DataTaskAdd extends PureComponent {
   }
 
   componentWillMount() {
-    const { dispatch, opType, data } = this.props;
-    dispatch(TASK_INIT());
+    const { dispatch, opType, data, currentTask } = this.props;
+    dispatch(TASK_INIT_API({ opType }));
     this.loadDataFieldList(data.id);
+
+    if (currentTask && currentTask.id) {
+      taskDetail({ id: currentTask.id }).then(resp => {
+        if (resp.success) {
+          const detail = resp.data;
+          this.setState({ detail });
+          this.setState({ apiUrl: detail.apiUrl });
+          this.setState({
+            fieldMappings: detail.fieldMapping,
+            isShowSubscribed: detail.opType != TASK_TYPE_PRODUCER,
+            isShowTaskPeriod: detail.isSubscribed != TASK_SUBSCRIBED,
+            initStatus: true,
+            filters: detail.dataFilter,
+            varMappings: detail.fieldVarMapping,
+          });
+          this.renderWarning(detail);
+        }
+      });
+      // dispatch(TASK_DETAIL(currentTask.id));
+    }
 
     if (opType == TASK_TYPE_PRODUCER) {
       // 提供数据
@@ -58,6 +80,7 @@ class DataTaskAdd extends PureComponent {
     const {
       task: {
         init: { envList, apiList },
+        // detail,
       },
     } = nextProps;
 
@@ -65,6 +88,25 @@ class DataTaskAdd extends PureComponent {
       envList: envList,
       apiList: apiList,
     });
+
+    const { initStatus, apiUrl, detail } = this.state;
+
+    // if (!apiUrl && detail) {
+    //   this.setState({ apiUrl: detail.apiUrl });
+    // }
+
+    if (!initStatus && detail && detail.id) {
+      // this.setState({
+      //   fieldMappings: detail.fieldMapping,
+      //   isShowSubscribed: detail.opType != TASK_TYPE_PRODUCER,
+      //   isShowTaskPeriod: detail.isSubscribed != TASK_SUBSCRIBED,
+      //   initStatus: true,
+      //   filters: detail.dataFilter,
+      //   varMappings: detail.fieldVarMapping,
+      // });
+
+      // this.renderWarning(detail);
+    }
   }
 
   findEnv(envId) {
@@ -142,13 +184,16 @@ class DataTaskAdd extends PureComponent {
 
   handleSubmit = e => {
     e.preventDefault();
-    const { dispatch, form, env, data, projectId, closeTaskForm } = this.props;
+    const { dispatch, form, env, data, projectId, closeTaskForm, currentTask } = this.props;
 
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         const params = {
           ...values,
         };
+        if (currentTask) {
+          params.id = currentTask.id;
+        }
         params.fieldMapping = this.state.fieldMappings;
         params.dataFilter = this.state.filters;
         params.fieldVarMapping = this.state.varMappings;
@@ -159,11 +204,11 @@ class DataTaskAdd extends PureComponent {
         submitTask(params).then(resp => {
           if (resp.success) {
             message.success(resp.msg);
+            form.resetFields();
+            closeTaskForm();
           } else {
             message.error(resp.msg || '提交失败');
           }
-          form.resetFields();
-          closeTaskForm();
         });
       }
     });
@@ -222,12 +267,30 @@ class DataTaskAdd extends PureComponent {
     this.setState({ varMappings: varMappings.filter(item => item.key !== key) });
   };
 
+  handleClose = () => {
+    const { form, closeTaskForm } = this.props;
+    form.resetFields();
+    closeTaskForm();
+  }
+
+  renderWarning = task => {
+    if (task.taskStatus == 1) {
+      notification['warning']({
+        message: '请注意',
+        description:
+          '任务运行中，请在提交修改后手动重启！',
+        duration: 10,
+      });
+    }
+  }
+
   render() {
     const {
       form: { getFieldDecorator },
       submitting,
       task: {
-        init: { envList, apiList, dataList },
+        init: { apiList },
+        //   detail,
       },
       env,
       data,
@@ -235,7 +298,10 @@ class DataTaskAdd extends PureComponent {
       opType,
     } = this.props;
 
-    const { apiUrl } = this.state;
+    console.info("DataTaskForm detail = ");
+    console.info(detail);
+
+    const { apiUrl, detail } = this.state;
 
     const formItemLayout = {
       labelCol: {
@@ -258,11 +324,11 @@ class DataTaskAdd extends PureComponent {
     return (
 
       <Modal
-        title="新增任务"
+        title={`定时任务`}
         width="80%"
         visible={this.props.taskFormVisible}
         onOk={this.handleSubmit}
-        onCancel={this.props.closeTaskForm}
+        onCancel={this.handleClose}
       >
         <Form hideRequiredMark style={{ marginTop: 8 }}>
           <Card className={styles.card} bordered={false}>
@@ -274,6 +340,7 @@ class DataTaskAdd extends PureComponent {
                     message: '请输入任务名称',
                   },
                 ],
+                initialValue: detail ? detail.taskName : '',
               })(<Input placeholder="请输入任务名称" />)}
             </FormItem>
             {/* <FormItem {...formItemLayout} label="所属环境">
@@ -302,6 +369,7 @@ class DataTaskAdd extends PureComponent {
                     message: '请选择API',
                   },
                 ],
+                initialValue: detail ? detail.apiId : '',
               })(
                 <Select allowClear placeholder="请选择API" onChange={this.handleChangeApi}>
                   {apiList.map(a => (
@@ -337,7 +405,7 @@ class DataTaskAdd extends PureComponent {
               )}
             </FormItem> */}
 
-            {this.state.isShowSubscribed && (<FormItem {...formItemLayout} label="订阅数据" extra="订阅模式：区别于定时模式，只当有数据发生变化时才推送消费；">
+            {this.state.isShowSubscribed && (<FormItem {...formItemLayout} label="订阅数据" extra="订阅模式：区别于定时模式，只当有提供新数据后才推送数据；">
               {getFieldDecorator('isSubscribed', {
                 rules: [
                   {
@@ -345,7 +413,7 @@ class DataTaskAdd extends PureComponent {
                     message: '请选择是否为订阅任务',
                   },
                 ],
-                initialValue: 1,
+                initialValue: detail ? detail.isSubscribed : 1,
               })(
                 // <Input placeholder="请输入是否为订阅任务：0-不订阅，1-订阅" />
                 <Radio.Group buttonStyle="solid" onChange={this.handleChangeSubscribed}>
@@ -363,6 +431,7 @@ class DataTaskAdd extends PureComponent {
                     message: '请输入任务周期',
                   },
                 ],
+                initialValue: detail ? detail.taskPeriod : '',
               })(
                 // <Input placeholder="请输入任务周期" />
                 <Radio.Group buttonStyle="solid">
@@ -387,12 +456,14 @@ class DataTaskAdd extends PureComponent {
                     message: '请输入字段层级前缀',
                   },
                 ],
+                initialValue: detail ? detail.apiFieldPrefix : '',
               })(<Input placeholder="请输入JSON字段层级前缀" />)}
             </FormItem>
             <FormItem {...formItemLayout} label="字段映射">
               <TaskFieldMappingTable
                 dataFieldList={this.state.dataFieldList}
                 handleSave={this.handleSaveMapping}
+                initFieldMappings={detail ? detail.fieldMapping : {}}
               />
             </FormItem>
             <FormItem {...formItemLayout} label="数据过滤条件">
@@ -416,4 +487,4 @@ class DataTaskAdd extends PureComponent {
   }
 }
 
-export default DataTaskAdd;
+export default DataTaskForm;
