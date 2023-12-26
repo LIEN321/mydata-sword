@@ -8,7 +8,7 @@ import { bizFieldList, detail as dataDetail, submit as submitData, remove as rem
 import styles from '../../../../layouts/Sword.less';
 import EditableTable from '../../Data/EditableTable';
 import func from '@/utils/Func';
-import mdStyle from '../../../../layouts/mydata.less'
+import mdStyle from '../../../../layouts/Mydata.less'
 import DataTask from './DataTask';
 import { router } from 'umi';
 

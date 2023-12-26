@@ -6,7 +6,7 @@ import { TASK_LIST, TASK_LOG_LIST, DATA_TASKS, TASK_STATUS_RUNNING } from '../..
 import Grid from '../../../../components/Sword/Grid';
 import { executeTask, startTask, stopTask, remove } from '../../../../services/task';
 import styles from './style.less';
-import mdStyle from '../../../../layouts/mydata.less'
+import mdStyle from '../../../../layouts/Mydata.less'
 import DataTaskForm from './DataTaskForm';
 
 const FormItem = Form.Item;
