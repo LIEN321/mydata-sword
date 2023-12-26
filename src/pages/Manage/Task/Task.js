@@ -157,12 +157,20 @@ class Task extends PureComponent {
 
     const columns = [
       {
-        title: '任务名称',
-        dataIndex: 'taskName',
+        title: '所属项目',
+        dataIndex: 'projectName',
       },
       {
         title: '环境',
         dataIndex: 'envName',
+      },
+      {
+        title: '数据项',
+        dataIndex: 'dataName',
+      },
+      {
+        title: '任务名称',
+        dataIndex: 'taskName',
       },
       {
         title: '调用API',
@@ -175,7 +183,7 @@ class Task extends PureComponent {
       {
         title: '任务类型',
         dataIndex: 'opType',
-        width: 120,
+        width: 80,
         render: opType => {
           return opType == 1 ? "提供数据" : "消费数据";
         },
@@ -185,13 +193,9 @@ class Task extends PureComponent {
       //   dataIndex: 'apiMethod',
       // },
       {
-        title: '数据项',
-        dataIndex: 'dataName',
-      },
-      {
         title: '任务周期',
         // dataIndex: 'taskPeriod',
-        width: 120,
+        width: 100,
         render: (text, record, index) => {
           let taskPeriodText = record.isSubscribed == 1 ? '订阅更新' : record.taskPeriod;
           return taskPeriodText;
@@ -305,7 +309,7 @@ class Task extends PureComponent {
           data={data}
           columns={columns}
           renderActionButton={this.renderActionButton}
-          actionColumnWidth={280}
+          actionColumnWidth={170}
         />
         <Modal
           title="查看日志"
