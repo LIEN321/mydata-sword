@@ -22,7 +22,7 @@ class Workplace extends PureComponent {
 
   render() {
     const {
-      workplace : { stat },
+      workplace: { stat },
     } = this.props;
 
     return (
@@ -34,8 +34,16 @@ class Workplace extends PureComponent {
             </Col>
           </Row>
           <Row gutter={24}>
-            <Col span={6}>
-
+            <Col span={4}>
+              <Card title="项目" bordered={false} extra={<Link to={'/manage/project'}>更多</Link>}>
+                <Row gutter={24}>
+                  <Col span={24}>
+                    <Statistic title="项目数量" value={stat.projectCount}></Statistic>
+                  </Col>
+                </Row>
+              </Card>
+            </Col>
+            <Col span={4}>
               <Card title="数据" bordered={false} extra={<Link to={'/manage/data'}>更多</Link>}>
                 <Row gutter={24}>
                   <Col span={12}>
@@ -71,7 +79,7 @@ class Workplace extends PureComponent {
                 </Row>
               </Card>
             </Col>
-            <Col span={8}>
+            <Col span={6}>
               <Card title="任务" bordered={false} extra={<Link to={'/manage/task'}>更多</Link>}>
                 <Col span={6}>
                   <Statistic title="任务" value={stat.taskCount}></Statistic>

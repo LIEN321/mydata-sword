@@ -74,18 +74,7 @@ class ProjectEdit extends PureComponent {
       <Panel title="修改" back="/manage/project" action={action}>
         <Form hideRequiredMark style={{ marginTop: 8 }}>
           <Card className={styles.card} bordered={false}>
-            <FormItem {...formItemLayout} label="项目名称">
-              {getFieldDecorator('projectName', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入项目名称',
-                  },
-                ],
-                initialValue: detail.projectName,
-              })(<Input placeholder="请输入项目名称" />)}
-            </FormItem>
-            <FormItem {...formItemLayout} label="项目编号">
+            <FormItem {...formItemLayout} label="编号">
               {getFieldDecorator('projectCode', {
                 rules: [
                   {
@@ -96,11 +85,22 @@ class ProjectEdit extends PureComponent {
                 initialValue: detail.projectCode,
               })(<Input placeholder="请输入项目编号" />)}
             </FormItem>
-            <FormItem {...formItemLayout} label="项目描述">
-              {getFieldDecorator('projectDesc', {
+            <FormItem {...formItemLayout} label="名称">
+              {getFieldDecorator('projectName', {
                 rules: [
                   {
                     required: true,
+                    message: '请输入项目名称',
+                  },
+                ],
+                initialValue: detail.projectName,
+              })(<Input placeholder="请输入项目名称" />)}
+            </FormItem>
+            <FormItem {...formItemLayout} label="描述">
+              {getFieldDecorator('projectDesc', {
+                rules: [
+                  {
+                    required: false,
                     message: '请输入项目描述',
                   },
                 ],

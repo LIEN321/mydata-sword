@@ -84,12 +84,12 @@ class Project extends PureComponent {
 
     const columns = [
       {
-        title: '项目名称',
-        dataIndex: 'projectName',
-      },
-      {
         title: '项目编号',
         dataIndex: 'projectCode',
+      },
+      {
+        title: '项目名称',
+        dataIndex: 'projectName',
       },
       {
         title: '项目描述',

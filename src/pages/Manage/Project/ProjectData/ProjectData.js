@@ -344,6 +344,7 @@ class ProjectData extends PureComponent {
       {
         title: '数据量',
         dataIndex: 'dataCount',
+        width: 100,
         render: (text, record, index) => {
           const { id, dataCount } = record;
           return <>{dataCount ? <a onClick={() => { this.showBizData(record) }}>{text}</a> : '-'}</>
@@ -353,6 +354,7 @@ class ProjectData extends PureComponent {
       {
         title: '来源应用',
         dataIndex: 'provideAppCount',
+        width: 100,
         render: (text, record, index) => {
           const { provideAppCount } = record;
           return <>{provideAppCount ? provideAppCount : '-'}</>
@@ -361,6 +363,7 @@ class ProjectData extends PureComponent {
       {
         title: '消费应用',
         dataIndex: 'consumeAppCount',
+        width: 100,
         render: (text, record, index) => {
           const { consumeAppCount } = record;
           return <>{consumeAppCount ? consumeAppCount : '-'}</>
@@ -368,15 +371,16 @@ class ProjectData extends PureComponent {
       },
       {
         title: '同步任务',
+        width: 150,
         render: (text, record, index) => {
           const { runningTaskCount, stoppedTaskCount, failedTaskCount } = record;
-          return <>
+          return <div style={{ textAlign: 'center' }}>
             <Icon type="play-circle" className={mdStyle.taskRunning} /> {runningTaskCount ? runningTaskCount : '-'}
             <Divider type='vertical' />
             <Icon type="close-circle" className={mdStyle.taskFailed} /> {failedTaskCount ? failedTaskCount : '-'}
             <Divider type='vertical' />
             <Icon type="stop" className={mdStyle.taskStopped} /> {stoppedTaskCount ? stoppedTaskCount : '-'}
-          </>
+          </div>
         },
       },
       {
