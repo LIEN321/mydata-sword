@@ -173,6 +173,17 @@ class EnvEdit extends PureComponent {
                 initialValue: detail.envPrefix,
               })(<Input placeholder="请输入前置路径" />)}
             </FormItem>
+            <FormItem {...formItemLayout} label="顺序">
+              {getFieldDecorator('sort', {
+                rules: [
+                  {
+                    required: false,
+                    message: '请输入顺序',
+                  },
+                ],
+                initialValue: detail.sort,
+              })(<Input placeholder="请输入顺序" />)}
+            </FormItem>
             <FormItem {...formItemLayout} label="全局Headers">
               {getFieldDecorator('globalHeaders', {
                 rules: [

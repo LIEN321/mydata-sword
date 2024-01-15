@@ -69,6 +69,9 @@ class EnvView extends PureComponent {
             <FormItem {...formItemLayout} label="前置路径">
               <span>{detail.envPrefix}</span>
             </FormItem>
+            <FormItem {...formItemLayout} label="顺序">
+              <span>{detail.sort}</span>
+            </FormItem>
             <FormItem {...formItemLayout} label="全局Headers">
               <EnvEditableTable
                 tableValues={detail.globalHeaders}

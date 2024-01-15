@@ -148,6 +148,10 @@ class Env extends PureComponent {
           </>
         },
       },
+      {
+        title: '顺序',
+        dataIndex: 'sort',
+      },
     ];
 
     return (
