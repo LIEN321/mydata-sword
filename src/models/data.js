@@ -2,7 +2,7 @@ import { message } from 'antd';
 import router from 'umi/router';
 import { DATA_NAMESPACE } from '../actions/data';
 import { list, projectDataList, submit, detail, remove, bizFieldList, bizDataList } from '../services/data';
-import { select as envSelect } from '../services/env';
+import { projectEnv } from '../services/env';
 
 export default {
   namespace: DATA_NAMESPACE,
@@ -23,7 +23,7 @@ export default {
   },
   effects: {
     *fetchInit({ payload }, { call, put }) {
-      const responseEnv = yield call(envSelect, payload);
+      const responseEnv = yield call(projectEnv, payload);
       if (responseEnv.success) {
         yield put({
           type: 'saveInit',

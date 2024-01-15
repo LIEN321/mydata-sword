@@ -48,8 +48,8 @@ class ProjectData extends PureComponent {
   }
 
   componentWillMount() {
-    const { dispatch } = this.props;
-    dispatch(DATA_INIT());
+    const { dispatch, projectId, } = this.props;
+    dispatch(DATA_INIT({projectId}));
   }
 
   // ============ 查询 ===============
@@ -82,7 +82,10 @@ class ProjectData extends PureComponent {
           <Select allowClear placeholder="请选择所属环境" onChange={this.handleChangeEnv} style={{ width: 200 }}>
             {envList.map(e => (
               <Select.Option key={e.id} value={e.id}>
-                {e.envName}
+                <Row>
+                  <Col span={16}>{e.envName}</Col>
+                  <Col span={4} offset={4}>{e.taskCount}</Col>
+                </Row>
               </Select.Option>
             ))}
           </Select>

@@ -28,6 +28,10 @@ export async function select(params) {
   return request(`/api/mydata-manage/env/select?${stringify(params)}`);
 }
 
+export async function projectEnv(params) {
+  return request(`/api/mydata-manage/env/project_env?${stringify(params)}`);
+}
+
 export async function syncTask(params) {
   return request(`/api/mydata-manage/env/syncTask?${stringify(params)}`, {
     method: 'PUT'

@@ -57,9 +57,9 @@ export function BIZ_DATA_LIST(payload) {
   };
 }
 
-export function DATA_INIT() {
+export function DATA_INIT(payload) {
   return {
     type: `${DATA_NAMESPACE}/fetchInit`,
-    payload: {},
+    payload,
   };
 }
