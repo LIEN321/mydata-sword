@@ -82,7 +82,7 @@ class ProjectData extends PureComponent {
           <Select allowClear placeholder="请选择所属环境" onChange={this.handleChangeEnv} style={{ width: 200 }}>
             {envList.map(e => (
               <Select.Option key={e.id} value={e.id}>
-                <Row>
+                <Row style={{width:'160px'}}>
                   <Col span={16}>{e.envName}</Col>
                   <Col span={4} offset={4}>{e.taskCount}</Col>
                 </Row>
