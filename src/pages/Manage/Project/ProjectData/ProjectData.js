@@ -469,6 +469,7 @@ class ProjectData extends PureComponent {
           loading={loading}
           data={data}
           columns={columns}
+          enableRowSelection={false}
         />
         {/* 数据项表单 弹出框 */}
         <Modal
