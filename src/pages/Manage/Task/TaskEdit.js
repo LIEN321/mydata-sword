@@ -194,6 +194,7 @@ class TaskEdit extends PureComponent {
       match: {
         params: { id },
       },
+      task: { detail },
       form,
     } = this.props;
     form.validateFieldsAndScroll((err, values) => {
@@ -205,6 +206,7 @@ class TaskEdit extends PureComponent {
         params.fieldMapping = this.state.fieldMappings;
         params.dataFilter = this.state.filters;
         params.fieldVarMapping = this.state.varMappings;
+        params.projectId = detail.projectId;
         dispatch(TASK_SUBMIT(params));
       }
     });
