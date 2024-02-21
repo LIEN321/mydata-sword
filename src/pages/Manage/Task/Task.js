@@ -232,7 +232,7 @@ class Task extends PureComponent {
             color = 'red';
             status = '异　常';
           } else {
-            color = 'black';
+            color = '';
             status = '--';
           }
           return <>
