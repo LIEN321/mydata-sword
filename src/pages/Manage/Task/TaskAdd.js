@@ -357,7 +357,7 @@ class TaskAdd extends PureComponent {
                 </Radio.Group>
               )}
             </FormItem>)}
-            <FormItem {...formItemLayout} label="JSON字段层级前缀">
+            {/* <FormItem {...formItemLayout} label="JSON字段层级前缀">
               {getFieldDecorator('apiFieldPrefix', {
                 rules: [
                   {
@@ -366,7 +366,7 @@ class TaskAdd extends PureComponent {
                   },
                 ],
               })(<Input placeholder="请输入JSON字段层级前缀" />)}
-            </FormItem>
+            </FormItem> */}
             <FormItem {...formItemLayout} label="字段映射">
               <TaskFieldMappingTable
                 dataFieldList={this.state.dataFieldList}

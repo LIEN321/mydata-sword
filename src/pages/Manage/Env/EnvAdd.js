@@ -156,6 +156,16 @@ class EnvAdd extends PureComponent {
                 ],
               })(<Input placeholder="请输入前置路径" />)}
             </FormItem>
+            <FormItem {...formItemLayout} label="顺序">
+              {getFieldDecorator('sort', {
+                rules: [
+                  {
+                    required: false,
+                    message: '请输入顺序',
+                  },
+                ],
+              })(<Input placeholder="请输入顺序" />)}
+            </FormItem>
             <FormItem {...formItemLayout} label="全局Headers">
               {getFieldDecorator('globalHeaders', {
                 rules: [

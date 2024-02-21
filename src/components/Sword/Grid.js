@@ -203,6 +203,7 @@ export default class Grid extends PureComponent {
       renderLeftButton,
       renderRightButton,
       renderActionButton,
+      enableRowSelection,
     } = this.props;
     let { columns } = this.props;
 
@@ -265,6 +266,7 @@ export default class Grid extends PureComponent {
             tblProps={tblProps}
             size="middle"
             bordered
+            enableRowSelection={enableRowSelection}
           />
         </div>
       </Card>

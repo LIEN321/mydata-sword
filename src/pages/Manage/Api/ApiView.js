@@ -78,6 +78,9 @@ class ApiView extends PureComponent {
             <FormItem {...formItemLayout} label="数据类型">
               <span>{detail.dataType}</span>
             </FormItem>
+            <FormItem {...formItemLayout} label="JSON字段层级前缀">
+              <span>{detail.fieldPrefix}</span>
+            </FormItem>
             <FormItem {...formItemLayout} label="Headers">
               <ApiEditableTable
                 tableValues={detail.reqHeaders}

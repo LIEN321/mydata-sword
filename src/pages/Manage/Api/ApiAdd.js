@@ -241,6 +241,16 @@ class ApiAdd extends PureComponent {
                 </Radio.Group>
               )}
             </FormItem>
+            <FormItem {...formItemLayout} label="JSON字段层级前缀">
+              {getFieldDecorator('fieldPrefix', {
+                rules: [
+                  {
+                    required: false,
+                    message: '请输入字段层级前缀',
+                  },
+                ],
+              })(<Input placeholder="请输入JSON字段层级前缀" />)}
+            </FormItem>
             <FormItem {...formItemLayout} label="Headers">
               {getFieldDecorator('reqHeaders', {
                 rules: [
