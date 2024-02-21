@@ -1,12 +1,13 @@
 import React, { PureComponent } from 'react';
-import { Card, Col, Collapse, Row, Divider, Tag, Statistic } from 'antd';
+import { Card, Col, Collapse, Row, Divider, Tag, Statistic, List } from 'antd';
 import styles from '../../../layouts/Sword.less';
-
 import PageHeaderWrapper from '../../../components/PageHeaderWrapper';
 import ThirdRegister from '../../../components/ThirdRegister';
 import { Link } from 'umi';
 import { connect } from 'dva';
-import { WORKPLACE_STAT } from '@/actions/workplace';
+import { WORKPLACE_STAT, WORKPLACE_TASK } from '@/actions/workplace';
+import Item from 'antd/lib/list/Item';
+import mdStyle from '../../../layouts/Mydata.less'
 
 const { Panel } = Collapse;
 
@@ -18,21 +19,20 @@ class Workplace extends PureComponent {
   componentWillMount() {
     const { dispatch } = this.props;
     dispatch(WORKPLACE_STAT());
+    dispatch(WORKPLACE_TASK());
   }
 
   render() {
     const {
-      workplace: { stat },
+      workplace: { stat, task },
     } = this.props;
+
+    console.info(task);
 
     return (
       <PageHeaderWrapper>
         <Card className={styles.card} bordered={false}>
-          <Row gutter={24}>
-            <Col span={24}>
-              <ThirdRegister />
-            </Col>
-          </Row>
+          {/* mydata概要统计 */}
           <Row gutter={24}>
             <Col span={4}>
               <Card title="项目" bordered={false} extra={<Link to={'/manage/project'}>更多</Link>}>
@@ -93,6 +93,56 @@ class Workplace extends PureComponent {
                 <Col span={6}>
                   <Statistic title="停止" value={stat.stoppedCount}></Statistic>
                 </Col>
+              </Card>
+            </Col>
+          </Row>
+        </Card>
+
+        <Card className={styles.card} bordered={false}>
+          {/* mydata 任务列表 */}
+          <Row gutter={24}>
+            <Col span={8}>
+              <Card title="最近成功任务">
+                <List
+                  size='small'
+                  dataSource={task.successTasks}
+                  renderItem={item => (
+                    <List.Item>
+                      <List.Item.Meta
+                        title={
+                          <Row>
+                            <Col span={12}>{item.taskName}</Col>
+                            <Col span={12} style={{textAlign:'right'}} className={mdStyle.taskRunning}>{item.lastSuccessTime}</Col>
+                          </Row>
+                        }
+                        description={`项目：${item.projectName} | 环境：${item.envName}`}
+                      />
+
+                    </List.Item>
+                  )}
+                />
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card title="最近失败任务">
+                <List
+                  size='small'
+                  dataSource={task.failedTasks}
+                  renderItem={item => (
+                    <List.Item>
+                      <List.Item.Meta
+                        title={
+                          <Row>
+                            <Col span={12}>{item.taskName}</Col>
+                            <Col span={12} style={{textAlign:'right'}} className={mdStyle.taskFailed}>{item.lastRunTime}</Col>
+                          </Row>
+                        }
+                        description={`项目：${item.projectName} | 环境：${item.envName}`}
+                      />
+
+                    </List.Item>
+                  )}
+                />
               </Card>
             </Col>
           </Row>

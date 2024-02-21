@@ -6,3 +6,10 @@ export function WORKPLACE_STAT(payload) {
     payload,
   };
 }
+
+export function WORKPLACE_TASK(payload) {
+  return {
+    type: `${WORKPLACE_NAMESPACE}/fetchTask`,
+    payload,
+  };
+}
