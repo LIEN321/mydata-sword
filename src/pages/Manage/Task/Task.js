@@ -172,22 +172,22 @@ class Task extends PureComponent {
         title: '任务名称',
         dataIndex: 'taskName',
       },
-      {
-        title: '调用API',
-        dataIndex: 'apiName',
-      },
+      // {
+      //   title: '调用API',
+      //   dataIndex: 'apiName',
+      // },
       // {
       //   title: '接口完整地址',
       //   dataIndex: 'apiUrl',
       // },
-      {
-        title: '任务类型',
-        dataIndex: 'opType',
-        width: 80,
-        render: opType => {
-          return opType == 1 ? "提供数据" : "消费数据";
-        },
-      },
+      // {
+      //   title: '任务类型',
+      //   dataIndex: 'opType',
+      //   width: 80,
+      //   render: opType => {
+      //     return opType == 1 ? "提供数据" : "消费数据";
+      //   },
+      // },
       // {
       //   title: '接口请求类型',
       //   dataIndex: 'apiMethod',
@@ -309,7 +309,7 @@ class Task extends PureComponent {
           data={data}
           columns={columns}
           renderActionButton={this.renderActionButton}
-          actionColumnWidth={170}
+          actionColumnWidth={260}
         />
         <Modal
           title="查看日志"
