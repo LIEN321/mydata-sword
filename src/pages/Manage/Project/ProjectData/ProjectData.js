@@ -11,6 +11,7 @@ import func from '@/utils/Func';
 import mdStyle from '../../../../layouts/Mydata.less'
 import DataTask from './DataTask';
 import { router } from 'umi';
+import EnvVar from '../../EnvVar/EnvVar';
 
 const FormItem = Form.Item;
 
@@ -44,12 +45,15 @@ class ProjectData extends PureComponent {
 
       // 数据同步任务可见性
       dataTaskVisible: false,
+
+      // 环境变量drawer开关
+      envDrawerVisible: false,
     };
   }
 
   componentWillMount() {
     const { dispatch, projectId, } = this.props;
-    dispatch(DATA_INIT({projectId}));
+    dispatch(DATA_INIT({ projectId }));
   }
 
   // ============ 查询 ===============
@@ -74,25 +78,33 @@ class ProjectData extends PureComponent {
       data: { init: { envList } },
     } = this.props;
     const { getFieldDecorator } = form;
+    const { currentEnv } = this.state;
 
     return (
       <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
         <Col md={12} sm={24}>
-          <span style={{ fontWeight: 'bold' }}>选择环境查看集成情况：</span>
+          <span style={{ color: 'red' }}>*</span><span style={{ fontWeight: 'bold' }}>选择环境：</span>
           <Select allowClear placeholder="请选择所属环境" onChange={this.handleChangeEnv} style={{ width: 200 }}>
             {envList.map(e => (
               <Select.Option key={e.id} value={e.id}>
-                <Row style={{width:'160px'}}>
+                <Row style={{ width: '168px' }}>
                   <Col span={16}>{e.envName}</Col>
                   <Col span={4} offset={4}>{e.taskCount}</Col>
                 </Row>
               </Select.Option>
             ))}
           </Select>
+
           <Divider type='vertical' />
-          <Button icon="plus" type="primary" onClick={() => this.handleAddEnv()}>
+          <Button icon="plus" type="primary" onClick={() => this.handleAddEnv()} style={{ marginRight: '12px' }}>
             环境
           </Button>
+          {
+            currentEnv ?
+              <Button onClick={() => this.handleManageVars()}>变量管理</Button>
+              :
+              <Button disabled>变量管理</Button>
+          }
         </Col>
         <Col md={4} sm={24}>
           <FormItem label="编号">
@@ -269,6 +281,16 @@ class ProjectData extends PureComponent {
     const env = newEnvList[index];
     return env;
   }
+
+  handleManageVars = () => {
+    this.setState({
+      envDrawerVisible: true,
+    });
+  }
+
+  onCloseDrawer = () => {
+    this.setState({ envDrawerVisible: false });
+  };
   // ------------------------------------------------------------
 
   // 打开任务管理
@@ -332,7 +354,7 @@ class ProjectData extends PureComponent {
     } = this.props;
     const { getFieldDecorator } = form;
 
-    const { currentData, detail, dataFields, currentEnv, dataTaskVisible } = this.state;
+    const { currentData, detail, dataFields, currentEnv, dataTaskVisible, envDrawerVisible } = this.state;
     const { projectId, projectName } = this.props;
 
     const columns = [
@@ -544,6 +566,17 @@ class ProjectData extends PureComponent {
           handleRefresh={handleRefresh => (this.handleRefresh = handleRefresh)}
         />
         }
+
+        {/* 环境变量 */}
+        {currentEnv && <Drawer
+          title={`[${currentEnv.envName}] 变量管理`}
+          visible={envDrawerVisible}
+          width={1000}
+          //closable={false}
+          onClose={this.onCloseDrawer}
+        >
+          {envDrawerVisible && <EnvVar envId={currentEnv.id} />}
+        </Drawer>}
       </div>
     );
   }
