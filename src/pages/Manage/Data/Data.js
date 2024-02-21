@@ -95,14 +95,14 @@ class Data extends PureComponent {
         title: '数据名称',
         dataIndex: 'dataName',
       },
-      {
-        title: '数据量',
-        dataIndex: 'dataCount',
-        render: (text, record, index) => {
-          const { id } = record;
-          return <a onClick={() => { this.showBizData(record) }}>{text}</a>
-        },
-      },
+      // {
+      //   title: '数据量',
+      //   dataIndex: 'dataCount',
+      //   render: (text, record, index) => {
+      //     const { id } = record;
+      //     return <a onClick={() => { this.showBizData(record) }}>{text}</a>
+      //   },
+      // },
     ];
 
     let bizDataColumns = [];
