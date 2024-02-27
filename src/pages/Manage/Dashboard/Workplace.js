@@ -49,9 +49,9 @@ class Workplace extends PureComponent {
                   <Col span={12}>
                     <Statistic title="数据项" value={stat.dataCount}></Statistic>
                   </Col>
-                  <Col span={12}>
+                  {/* <Col span={12}>
                     <Statistic title="业务数据" value={stat.bizDataCount}></Statistic>
-                  </Col>
+                  </Col> */}
                 </Row>
               </Card>
             </Col>
