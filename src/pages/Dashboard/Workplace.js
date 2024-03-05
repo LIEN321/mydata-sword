@@ -20,23 +20,23 @@ class Workplace extends PureComponent {
           <Row gutter={24}>
             <Col span={24}>
               <div style={{ textAlign: 'center' }}>
-                <img src="https://img.shields.io/badge/Release-V3.4.1-green.svg" alt="Downloads" />
+                <img src="https://img.shields.io/badge/Release-V3.7.1-green.svg" alt="Downloads" />
                 <img src="https://img.shields.io/badge/JDK-1.8+-green.svg" alt="Build Status" />
                 <img
                   src="https://img.shields.io/badge/Spring%20Cloud-2021-blue.svg"
                   alt="Coverage Status"
                 />
                 <img
-                  src="https://img.shields.io/badge/Spring%20Boot-2.7.1.RELEASE-blue.svg"
+                  src="https://img.shields.io/badge/Spring%20Boot-2.7.18-blue.svg"
                   alt="Downloads"
                 />
-                <a href="https://bladex.vip">
+                <a href="https://bladex.cn">
                   <img
                     src="https://img.shields.io/badge/Sword%20Author-Small%20Chill-ff69b4.svg"
                     alt="Downloads"
                   />
                 </a>
-                <a href="https://bladex.vip">
+                <a href="https://bladex.cn">
                   <img
                     src="https://img.shields.io/badge/Copyright%20-@BladeX-%23ff3f59.svg"
                     alt="Downloads"
@@ -64,7 +64,7 @@ class Workplace extends PureComponent {
                   <div>4.追求企业开发更加高效，部署更加方便，生产更加稳定</div>
                   <div>5.GVP-码云最有价值开源项目</div>
                   <div>
-                    6.BladeX授权地址:<a href="https://bladex.vip/#/vip">点击授权</a>
+                    6.BladeX授权地址:<a href="https://bladex.cn/#/vip">点击授权</a>
                   </div>
                 </Panel>
                 <Panel header="为何需要BladeX" key="3">
@@ -171,20 +171,20 @@ class Workplace extends PureComponent {
                 <Divider style={{ margin: '12px 0' }} />
                 <span>官网地址</span>
                 <Divider type="vertical" />
-                <a href="https://bladex.vip" target="_blank">
-                  https://bladex.vip
+                <a href="https://bladex.cn" target="_blank">
+                  https://bladex.cn
                 </a>
                 <Divider style={{ margin: '12px 0' }} />
                 <span>社区地址</span>
                 <Divider type="vertical" />
-                <a href="https://sns.bladex.vip" target="_blank">
-                  https://sns.bladex.vip
+                <a href="https://sns.bladex.cn" target="_blank">
+                  https://sns.bladex.cn
                 </a>
                 <Divider style={{ margin: '12px 0' }} />
                 <span>获取文档</span>
                 <Divider type="vertical" />
                 <Tag color="#91e253" style={{ cursor: 'pointer' }}>
-                  <a href="https://sns.bladex.vip/note/view/1.html" target="_blank">
+                  <a href="https://sns.bladex.cn/note/view/1.html" target="_blank">
                     免费版
                   </a>
                 </Tag>
@@ -204,7 +204,7 @@ class Workplace extends PureComponent {
                 </Tag>
                 <Divider type="vertical" />
                 <Tag color="#f50" style={{ cursor: 'pointer' }}>
-                  <a href="https://bladex.vip/#/vip" target="_blank">
+                  <a href="https://bladex.cn/#/vip" target="_blank">
                     商业版
                   </a>
                 </Tag>
@@ -212,7 +212,58 @@ class Workplace extends PureComponent {
             </Row>
             <Row gutter={24}>
               <Card className={styles.card} bordered={false}>
-                <Collapse bordered={false} defaultActiveKey={['30']}>
+                <Collapse bordered={false} defaultActiveKey={['35']}>
+                  <Panel header="3.7.1发布 升级系统安全性能" key="35">
+                    <div>1.升级 SpringBoot 至 2.7.18</div>
+                    <div>2.升级 SpringBootAdmin 至 2.7.14</div>
+                    <div>3.升级 Mybatis-Plus 至 3.5.4.1</div>
+                    <div>4.升级 Mybatis-Plus-Generator 至 3.5.4.1</div>
+                    <div>5.升级 Knife4j 至 4.3.0</div>
+                    <div>6.优化 防SQL注入逻辑避免双写等情况出现</div>
+                    <div>7.调整 重要API调用等级防止被恶意调用</div>
+                    <div>8.调整 默认关闭通知公告模块的Token加密功能</div>
+                  </Panel>
+                  <Panel header="3.7.0发布 新增Token加密传输功能" key="34">
+                    <div>1.升级 SpringCloud 至 2021.0.8</div>
+                    <div>2.升级 SpringBoot 至 2.7.15</div>
+                    <div>3.升级 Mybatis-Plus 至 3.5.3.2</div>
+                    <div>4.升级 Mybatis-Plus-Generator 至 3.5.3.2</div>
+                    <div>5.升级 Druid 至 1.2.19</div>
+                    <div>6.升级 Avue2 至 2.10.16</div>
+                    <div>7.升级 Avue3 至 3.2.19</div>
+                    <div>8.新增 Token加密传输功能，提升系统安全性</div>
+                    <div>9.新增 后端对Token加密增加强制校验的功能</div>
+                    <div>10.优化 INode树形节点封装，增加泛型支持</div>
+                    <div>11.优化 Sql防注入的功能</div>
+                  </Panel>
+                  <Panel header="3.6.0发布 基于vue3的前端架构正式发布" key="33">
+                    <div>1.升级 SpringCloud 至 2021.0.6</div>
+                    <div>2.升级 SpringBoot 至 2.7.10</div>
+                    <div>3.升级 SpringBootAdmin 至 2.7.10</div>
+                    <div>4.升级 AlibabaCloud 至 2021.0.5.0</div>
+                    <div>5.升级 Mybatis-Plus 至 3.5.3.1</div>
+                    <div>6.升级 Mybatis-Plus-Generator 至 3.5.3.1</div>
+                    <div>7.升级 Nacos 至 2.1.2</div>
+                    <div>8.升级 Seata 至 1.6.1</div>
+                    <div>9.升级 Knife4j 至 4.1.0</div>
+                    <div>10.升级 Log4j 至 2.20.0</div>
+                    <div>11.升级 Avue2 至 2.10.10</div>
+                    <div>12.升级 Avue3 至 3.2.13</div>
+                    <div>13.新增 基于Vue3与Element-Plus版本的Saber正式发布</div>
+                    <div>14.新增 关闭Token默认签名，用户需自行设置后启动服务</div>
+                    <div>15.新增 Vue3版代码生成</div>
+                    <div>16.优化 pom依赖机制</div>
+                  </Panel>
+                  <Panel header="3.5.0发布 新增报文加密 令牌签名校验提示" key="32">
+                    <div>1.新增 报文加密功能</div>
+                    <div>2.新增 日志开关功能</div>
+                    <div>3.新增 Minio封装</div>
+                    <div>4.新增 Token签名校验</div>
+                    <div>5.重构 oss模块</div>
+                  </Panel>
+                  <Panel header="3.4.1发布 重构Swagger封装" key="31">
+                    <div>1.重构Swagger封装，适配cloud最新版</div>
+                  </Panel>
                   <Panel header="3.4.0发布 新增灰度服务功能" key="30">
                     <div>1.升级 SpringCloud 至 2021.0.3</div>
                     <div>2.升级 SpringBoot 至 2.7.1</div>
