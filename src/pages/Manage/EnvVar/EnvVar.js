@@ -7,6 +7,7 @@ import Grid from '../../../components/Sword/Grid';
 import styles from '../../../layouts/Sword.less';
 import { submit as submitEnvVar, detail as envVarDetail, remove as removeEnvVar } from '../../../services/envvar';
 import func from '../../../utils/Func';
+import EnvVarTask from '../Project/ProjectData/EnvVarTask';
 
 const FormItem = Form.Item;
 
@@ -21,21 +22,24 @@ class EnvVar extends PureComponent {
     viewMode: false,
     params: {},
     detail: {},
+
+    // 变量任务可见性
+    envTaskVisible: false,
+    currentEnvVar: {},
   };
 
   componentDidMount() {
     const {
-      dispatch, envId
+      dispatch,
     } = this.props;
-    // dispatch(ENVVAR_LIST({ envId }));
   }
 
   // ============ 查询 ===============
   handleSearch = params => {
     const { dispatch } = this.props;
-    const { envId } = this.props;
+    const { env } = this.props;
     this.setState({ params });
-    const search = { envId: envId, varName: params.varName };
+    const search = { envId: env.id, varName: params.varName };
     dispatch(ENVVAR_LIST(search));
   };
 
@@ -116,7 +120,7 @@ class EnvVar extends PureComponent {
       this.handleStateCancel();
       return;
     }
-    const { form, envId } = this.props;
+    const { form, env } = this.props;
 
     const {
       params,
@@ -125,7 +129,7 @@ class EnvVar extends PureComponent {
 
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        let formData = Object.assign(values, { envId })
+        let formData = Object.assign(values, { envId : env.id })
         if (!func.isEmpty(id)) {
           formData = Object.assign(values, { id });
         }
@@ -151,6 +155,20 @@ class EnvVar extends PureComponent {
     });
   };
 
+  // 打开任务管理
+  handleManageTask = (envVar) => {
+    this.setState({ currentEnvVar: envVar });
+    this.setState({ envTaskVisible: true });
+  }
+
+  // 关闭任务管理
+  handleCloseTask = () => {
+    this.setState({ envTaskVisible: false });
+    const { params } = this.state;
+    this.handleSearch(params);
+  }
+  // ------------------------------------------------------------
+
   renderLeftButton = () => (
     <Button icon="plus" type="primary" onClick={() => this.handleClick('env_var_add')}>
       新增
@@ -164,9 +182,10 @@ class EnvVar extends PureComponent {
       form,
       loading,
       envVar: { data },
+      env,
     } = this.props;
 
-    const { stateVisible, detail, viewMode } = this.state;
+    const { stateVisible, detail, viewMode, currentEnvVar, envTaskVisible } = this.state;
     const { getFieldDecorator } = form;
 
     const formItemLayout = {
@@ -182,40 +201,47 @@ class EnvVar extends PureComponent {
       {
         title: '变量名',
         dataIndex: 'varName',
-        width: '200px',
+        width: '150px',
       },
       {
         title: '变量值',
         dataIndex: 'varValue',
-        width: '500px',
+        width: '400px',
+      },
+      {
+        title: '更新时间',
+        dataIndex: 'updateTime',
+        width: '160px',
       },
       {
         title: '操作',
         dataIndex: 'action',
-        width: '100px',
-        render: (text, record) => (
-          <Fragment>
-            <div style={{ textAlign: 'center' }}>
-              <Fragment key="edit">
-                <a title="修改" onClick={() => this.handleClick('env_var_edit', record)}>
-                  修改
-                </a>
-              </Fragment>
-              <Divider type="vertical" />
-              <Fragment key="delete">
-                <a title="删除" onClick={() => this.handleClick('env_var_delete', record)}>
-                  删除
-                </a>
-              </Fragment>
-              {/* <Divider type="vertical" />
-              <Fragment key="view">
-                <a title="查看" onClick={() => this.handleClick('env_var_view', record)}>
-                  查看
-                </a>
-              </Fragment> */}
-            </div>
-          </Fragment>
-        ),
+        width: '160px',
+        render: (text, record) => {
+          return (
+            <Fragment>
+              <div style={{ textAlign: 'center' }}>
+                <Fragment key="edit">
+                  <a title="修改" onClick={() => this.handleClick('env_var_edit', record)}>
+                    修改
+                  </a>
+                </Fragment>
+                <Divider type="vertical" />
+                <Fragment key="delete">
+                  <a title="删除" onClick={() => this.handleClick('env_var_delete', record)}>
+                    删除
+                  </a>
+                </Fragment>
+                <Divider type="vertical" />
+                <Fragment key="tasks">
+                  <a title="任务管理" onClick={() => this.handleManageTask(record)}>
+                    任务管理
+                  </a>
+                </Fragment>
+              </div>
+            </Fragment>
+          )
+        },
       },
     ];
 
@@ -223,6 +249,7 @@ class EnvVar extends PureComponent {
       <div>
         <Grid
           // code={code}
+          enableRowSelection={false}
           form={form}
           onSearch={this.handleSearch}
           renderSearchForm={this.renderSearchForm}
@@ -261,6 +288,19 @@ class EnvVar extends PureComponent {
             </Card>
           </Form>
         </Modal>
+
+
+        {/* 数据项的同步任务 */}
+        {currentEnvVar && envTaskVisible && <EnvVarTask
+          visible={this.state.envTaskVisible}
+          handleCloseTask={this.handleCloseTask}
+          env={env}
+          // data={currentData}
+          // projectId={projectId}
+          envVar={currentEnvVar}
+          handleRefresh={handleRefresh => (this.handleRefresh = handleRefresh)}
+        />
+        }
       </div>
     );
   }

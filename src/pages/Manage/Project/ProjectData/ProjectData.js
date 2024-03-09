@@ -310,8 +310,8 @@ class ProjectData extends PureComponent {
     const { params } = this.state;
     this.handleSearch(params);
   }
-
   // ------------------------------------------------------------
+  
   renderLeftButton = () => {
     // const {
     //   data: {
@@ -575,7 +575,7 @@ class ProjectData extends PureComponent {
           //closable={false}
           onClose={this.onCloseDrawer}
         >
-          {envDrawerVisible && <EnvVar envId={currentEnv.id} />}
+          {envDrawerVisible && <EnvVar env={currentEnv} />}
         </Drawer>}
       </div>
     );

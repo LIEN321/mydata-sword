@@ -174,18 +174,9 @@ class TaskVarMappingTable extends React.Component {
     const index = newData.findIndex(item => key === item.key);
     const item = newData[index];
     item[dataIndex] = value;
-    // newData.splice(index, 1, {
-    //   ...item,
-    //   ...row,
-    // });
     this.setState({ varMappings: newData });
 
     this.props.handleSave(item);
-
-    
-    console.info("key = " + key);
-    console.info("dataIndex = " + dataIndex);
-    console.info("value = " + value);
   };
 
   handleDelete = key => {

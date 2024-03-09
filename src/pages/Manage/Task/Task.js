@@ -2,7 +2,7 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import { Button, Col, Form, Input, Row, Tag, message, Modal, Divider, Table } from 'antd';
 import Panel from '../../../components/Panel';
-import { TASK_LIST, TASK_LOG_LIST } from '../../../actions/task';
+import { TASK_LIST, TASK_LOG_LIST, TASK_STATUS_RUNNING, TASK_STATUS_FAILED, TASK_STATUS_STOPPED } from '../../../actions/task';
 import Grid from '../../../components/Sword/Grid';
 import { executeTask, startTask, stopTask } from '../../../services/task';
 
@@ -222,13 +222,13 @@ class Task extends PureComponent {
         render: (text, record, index) => {
           const { id, taskStatus } = record;
           let color, status;
-          if (taskStatus == 0) {
+          if (taskStatus == TASK_STATUS_STOPPED) {
             color = 'lightgray';
             status = '已停止';
-          } else if (taskStatus == 1) {
+          } else if (taskStatus == TASK_STATUS_RUNNING) {
             color = 'green';
             status = '运行中';
-          } else if (taskStatus == 2) {
+          } else if (taskStatus == TASK_STATUS_FAILED) {
             color = 'red';
             status = '异　常';
           } else {
@@ -239,7 +239,7 @@ class Task extends PureComponent {
             <Tag color={color}>{status}</Tag>
             <Divider type="vertical" />
             {
-              taskStatus != 1 ? (
+              taskStatus != TASK_STATUS_RUNNING ? (
                 <a
                   onClick={() => {
                     this.handleStart(id);

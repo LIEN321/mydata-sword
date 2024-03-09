@@ -21,7 +21,7 @@ class Env extends PureComponent {
     this.state = {
       drawerTitle: '',
       drawerVisible: false,
-      envId: null,
+      currentEnv: {},
     };
   }
 
@@ -87,7 +87,7 @@ class Env extends PureComponent {
       this.setState({
         drawerTitle: rows[0].envName,
         drawerVisible: true,
-        envId : rows[0].id,
+        currentEnv: rows[0],
       });
     }
   };
@@ -105,12 +105,17 @@ class Env extends PureComponent {
       env: { data },
     } = this.props;
 
-    const { drawerTitle, drawerVisible, envId } = this.state;
+    const { drawerTitle, drawerVisible, currentEnv } = this.state;
 
     const columns = [
       {
         title: '所属项目',
         dataIndex: 'projectName',
+      },
+      {
+        title: '顺序',
+        dataIndex: 'sort',
+        width: '50px',
       },
       {
         title: '环境名称',
@@ -148,10 +153,6 @@ class Env extends PureComponent {
           </>
         },
       },
-      {
-        title: '顺序',
-        dataIndex: 'sort',
-      },
     ];
 
     return (
@@ -174,7 +175,7 @@ class Env extends PureComponent {
           //closable={false}
           onClose={this.onCloseDrawer}
         >
-          {drawerVisible && <EnvVar envId={envId} />}
+          {drawerVisible && <EnvVar env={currentEnv} />}
         </Drawer>
       </Panel>
     );

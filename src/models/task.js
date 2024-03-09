@@ -1,7 +1,7 @@
 import { message } from 'antd';
 import router from 'umi/router';
 import { TASK_NAMESPACE } from '../actions/task';
-import { list, submit, detail, remove, taskLogList, dataTasks } from '../services/task';
+import { list, submit, detail, remove, taskLogList, dataTasks, envTasks } from '../services/task';
 import { select as envSelect } from '../services/env';
 import { select as dataSelect } from '../services/data';
 import { select as apiSelect } from '../services/md_api';
@@ -15,6 +15,7 @@ export default {
       pagination: false,
     },
     dataTasks: { producerTasks: [], consumerTasks: [] },
+    envTasks: { producerTasks: [], consumerTasks: [] },
     detail: {},
     init: {
       envList: [],
@@ -50,6 +51,17 @@ export default {
           type: 'saveDataTasks',
           payload: {
             dataTasks: response.data,
+          },
+        });
+      }
+    },
+    *fetchEnvTasks({ payload }, { call, put }) {
+      const response = yield call(envTasks, payload);
+      if (response.success) {
+        yield put({
+          type: 'saveEnvTasks',
+          payload: {
+            envTasks: response.data,
           },
         });
       }
@@ -144,6 +156,12 @@ export default {
       return {
         ...state,
         dataTasks: action.payload.dataTasks,
+      };
+    },
+    saveEnvTasks(state, action) {
+      return {
+        ...state,
+        envTasks: action.payload.envTasks,
       };
     },
     saveDetail(state, action) {
