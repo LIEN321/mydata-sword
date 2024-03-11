@@ -12,6 +12,7 @@ import mdStyle from '../../../../layouts/Mydata.less'
 import DataTask from './DataTask';
 import { router } from 'umi';
 import EnvVar from '../../EnvVar/EnvVar';
+import EnvTask from './EnvTask';
 
 const FormItem = Form.Item;
 
@@ -48,10 +49,17 @@ class ProjectData extends PureComponent {
 
       // 环境变量drawer开关
       envDrawerVisible: false,
+
+      // 变量任务可见性
+      envTaskVisible: false,
     };
   }
 
   componentWillMount() {
+    this.handleInit();
+  }
+
+  handleInit = () => {
     const { dispatch, projectId, } = this.props;
     dispatch(DATA_INIT({ projectId }));
   }
@@ -101,9 +109,15 @@ class ProjectData extends PureComponent {
           </Button>
           {
             currentEnv ?
-              <Button onClick={() => this.handleManageVars()}>变量管理</Button>
+              <>
+                <Button onClick={() => this.handleManageVars()} style={{ marginRight: '12px' }}>变量管理</Button>
+                <Button onClick={() => this.handleManageEnvTask()}>变量任务管理</Button>
+              </>
               :
-              <Button disabled>变量管理</Button>
+              <>
+                <Button disabled style={{ marginRight: '12px' }}>变量管理</Button>
+                <Button disabled>变量任务管理</Button>
+              </>
           }
         </Col>
         <Col md={4} sm={24}>
@@ -309,9 +323,21 @@ class ProjectData extends PureComponent {
     this.setState({ dataTaskVisible: false });
     const { params } = this.state;
     this.handleSearch(params);
+    this.handleInit();
   }
   // ------------------------------------------------------------
-  
+
+  // 打开变量任务管理
+  handleManageEnvTask = (env) => {
+    this.setState({ envTaskVisible: true });
+  }
+
+  // 关闭任务管理
+  handleCloseEnvTask = () => {
+    this.setState({ envTaskVisible: false });
+  }
+  // ------------------------------------------------------------
+
   renderLeftButton = () => {
     // const {
     //   data: {
@@ -354,7 +380,7 @@ class ProjectData extends PureComponent {
     } = this.props;
     const { getFieldDecorator } = form;
 
-    const { currentData, detail, dataFields, currentEnv, dataTaskVisible, envDrawerVisible } = this.state;
+    const { currentData, detail, dataFields, currentEnv, dataTaskVisible, envDrawerVisible, envTaskVisible } = this.state;
     const { projectId, projectName } = this.props;
 
     const columns = [
@@ -577,6 +603,15 @@ class ProjectData extends PureComponent {
         >
           {envDrawerVisible && <EnvVar env={currentEnv} />}
         </Drawer>}
+
+        {/* 环境变量的同步任务 */}
+        {currentEnv && envTaskVisible && <EnvTask
+          visible={this.state.envTaskVisible}
+          handleCloseTask={this.handleCloseEnvTask}
+          env={currentEnv}
+          handleRefresh={handleRefresh => (this.handleRefresh = handleRefresh)}
+        />
+        }
       </div>
     );
   }

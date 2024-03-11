@@ -8,7 +8,7 @@ import { executeTask, startTask, stopTask, remove } from '../../../../services/t
 import styles from './style.less';
 import mdStyle from '../../../../layouts/Mydata.less'
 import { TASK_TYPE_PRODUCER, TASK_TYPE_CONSUMER } from '../../../../actions/task';
-import EnvVarTaskForm from './EnvVarTaskForm';
+import EnvTaskForm from './EnvTaskForm';
 import TaskCard from './TaskCard';
 
 const FormItem = Form.Item;
@@ -18,7 +18,7 @@ const FormItem = Form.Item;
   loading: loading.models.task,
 }))
 @Form.create()
-class EnvVarTask extends PureComponent {
+class EnvTask extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -35,8 +35,8 @@ class EnvVarTask extends PureComponent {
 
   // 查询数据项的任务列表
   handleLoadTasks = () => {
-    const { dispatch, envVar } = this.props;
-    const params = { envVarId: envVar.id };
+    const { dispatch, env } = this.props;
+    const params = { envId: env.id };
     dispatch(ENV_TASKS(params));
   }
 
@@ -84,7 +84,6 @@ class EnvVarTask extends PureComponent {
       loading,
       task: { envTasks },
       env,
-      envVar,
     } = this.props;
 
     const logColumns = [
@@ -147,9 +146,8 @@ class EnvVarTask extends PureComponent {
           </div>
         </Drawer>}
 
-        {this.state.taskFormVisible && <EnvVarTaskForm
+        {this.state.taskFormVisible && <EnvTaskForm
           env={env}
-          envVar={envVar}
           projectId={env.projectId}
           opType={this.state.opType}
           taskFormVisible={this.state.taskFormVisible}
@@ -160,4 +158,4 @@ class EnvVarTask extends PureComponent {
     );
   }
 }
-export default EnvVarTask;
+export default EnvTask;

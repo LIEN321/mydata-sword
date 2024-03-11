@@ -7,7 +7,6 @@ import Grid from '../../../components/Sword/Grid';
 import styles from '../../../layouts/Sword.less';
 import { submit as submitEnvVar, detail as envVarDetail, remove as removeEnvVar } from '../../../services/envvar';
 import func from '../../../utils/Func';
-import EnvVarTask from '../Project/ProjectData/EnvVarTask';
 
 const FormItem = Form.Item;
 
@@ -22,10 +21,6 @@ class EnvVar extends PureComponent {
     viewMode: false,
     params: {},
     detail: {},
-
-    // 变量任务可见性
-    envTaskVisible: false,
-    currentEnvVar: {},
   };
 
   componentDidMount() {
@@ -154,19 +149,6 @@ class EnvVar extends PureComponent {
       detail: { id: '' }
     });
   };
-
-  // 打开任务管理
-  handleManageTask = (envVar) => {
-    this.setState({ currentEnvVar: envVar });
-    this.setState({ envTaskVisible: true });
-  }
-
-  // 关闭任务管理
-  handleCloseTask = () => {
-    this.setState({ envTaskVisible: false });
-    const { params } = this.state;
-    this.handleSearch(params);
-  }
   // ------------------------------------------------------------
 
   renderLeftButton = () => (
@@ -185,7 +167,7 @@ class EnvVar extends PureComponent {
       env,
     } = this.props;
 
-    const { stateVisible, detail, viewMode, currentEnvVar, envTaskVisible } = this.state;
+    const { stateVisible, detail, viewMode } = this.state;
     const { getFieldDecorator } = form;
 
     const formItemLayout = {
@@ -216,7 +198,7 @@ class EnvVar extends PureComponent {
       {
         title: '操作',
         dataIndex: 'action',
-        width: '160px',
+        width: '120px',
         render: (text, record) => {
           return (
             <Fragment>
@@ -230,12 +212,6 @@ class EnvVar extends PureComponent {
                 <Fragment key="delete">
                   <a title="删除" onClick={() => this.handleClick('env_var_delete', record)}>
                     删除
-                  </a>
-                </Fragment>
-                <Divider type="vertical" />
-                <Fragment key="tasks">
-                  <a title="任务管理" onClick={() => this.handleManageTask(record)}>
-                    任务管理
                   </a>
                 </Fragment>
               </div>
@@ -288,19 +264,6 @@ class EnvVar extends PureComponent {
             </Card>
           </Form>
         </Modal>
-
-
-        {/* 数据项的同步任务 */}
-        {currentEnvVar && envTaskVisible && <EnvVarTask
-          visible={this.state.envTaskVisible}
-          handleCloseTask={this.handleCloseTask}
-          env={env}
-          // data={currentData}
-          // projectId={projectId}
-          envVar={currentEnvVar}
-          handleRefresh={handleRefresh => (this.handleRefresh = handleRefresh)}
-        />
-        }
       </div>
     );
   }

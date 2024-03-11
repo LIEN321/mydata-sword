@@ -15,11 +15,9 @@ const FormItem = Form.Item;
   submitting: loading.effects['task/submit'],
 }))
 @Form.create()
-class EnvVarTaskForm extends PureComponent {
+class EnvTaskForm extends PureComponent {
   constructor(props) {
     super(props);
-    const { envVar } = props;
-    const { varName } = envVar;
     this.state = {
       detail: null,
       apiUrl: '',
@@ -31,7 +29,7 @@ class EnvVarTaskForm extends PureComponent {
       apiList: [],
       currentApi: null,
 
-      varMappings: [{ key: 0, v: varName }],
+      varMappings: [{ key: 0 }],
 
       isShowSubscribed: false,
       isShowTaskPeriod: true,
@@ -139,7 +137,7 @@ class EnvVarTaskForm extends PureComponent {
 
   handleSubmit = e => {
     e.preventDefault();
-    const { dispatch, form, env, envVar, data, projectId, closeTaskForm, currentTask } = this.props;
+    const { dispatch, form, env, data, projectId, closeTaskForm, currentTask } = this.props;
 
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
@@ -152,7 +150,6 @@ class EnvVarTaskForm extends PureComponent {
         params.fieldVarMapping = this.state.varMappings;
         params.envId = env.id;
         params.projectId = projectId;
-        params.envVarId = envVar.id;
         // dispatch(TASK_SUBMIT(params));
         submitTask(params).then(resp => {
           if (resp.success) {
@@ -324,4 +321,4 @@ class EnvVarTaskForm extends PureComponent {
   }
 }
 
-export default EnvVarTaskForm;
+export default EnvTaskForm;

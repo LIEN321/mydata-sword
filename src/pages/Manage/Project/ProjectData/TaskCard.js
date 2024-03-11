@@ -1,9 +1,9 @@
-import { Button, Card, Icon, message, Modal, Table, Tag } from "antd";
+import { Button, Card, Icon, message, Modal, Popover, Table, Tag } from "antd";
 import { PureComponent } from "react";
 import mdStyle from '../../../../layouts/Mydata.less';
 import styles from './style.less';
 import { executeTask, startTask, stopTask, remove } from '../../../../services/task';
-import { TASK_LOG_LIST, TASK_STATUS_RUNNING } from '../../../../actions/task';
+import { TASK_LOG_LIST, TASK_STATUS_RUNNING, TASK_TYPE_PRODUCER, TASK_TYPE_CONSUMER } from '../../../../actions/task';
 import { connect } from "dva";
 
 @connect(({ task, loading }) => ({
@@ -189,8 +189,9 @@ class TaskCard extends PureComponent {
                     <Icon type="edit" onClick={() => { this.handleEditTask(currentTask) }} />,
                     <Icon type="delete" onClick={() => { this.handleDelete(currentTask.id) }} />,
                 ]}
+                extra={currentTask.refEnvId ? (currentTask.opType == TASK_TYPE_PRODUCER ? <Popover content="其他环境提供数据"><Icon type="login" /></Popover> : <Popover content="其他环境消费数据"><Icon type="logout" /></Popover>) : <></>}
             >
-                {/* <Card.Meta title={<a>{task.taskName}</a>} /> */}
+                {currentTask.refEnvId ? <p>其他环境：{currentTask.refEnvName}</p> : <></>}
                 <p>{currentTask.apiUrl.replace(env.envPrefix, '')}</p>
                 <p>运行周期：{currentTask.taskPeriod}</p>
                 <p>最后执行：{currentTask.lastRunTime}</p>
