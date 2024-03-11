@@ -103,16 +103,17 @@ export default {
     *fetchInit({ payload }, { call, put }) {
       const responseEnv = yield call(envSelect, payload);
       const responseApi = yield call(apiSelect, payload);
-      const responsedData = yield call(dataSelect, payload);
-      if (
-        responseEnv.success && responseApi.success && responsedData.success
+      // const responsedData = yield call(dataSelect, payload);
+      if (responseEnv.success
+        && responseApi.success
+        // && responsedData.success
       ) {
         yield put({
           type: 'saveInit',
           payload: {
             envList: responseEnv.data,
             apiList: responseApi.data,
-            dataList: responsedData.data,
+            // dataList: responsedData.data,
           },
         });
       }

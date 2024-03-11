@@ -3,7 +3,7 @@ import { Form, Input, Card, Button, Select, Radio, Modal, message, notification 
 import { connect } from 'dva';
 import Panel from '../../../../components/Panel';
 import styles from '../../../../layouts/Sword.less';
-import { TASK_SUBMIT, TASK_INIT_API, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER, TASK_DETAIL } from '../../../../actions/task';
+import { TASK_SUBMIT, TASK_INIT_API, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER, TASK_DETAIL, TASK_INIT } from '../../../../actions/task';
 import { submit as submitTask, detail as taskDetail } from '../../../../services/task';
 import TaskFieldMappingTable from '../../Task/TaskFieldMappingTable';
 import { dataFields } from '../../../../services/data';
@@ -44,7 +44,7 @@ class DataTaskForm extends PureComponent {
 
   componentWillMount() {
     const { dispatch, opType, data, currentTask } = this.props;
-    dispatch(TASK_INIT_API({ opType }));
+    dispatch(TASK_INIT({ opType }));
     this.loadDataFieldList(data.id);
 
     if (currentTask && currentTask.id) {
@@ -126,7 +126,8 @@ class DataTaskForm extends PureComponent {
   }
 
   handleChangeEnv = envId => {
-    const env = this.findEnv(envId);
+    const currentEnv = this.findEnv(envId);
+    this.setState({ currentEnv });
     this.updateApiUrl();
   }
 
@@ -142,18 +143,24 @@ class DataTaskForm extends PureComponent {
   }
 
   updateApiUrl() {
-    const { form, env } = this.props;
-    let { currentApi } = this.state;
+    const { form, env, isRefEnv } = this.props;
+    let { currentApi, currentEnv } = this.state;
+
+    let apiUrl = '';
 
     if (currentApi == null) {
       const appApiId = form.getFieldValue("apiId");
       currentApi = this.findApi(appApiId);
     }
+    if (currentApi) {
+      apiUrl = currentApi.apiUri;
+    }
 
-    let apiUrl = '';
-
-    if (env != null && currentApi != null) {
-      apiUrl = env.envPrefix + currentApi.apiUri;
+    if (currentEnv != null) {
+      apiUrl = currentEnv.envPrefix + apiUrl;
+    }
+    else if (env != null) {
+      apiUrl = env.envPrefix + apiUrl;
     }
 
     this.setState({ apiUrl });
@@ -193,6 +200,7 @@ class DataTaskForm extends PureComponent {
         };
         if (currentTask) {
           params.id = currentTask.id;
+          // params.refEnvId = currentTask.refEnvId;
         }
         params.fieldMapping = this.state.fieldMappings;
         params.dataFilter = this.state.filters;
@@ -289,17 +297,15 @@ class DataTaskForm extends PureComponent {
       form: { getFieldDecorator },
       submitting,
       task: {
-        init: { apiList },
+        init: { envList, apiList },
         //   detail,
       },
       env,
       data,
       projectId,
       opType,
+      isRefEnv,
     } = this.props;
-
-    console.info("DataTaskForm detail = ");
-    console.info(detail);
 
     const { apiUrl, detail } = this.state;
 
@@ -343,16 +349,17 @@ class DataTaskForm extends PureComponent {
                 initialValue: detail ? detail.taskName : '',
               })(<Input placeholder="请输入任务名称" />)}
             </FormItem>
-            {/* <FormItem {...formItemLayout} label="所属环境">
-              {getFieldDecorator('envId', {
+            {(isRefEnv || (detail && detail.refEnvId)) ? (<FormItem {...formItemLayout} label="选择其他环境">
+              {getFieldDecorator('refEnvId', {
                 rules: [
                   {
                     required: true,
-                    message: '请选择所属环境',
+                    message: '请选择其他环境',
                   },
                 ],
+                initialValue: detail ? detail.refEnvId : '',
               })(
-                <Select allowClear placeholder="请选择所属环境" onChange={this.handleChangeEnv}>
+                <Select allowClear placeholder="请选择其他环境" onChange={this.handleChangeEnv}>
                   {envList.map(e => (
                     <Select.Option key={e.id} value={e.id}>
                       {e.envName} ({e.envPrefix})
@@ -360,7 +367,7 @@ class DataTaskForm extends PureComponent {
                   ))}
                 </Select>
               )}
-            </FormItem> */}
+            </FormItem>) : <></>}
             <FormItem {...formItemLayout} label="选择API">
               {getFieldDecorator('apiId', {
                 rules: [

@@ -47,8 +47,8 @@ class DataTask extends PureComponent {
   // ------------------------------------------------------------
 
   // 显示新增任务表单
-  handleAddTask = (opType) => {
-    this.setState({ opType: opType, taskFormVisible: true, currentTask: {} });
+  handleAddTask = (opType, isRefEnv) => {
+    this.setState({ opType: opType, taskFormVisible: true, currentTask: {}, isRefEnv: isRefEnv });
   };
   // 显示编辑任务表单
   handleEditTask = (task) => {
@@ -120,9 +120,18 @@ class DataTask extends PureComponent {
                   ))}
                 </Row>
                 <Divider />
-                <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(TASK_TYPE_PRODUCER)}>
-                  <Icon type="plus" /> 新增任务
-                </Button>
+                <Row gutter={24}>
+                  <Col span={12}>
+                    <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(TASK_TYPE_PRODUCER, false)}>
+                      <Icon type="plus" /> 当前环境
+                    </Button>
+                  </Col>
+                  <Col span={12}>
+                    <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(TASK_TYPE_PRODUCER, true)}>
+                      <Icon type="plus" /> 其他环境
+                    </Button>
+                  </Col>
+                </Row>
               </div>
             </Card>
           </Col>
@@ -140,9 +149,18 @@ class DataTask extends PureComponent {
                   ))}
                 </Row>
                 <Divider />
-                <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(TASK_TYPE_CONSUMER)}>
-                  <Icon type="plus" /> 新增任务
-                </Button>
+                <Row gutter={24}>
+                  <Col span={12}>
+                    <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(TASK_TYPE_CONSUMER, false)}>
+                      <Icon type="plus" /> 当前环境
+                    </Button>
+                  </Col>
+                  <Col span={12}>
+                    <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(TASK_TYPE_CONSUMER, true)}>
+                      <Icon type="plus" /> 其他环境
+                    </Button>
+                  </Col>
+                </Row>
               </div>
 
             </Card>
@@ -157,6 +175,7 @@ class DataTask extends PureComponent {
           taskFormVisible={this.state.taskFormVisible}
           closeTaskForm={this.closeTaskForm}
           currentTask={this.state.currentTask}
+          isRefEnv={this.state.isRefEnv}
         />}
       </Drawer>
     );
