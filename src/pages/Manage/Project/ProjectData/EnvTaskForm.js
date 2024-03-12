@@ -147,9 +147,21 @@ class EnvTaskForm extends PureComponent {
         if (currentTask) {
           params.id = currentTask.id;
         }
-        params.fieldVarMapping = this.state.varMappings;
+        // params.fieldVarMapping = this.state.varMappings;
         params.envId = env.id;
         params.projectId = projectId;
+
+        let fieldVarMapping = {};
+        const { varMappings } = this.state;
+        if (varMappings) {
+          varMappings.map(m => {
+            console.info(m);
+            const obj = {};
+            fieldVarMapping[m.k] = m.v;
+          });
+        }
+        params.fieldVarMapping = fieldVarMapping;
+
         // dispatch(TASK_SUBMIT(params));
         submitTask(params).then(resp => {
           if (resp.success) {

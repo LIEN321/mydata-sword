@@ -204,10 +204,21 @@ class DataTaskForm extends PureComponent {
         }
         params.fieldMapping = this.state.fieldMappings;
         params.dataFilter = this.state.filters;
-        params.fieldVarMapping = this.state.varMappings;
+        // params.fieldVarMapping = this.state.varMappings;
         params.envId = env.id;
         params.dataId = data.id;
         params.projectId = projectId;
+
+        let fieldVarMapping = {};
+        const { varMappings } = this.state;
+        if (varMappings) {
+          varMappings.map(m => {
+            const obj = {};
+            fieldVarMapping[m.k] = m.v;
+          });
+        }
+        params.fieldVarMapping = fieldVarMapping;
+
         // dispatch(TASK_SUBMIT(params));
         submitTask(params).then(resp => {
           if (resp.success) {
