@@ -40,7 +40,6 @@ class DataEdit extends PureComponent {
 
     this.setState({
       dataFields: detail.dataFields ? detail.dataFields : [],
-      count: detail.dataFields ? detail.dataFields.length : 0
     });
   }
 

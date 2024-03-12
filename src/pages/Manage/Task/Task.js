@@ -2,7 +2,7 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import { Button, Col, Form, Input, Row, Tag, message, Modal, Divider, Table } from 'antd';
 import Panel from '../../../components/Panel';
-import { TASK_LIST, TASK_LOG_LIST } from '../../../actions/task';
+import { TASK_LIST, TASK_LOG_LIST, TASK_STATUS_RUNNING, TASK_STATUS_FAILED, TASK_STATUS_STOPPED } from '../../../actions/task';
 import Grid from '../../../components/Sword/Grid';
 import { executeTask, startTask, stopTask } from '../../../services/task';
 
@@ -68,8 +68,6 @@ class Task extends PureComponent {
   };
 
   handleExecute = taskId => {
-    const { dispatch } = this.props;
-
     Modal.confirm({
       title: '执行确认',
       content: '是否执行一次所选任务?',
@@ -80,7 +78,6 @@ class Task extends PureComponent {
         const response = await executeTask(taskId);
         if (response.success) {
           message.success('任务已触发执行，请在日志中查看结果！');
-          // dispatch(TASK_LIST());
         } else {
           message.error(response.msg || '任务执行失败！');
         }
@@ -136,7 +133,8 @@ class Task extends PureComponent {
     dispatch(TASK_LOG_LIST({ taskId: id }));
     this.setState({ logModalVisible: true, currentTask: params });
   };
-  handleSearchLog = (pagination, filters, sorter) => {
+
+  handleSearchLog = (pagination) => {
     const { dispatch } = this.props;
     const { currentTask } = this.state;
     dispatch(TASK_LOG_LIST({ ...pagination, taskId: currentTask.id }));
@@ -196,8 +194,8 @@ class Task extends PureComponent {
         title: '任务周期',
         // dataIndex: 'taskPeriod',
         width: 100,
-        render: (text, record, index) => {
-          let taskPeriodText = record.isSubscribed == 1 ? '订阅更新' : record.taskPeriod;
+        render: (text, record) => {
+          const taskPeriodText = record.isSubscribed === 1 ? '订阅更新' : record.taskPeriod;
           return taskPeriodText;
         },
       },
@@ -219,16 +217,16 @@ class Task extends PureComponent {
         title: '状态',
         dataIndex: 'taskStatus',
         width: 130,
-        render: (text, record, index) => {
+        render: (text, record) => {
           const { id, taskStatus } = record;
-          let color, status;
-          if (taskStatus == 0) {
+          let color; let status;
+          if (taskStatus === TASK_STATUS_STOPPED) {
             color = 'lightgray';
             status = '已停止';
-          } else if (taskStatus == 1) {
+          } else if (taskStatus === TASK_STATUS_RUNNING) {
             color = 'green';
             status = '运行中';
-          } else if (taskStatus == 2) {
+          } else if (taskStatus === TASK_STATUS_FAILED) {
             color = 'red';
             status = '异　常';
           } else {
@@ -239,23 +237,9 @@ class Task extends PureComponent {
             <Tag color={color}>{status}</Tag>
             <Divider type="vertical" />
             {
-              taskStatus != 1 ? (
-                <a
-                  onClick={() => {
-                    this.handleStart(id);
-                  }}
-                >
-                  启动
-                </a>
-              ) : (
-                <a
-                  onClick={() => {
-                    this.handleStop(id);
-                  }}
-                >
-                  停止
-                </a>
-              )
+              taskStatus !== TASK_STATUS_RUNNING ?
+                (<a onClick={() => { this.handleStart(id); }}>启动</a>)
+                : (<a onClick={() => { this.handleStop(id); }}>停止</a>)
             }
           </>
         },
@@ -278,8 +262,8 @@ class Task extends PureComponent {
         dataIndex: 'taskResult',
         width: 100,
         render: taskResult => {
-          let color = taskResult == 1 ? 'green' : 'red';
-          let status = taskResult == 1 ? '成功' : '失败';
+          const color = taskResult === 1 ? 'green' : 'red';
+          const status = taskResult === 1 ? '成功' : '失败';
           return (
             <Tag color={color}>
               {status}
@@ -327,7 +311,7 @@ class Task extends PureComponent {
             dataSource={logs.list}
             pagination={logs.pagination}
             onChange={this.handleSearchLog}
-            expandedRowRender={record => <div style={{'overflow-wrap': 'anywhere'}} dangerouslySetInnerHTML={{ __html: `${record.taskDetail.replaceAll('\n', '</br>')}`, }}></div>}
+            expandedRowRender={record => <div style={{ 'overflow-wrap': 'anywhere' }} dangerouslySetInnerHTML={{ __html: `${record.taskDetail.replaceAll('\n', '</br>')}`, }} />}
           />}
         </Modal>
       </Panel>

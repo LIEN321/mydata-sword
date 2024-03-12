@@ -4,7 +4,7 @@ import { Form, Card, Button } from 'antd';
 import { connect } from 'dva';
 import Panel from '../../../components/Panel';
 import styles from '../../../layouts/Sword.less';
-import { TASK_DETAIL, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER } from '../../../actions/task';
+import { TASK_DETAIL, TASK_SUBSCRIBED } from '../../../actions/task';
 import TaskFieldMappingTable from './TaskFieldMappingTable';
 import { dataFields } from '../../../services/data';
 import TaskDataFilterTable from './TaskDataFilterTable';
@@ -26,7 +26,6 @@ class TaskView extends PureComponent {
       opType: null,
 
       dataFieldList: [],
-      fieldMappings: {},
     };
   }
 
@@ -50,7 +49,6 @@ class TaskView extends PureComponent {
     if (!initStatus && detail.id) {
       this.loadDataFieldList(detail.dataId);
       this.setState({
-        fieldMappings: detail.fieldMapping,
       });
     }
 
@@ -58,15 +56,7 @@ class TaskView extends PureComponent {
       this.setState({ apiUrl: detail.apiUrl });
     }
     if (!opType) {
-      this.setState({ opType: detail.opType == 1 ? "提供数据" : "消费数据" });
-    }
-
-  }
-
-  async loadDataFieldList(dataId) {
-    const dataFieldResponse = await dataFields({ dataId: dataId });
-    if (dataFieldResponse.success) {
-      this.setState({ dataFieldList: dataFieldResponse.data });
+      this.setState({ opType: detail.opType === 1 ? "提供数据" : "消费数据" });
     }
   }
 
@@ -78,6 +68,13 @@ class TaskView extends PureComponent {
     } = this.props;
     router.push(`/manage/task/edit/${id}`);
   };
+
+  async loadDataFieldList(dataId) {
+    const dataFieldResponse = await dataFields({ dataId });
+    if (dataFieldResponse.success) {
+      this.setState({ dataFieldList: dataFieldResponse.data });
+    }
+  }
 
   render() {
     const {
@@ -127,17 +124,17 @@ class TaskView extends PureComponent {
               <span>{detail.dataName}</span>
             </FormItem>
             <FormItem {...formItemLayout} label="订阅数据变更">
-              <span>{detail.isSubscribed == TASK_SUBSCRIBED ? "订阅" : "不订阅"}</span>
+              <span>{detail.isSubscribed === TASK_SUBSCRIBED ? "订阅" : "不订阅"}</span>
             </FormItem>
             <FormItem {...formItemLayout} label="任务周期">
-              <span>{detail.isSubscribed == TASK_SUBSCRIBED ? "订阅数据变化" : detail.taskPeriod}</span>
+              <span>{detail.isSubscribed === TASK_SUBSCRIBED ? "订阅数据变化" : detail.taskPeriod}</span>
             </FormItem>
             <FormItem {...formItemLayout} label="字段层级前缀">
               <span>{detail.apiFieldPrefix}</span>
             </FormItem>
             <FormItem {...formItemLayout} label="字段映射">
               <TaskFieldMappingTable
-                readonly={true}
+                readonly
                 dataFieldList={this.state.dataFieldList}
                 initFieldMappings={detail.fieldMapping}
               />
@@ -145,13 +142,13 @@ class TaskView extends PureComponent {
             <FormItem {...formItemLayout} label="数据过滤条件">
               <TaskDataFilterTable
                 filters={detail.dataFilter}
-                readonly={true}
+                readonly
               />
             </FormItem>
             <FormItem {...formItemLayout} label="数据存入变量">
               <TaskVarMappingTable
                 varMappings={detail.fieldVarMapping}
-                readonly={true}
+                readonly
               />
             </FormItem>
             <FormItem {...formItemLayout} label="最后执行时间">

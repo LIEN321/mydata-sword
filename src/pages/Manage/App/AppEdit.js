@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Form, Input, Card, Button, Radio } from 'antd';
+import { Form, Input, Card, Button } from 'antd';
 import { connect } from 'dva';
 import Panel from '../../../components/Panel';
 import styles from '../../../layouts/Sword.less';
@@ -13,10 +13,6 @@ const FormItem = Form.Item;
 }))
 @Form.create()
 class AppEdit extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
-
   componentWillMount() {
     const {
       dispatch,

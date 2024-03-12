@@ -1,17 +1,18 @@
 import React, { Fragment, PureComponent } from 'react';
 import { connect } from 'dva';
 import { Button, Col, Form, Input, Row, Modal, Table, Card, message, Divider, Icon, Select, Drawer } from 'antd';
-import Panel from '../../../../components/Panel';
+import { router } from 'umi';
 import { BIZ_FIELD_LIST, BIZ_DATA_LIST, PROJECT_DATA_LIST, DATA_INIT } from '../../../../actions/data';
 import Grid from '../../../../components/Sword/Grid';
-import { bizFieldList, detail as dataDetail, submit as submitData, remove as removeData } from '../../../../services/data';
+import { detail as dataDetail, submit as submitData, remove as removeData } from '../../../../services/data';
+import { detail as envVarDetail } from '../../../../services/envvar';
 import styles from '../../../../layouts/Sword.less';
 import EditableTable from '../../Data/EditableTable';
 import func from '@/utils/Func';
 import mdStyle from '../../../../layouts/Mydata.less'
 import DataTask from './DataTask';
-import { router } from 'umi';
 import EnvVar from '../../EnvVar/EnvVar';
+import EnvTask from './EnvTask';
 
 const FormItem = Form.Item;
 
@@ -30,7 +31,7 @@ class ProjectData extends PureComponent {
 
       // 运行环境列表
       // envList: {},
-      //当前所选环境id
+      // 当前所选环境id
       // currentEnvId: null,
       currentEnv: null,
 
@@ -48,10 +49,17 @@ class ProjectData extends PureComponent {
 
       // 环境变量drawer开关
       envDrawerVisible: false,
+
+      // 变量任务可见性
+      envTaskVisible: false,
     };
   }
 
   componentWillMount() {
+    this.handleInit();
+  }
+
+  handleInit = () => {
     const { dispatch, projectId, } = this.props;
     dispatch(DATA_INIT({ projectId }));
   }
@@ -101,9 +109,15 @@ class ProjectData extends PureComponent {
           </Button>
           {
             currentEnv ?
-              <Button onClick={() => this.handleManageVars()}>变量管理</Button>
+              <>
+                <Button onClick={() => this.handleManageVars()} style={{ marginRight: '12px' }}>变量管理</Button>
+                <Button onClick={() => this.handleManageEnvTask()}>变量任务管理</Button>
+              </>
               :
-              <Button disabled>变量管理</Button>
+              <>
+                <Button disabled style={{ marginRight: '12px' }}>变量管理</Button>
+                <Button disabled>变量任务管理</Button>
+              </>
           }
         </Col>
         <Col md={4} sm={24}>
@@ -138,12 +152,14 @@ class ProjectData extends PureComponent {
     dispatch(BIZ_DATA_LIST({ dataId: id, projectId, envId }));
     this.setState({ bizDataModalVisible: true, currentData: params });
   };
-  handleSearchBizData = (pagination, filters, sorter) => {
+
+  handleSearchBizData = (pagination) => {
     const { dispatch, projectId } = this.props;
     const { currentData } = this.state;
     const envId = this.state.currentEnv.id;
     dispatch(BIZ_DATA_LIST({ ...pagination, dataId: currentData.id, projectId, envId }));
   };
+
   closeBizData = () => {
     this.setState({ bizDataModalVisible: false, currentData: {} });
   };
@@ -158,14 +174,14 @@ class ProjectData extends PureComponent {
       const { id } = record;
       dataDetail({ id }).then(resp => {
         if (resp.success) {
-          this.setState({ dataFormVisible: true, viewMode: false, detail: resp.data, dataFields: resp.data.dataFields });
+          this.setState({ dataFormVisible: true, detail: resp.data, dataFields: resp.data.dataFields });
         }
       });
     } else if (code === 'data_view') {
       const { id } = record;
       envVarDetail({ id }).then(resp => {
         if (resp.success) {
-          this.setState({ stateVisible: true, viewMode: true, detail: resp.data });
+          this.setState({ detail: resp.data });
         }
       });
     } else if (code === 'data_delete') {
@@ -179,7 +195,7 @@ class ProjectData extends PureComponent {
         okType: 'danger',
         cancelText: '取消',
         onOk() {
-          removeData({ ids: id, envId: envId, varName: varName }).then(resp => {
+          removeData({ ids: id, envId, varName }).then(resp => {
             if (resp.success) {
               message.success(resp.msg);
               refresh(params);
@@ -197,10 +213,10 @@ class ProjectData extends PureComponent {
   handleSubmitData = e => {
     e.preventDefault();
     const { dataFields, params, detail: { id } } = this.state;
-    const { dispatch, form, projectId } = this.props;
+    const { form, projectId } = this.props;
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        let formData = Object.assign(values, { projectId }, { dataFields });
+        const formData = Object.assign(values, { projectId }, { dataFields });
         if (!func.isEmpty(id)) {
           formData.id = id;
         }
@@ -309,9 +325,21 @@ class ProjectData extends PureComponent {
     this.setState({ dataTaskVisible: false });
     const { params } = this.state;
     this.handleSearch(params);
+    this.handleInit();
+  }
+  // ------------------------------------------------------------
+
+  // 打开变量任务管理
+  handleManageEnvTask = () => {
+    this.setState({ envTaskVisible: true });
   }
 
+  // 关闭任务管理
+  handleCloseEnvTask = () => {
+    this.setState({ envTaskVisible: false });
+  }
   // ------------------------------------------------------------
+
   renderLeftButton = () => {
     // const {
     //   data: {
@@ -343,8 +371,6 @@ class ProjectData extends PureComponent {
   }
 
   render() {
-    const code = 'data';
-
     const {
       form,
       loading,
@@ -354,8 +380,8 @@ class ProjectData extends PureComponent {
     } = this.props;
     const { getFieldDecorator } = form;
 
-    const { currentData, detail, dataFields, currentEnv, dataTaskVisible, envDrawerVisible } = this.state;
-    const { projectId, projectName } = this.props;
+    const { currentData, detail, dataFields, currentEnv, dataTaskVisible, envDrawerVisible, envTaskVisible } = this.state;
+    const { projectId } = this.props;
 
     const columns = [
       {
@@ -370,8 +396,8 @@ class ProjectData extends PureComponent {
         title: '数据量',
         dataIndex: 'dataCount',
         width: 100,
-        render: (text, record, index) => {
-          const { id, dataCount } = record;
+        render: (text, record) => {
+          const { dataCount } = record;
           return <>{dataCount ? <a onClick={() => { this.showBizData(record) }}>{text}</a> : '-'}</>
           // 
         },
@@ -382,29 +408,29 @@ class ProjectData extends PureComponent {
         width: 100,
         render: (text, record, index) => {
           const { provideAppCount } = record;
-          return <>{provideAppCount ? provideAppCount : '-'}</>
+          return <>{provideAppCount || '-'}</>
         }
       },
       {
         title: '消费应用',
         dataIndex: 'consumeAppCount',
         width: 100,
-        render: (text, record, index) => {
+        render: (text, record) => {
           const { consumeAppCount } = record;
-          return <>{consumeAppCount ? consumeAppCount : '-'}</>
+          return <>{consumeAppCount || '-'}</>
         }
       },
       {
         title: '同步任务',
         width: 150,
-        render: (text, record, index) => {
+        render: (text, record) => {
           const { runningTaskCount, stoppedTaskCount, failedTaskCount } = record;
           return <div style={{ textAlign: 'center' }}>
-            <Icon type="play-circle" className={mdStyle.taskRunning} /> {runningTaskCount ? runningTaskCount : '-'}
+            <Icon type="play-circle" className={mdStyle.taskRunning} /> {runningTaskCount || '-'}
             <Divider type='vertical' />
-            <Icon type="close-circle" className={mdStyle.taskFailed} /> {failedTaskCount ? failedTaskCount : '-'}
+            <Icon type="close-circle" className={mdStyle.taskFailed} /> {failedTaskCount || '-'}
             <Divider type='vertical' />
-            <Icon type="stop" className={mdStyle.taskStopped} /> {stoppedTaskCount ? stoppedTaskCount : '-'}
+            <Icon type="stop" className={mdStyle.taskStopped} /> {stoppedTaskCount || '-'}
           </div>
         },
       },
@@ -438,10 +464,10 @@ class ProjectData extends PureComponent {
       }
     ];
 
-    let bizDataColumns = [];
+    const bizDataColumns = [];
     if (bizField) {
       for (let i = 0; i < bizField.length; i++) {
-        let field = bizField[i];
+        const field = bizField[i];
         bizDataColumns.push({
           title: field.fieldName,
           dataIndex: field.fieldCode,
@@ -527,7 +553,7 @@ class ProjectData extends PureComponent {
               </FormItem>
               <FormItem {...formItemLayout} label="字段">
                 <EditableTable
-                  dataFields={dataFields ? dataFields : []}
+                  dataFields={dataFields || []}
                   handleSave={this.handleSaveField}
                   handleDelete={this.handleDeleteField}
                 />
@@ -564,6 +590,7 @@ class ProjectData extends PureComponent {
           data={currentData}
           projectId={projectId}
           handleRefresh={handleRefresh => (this.handleRefresh = handleRefresh)}
+          envList={envList}
         />
         }
 
@@ -572,11 +599,21 @@ class ProjectData extends PureComponent {
           title={`[${currentEnv.envName}] 变量管理`}
           visible={envDrawerVisible}
           width={1000}
-          //closable={false}
+          // closable={false}
           onClose={this.onCloseDrawer}
         >
-          {envDrawerVisible && <EnvVar envId={currentEnv.id} />}
+          {envDrawerVisible && <EnvVar env={currentEnv} />}
         </Drawer>}
+
+        {/* 环境变量的同步任务 */}
+        {currentEnv && envTaskVisible && <EnvTask
+          visible={this.state.envTaskVisible}
+          handleCloseTask={this.handleCloseEnvTask}
+          env={currentEnv}
+          handleRefresh={handleRefresh => (this.handleRefresh = handleRefresh)}
+          envList={envList}
+        />
+        }
       </div>
     );
   }

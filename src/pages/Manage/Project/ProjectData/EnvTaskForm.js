@@ -1,12 +1,9 @@
 import React, { PureComponent } from 'react';
-import { Form, Input, Card, Select, Radio, Modal, message, notification } from 'antd';
+import { Form, Input, Card, Button, Select, Radio, Modal, message, notification } from 'antd';
 import { connect } from 'dva';
 import styles from '../../../../layouts/Sword.less';
-import { TASK_SUBSCRIBED, TASK_TYPE_PRODUCER, TASK_INIT } from '../../../../actions/task';
+import { TASK_INIT_API, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER } from '../../../../actions/task';
 import { submit as submitTask, detail as taskDetail } from '../../../../services/task';
-import TaskFieldMappingTable from '../../Task/TaskFieldMappingTable';
-import { dataFields } from '../../../../services/data';
-import TaskDataFilterTable from '../../Task/TaskDataFilterTable';
 import TaskVarMappingTable from '../../Task/TaskVarMappingTable';
 
 const FormItem = Form.Item;
@@ -16,7 +13,7 @@ const FormItem = Form.Item;
   submitting: loading.effects['task/submit'],
 }))
 @Form.create()
-class DataTaskForm extends PureComponent {
+class EnvTaskForm extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -29,20 +26,15 @@ class DataTaskForm extends PureComponent {
       apiList: [],
       currentApi: null,
 
-      dataFieldList: [],
-      fieldMappings: {},
-      filters: [],
-      varMappings: [],
+      varMappings: [{ key: 0 }],
 
-      isShowSubscribed: false,
       isShowTaskPeriod: true,
     };
   }
 
   componentWillMount() {
-    const { dispatch, opType, data, currentTask } = this.props;
-    dispatch(TASK_INIT({ opType }));
-    this.loadDataFieldList(data.id);
+    const { dispatch, opType, currentTask } = this.props;
+    dispatch(TASK_INIT_API({ opType }));
 
     if (currentTask && currentTask.id) {
       taskDetail({ id: currentTask.id }).then(resp => {
@@ -51,11 +43,7 @@ class DataTaskForm extends PureComponent {
           this.setState({ detail });
           this.setState({ apiUrl: detail.apiUrl });
           this.setState({
-            fieldMappings: detail.fieldMapping,
-            isShowSubscribed: detail.opType !== TASK_TYPE_PRODUCER,
             isShowTaskPeriod: detail.isSubscribed !== TASK_SUBSCRIBED,
-            initStatus: true,
-            filters: detail.dataFilter,
             varMappings: detail.fieldVarMapping,
           });
           this.renderWarning(detail);
@@ -66,10 +54,10 @@ class DataTaskForm extends PureComponent {
 
     if (opType === TASK_TYPE_PRODUCER) {
       // 提供数据
-      this.setState({ isShowSubscribed: false, isShowTaskPeriod: true });
+      this.setState({ isShowTaskPeriod: true });
     } else {
       // 消费数据
-      this.setState({ isShowSubscribed: true, isShowTaskPeriod: false });
+      this.setState({ isShowTaskPeriod: false });
     }
   }
 
@@ -85,30 +73,17 @@ class DataTaskForm extends PureComponent {
       envList,
       apiList,
     });
+  }
 
-    const { initStatus, detail } = this.state;
-
-    // if (!apiUrl && detail) {
-    //   this.setState({ apiUrl: detail.apiUrl });
-    // }
-
-    if (!initStatus && detail && detail.id) {
-      // this.setState({
-      //   fieldMappings: detail.fieldMapping,
-      //   isShowSubscribed: detail.opType != TASK_TYPE_PRODUCER,
-      //   isShowTaskPeriod: detail.isSubscribed != TASK_SUBSCRIBED,
-      //   initStatus: true,
-      //   filters: detail.dataFilter,
-      //   varMappings: detail.fieldVarMapping,
-      // });
-
-      // this.renderWarning(detail);
-    }
+  findApi(apiId) {
+    const newApiList = [...this.state.apiList];
+    const index = newApiList.findIndex(api => api.id === apiId);
+    const api = newApiList[index];
+    this.state.currentApi = api;
+    return api;
   }
 
   handleChangeEnv = envId => {
-    const currentEnv = this.findEnv(envId);
-    this.setState({ currentEnv });
     this.updateApiUrl();
   }
 
@@ -126,54 +101,24 @@ class DataTaskForm extends PureComponent {
   updateApiUrl() {
     const { form, env } = this.props;
     let { currentApi } = this.state;
-    const { currentEnv } = this.state;
-
-    let apiUrl = '';
 
     if (currentApi == null) {
       const appApiId = form.getFieldValue("apiId");
       currentApi = this.findApi(appApiId);
     }
-    if (currentApi) {
-      apiUrl = currentApi.apiUri;
-    }
 
-    if (currentEnv != null) {
-      apiUrl = currentEnv.envPrefix + apiUrl;
-    }
-    else if (env != null) {
-      apiUrl = env.envPrefix + apiUrl;
+    let apiUrl = '';
+
+    if (env != null && currentApi != null) {
+      apiUrl = env.envPrefix + currentApi.apiUri;
     }
 
     this.setState({ apiUrl });
   }
 
-  async loadDataFieldList(dataId) {
-    const dataFieldResponse = await dataFields({ dataId });
-    if (dataFieldResponse.success) {
-      this.setState({ dataFieldList: dataFieldResponse.data });
-    }
-  }
-
-  handleChangeData = dataId => {
-    if (!dataId) {
-      this.setState({ dataFieldList: [] });
-      return;
-    }
-    this.loadDataFieldList(dataId);
-  };
-
-  handleSaveMapping = mapping => {
-    const { fieldMappings } = this.state;
-    const key = mapping.dataFieldCode;
-    if (key) {
-      fieldMappings[key] = mapping.apiFieldCode;
-    }
-  };
-
   handleSubmit = e => {
     e.preventDefault();
-    const { form, env, data, projectId, closeTaskForm, currentTask } = this.props;
+    const { form, env, projectId, closeTaskForm, currentTask } = this.props;
 
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
@@ -182,13 +127,9 @@ class DataTaskForm extends PureComponent {
         };
         if (currentTask) {
           params.id = currentTask.id;
-          // params.refEnvId = currentTask.refEnvId;
         }
-        params.fieldMapping = this.state.fieldMappings;
-        params.dataFilter = this.state.filters;
         // params.fieldVarMapping = this.state.varMappings;
         params.envId = env.id;
-        params.dataId = data.id;
         params.projectId = projectId;
 
         const fieldVarMapping = {};
@@ -212,38 +153,6 @@ class DataTaskForm extends PureComponent {
         });
       }
     });
-  };
-
-  handleChangeSubscribed = e => {
-    const targetValue = e.target.value;
-    if (targetValue === TASK_SUBSCRIBED) {
-      // 订阅
-      this.setState({ isShowTaskPeriod: false });
-    } else {
-      // 不订阅
-      this.setState({ isShowTaskPeriod: true });
-    }
-  };
-
-  handleSaveFilter = filter => {
-    const newData = [...this.state.filters];
-    const index = newData.findIndex(item => filter.key === item.key);
-    if (index > -1) {
-      const item = newData[index];
-      newData.splice(index, 1, {
-        ...item,
-        ...filter,
-      });
-      this.setState({ filters: newData });
-    } else {
-      newData.push(filter);
-      this.setState({ filters: newData });
-    }
-  };
-
-  handleDeleteFilter = key => {
-    const filters = [...this.state.filters];
-    this.setState({ filters: filters.filter(item => item.key !== key) });
   };
 
   handleSaveVarMapping = filter => {
@@ -273,14 +182,6 @@ class DataTaskForm extends PureComponent {
     closeTaskForm();
   }
 
-  findApi(apiId) {
-    const newApiList = [...this.state.apiList];
-    const index = newApiList.findIndex(api => api.id === apiId);
-    const api = newApiList[index];
-    this.state.currentApi = api;
-    return api;
-  }
-
   findEnv(envId) {
     const newEnvList = [...this.state.envList];
     const index = newEnvList.findIndex(env => env.id === envId);
@@ -303,12 +204,12 @@ class DataTaskForm extends PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
+      submitting,
       task: {
-        init: { envList, apiList },
+        init: { apiList },
         //   detail,
       },
       opType,
-      isRefEnv,
     } = this.props;
 
     const { apiUrl, detail } = this.state;
@@ -347,25 +248,6 @@ class DataTaskForm extends PureComponent {
                 initialValue: detail ? detail.taskName : '',
               })(<Input placeholder="请输入任务名称" />)}
             </FormItem>
-            {(isRefEnv || (detail && detail.refEnvId)) ? (<FormItem {...formItemLayout} label="选择其他环境">
-              {getFieldDecorator('refEnvId', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择其他环境',
-                  },
-                ],
-                initialValue: detail ? detail.refEnvId : '',
-              })(
-                <Select allowClear placeholder="请选择其他环境" onChange={this.handleChangeEnv}>
-                  {envList.map(e => (
-                    <Select.Option key={e.id} value={e.id}>
-                      {e.envName} ({e.envPrefix})
-                    </Select.Option>
-                  ))}
-                </Select>
-              )}
-            </FormItem>) : <></>}
             <FormItem {...formItemLayout} label="选择API">
               {getFieldDecorator('apiId', {
                 rules: [
@@ -391,43 +273,6 @@ class DataTaskForm extends PureComponent {
             <FormItem {...formItemLayout} label="任务类型">
               {opType === TASK_TYPE_PRODUCER ? "提供数据" : "消费数据"}
             </FormItem>
-            {/* <FormItem {...formItemLayout} label="数据项">
-              {getFieldDecorator('dataId', {
-                rules: [
-                  {
-                    required: false,
-                    message: '请选择数据项',
-                  },
-                ],
-              })(
-                <Select allowClear placeholder="请选择数据项" onChange={this.handleChangeData}>
-                  {dataList.map(d => (
-                    <Select.Option key={d.id} value={d.id}>
-                      {d.dataCode} - {d.dataName}
-                    </Select.Option>
-                  ))}
-                </Select>
-              )}
-            </FormItem> */}
-
-            {this.state.isShowSubscribed && (<FormItem {...formItemLayout} label="订阅数据" extra="订阅模式：区别于定时模式，只当有提供新数据后才推送数据；">
-              {getFieldDecorator('isSubscribed', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请选择是否为订阅任务',
-                  },
-                ],
-                initialValue: detail ? detail.isSubscribed : 1,
-              })(
-                // <Input placeholder="请输入是否为订阅任务：0-不订阅，1-订阅" />
-                <Radio.Group buttonStyle="solid" onChange={this.handleChangeSubscribed}>
-                  <Radio.Button value={1}>订阅</Radio.Button>
-                  <Radio.Button value={0}>不订阅</Radio.Button>
-                </Radio.Group>
-              )}
-            </FormItem>)}
-
             {this.state.isShowTaskPeriod && (<FormItem {...formItemLayout} label="任务周期">
               {getFieldDecorator('taskPeriod', {
                 rules: [
@@ -453,31 +298,6 @@ class DataTaskForm extends PureComponent {
                 </Radio.Group>
               )}
             </FormItem>)}
-            {/* <FormItem {...formItemLayout} label="JSON字段层级前缀">
-              {getFieldDecorator('apiFieldPrefix', {
-                rules: [
-                  {
-                    required: false,
-                    message: '请输入字段层级前缀',
-                  },
-                ],
-                initialValue: detail ? detail.apiFieldPrefix : '',
-              })(<Input placeholder="请输入JSON字段层级前缀" />)}
-            </FormItem> */}
-            <FormItem {...formItemLayout} label="字段映射">
-              <TaskFieldMappingTable
-                dataFieldList={this.state.dataFieldList}
-                handleSave={this.handleSaveMapping}
-                initFieldMappings={detail ? detail.fieldMapping : {}}
-              />
-            </FormItem>
-            <FormItem {...formItemLayout} label="数据过滤条件">
-              <TaskDataFilterTable
-                filters={this.state.filters}
-                handleSave={this.handleSaveFilter}
-                handleDelete={this.handleDeleteFilter}
-              />
-            </FormItem>
             <FormItem {...formItemLayout} label="数据存入变量">
               <TaskVarMappingTable
                 varMappings={this.state.varMappings}
@@ -492,4 +312,4 @@ class DataTaskForm extends PureComponent {
   }
 }
 
-export default DataTaskForm;
+export default EnvTaskForm;

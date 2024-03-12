@@ -41,18 +41,18 @@ class EnvEdit extends PureComponent {
 
     // if(!(this.state.globalHeaders && this.state.globalHeaders.length > 0)){
     if (globalHeaders && globalHeaders.length > 0) {
-      globalHeaders.filter((item, index, self) => { item.key = index });
+      globalHeaders.filter((item, index) => { item.key = index });
       this.setState({
-        globalHeaders: globalHeaders,
+        globalHeaders,
       });
     }
     // }
 
     // if(!(this.state.globalParams && this.state.globalParams.length > 0)){
     if (globalParams && globalParams.length > 0) {
-      globalParams.filter((item, index, self) => { item.key = index });
+      globalParams.filter((item, index) => { item.key = index });
       this.setState({
-        globalParams: globalParams,
+        globalParams,
       });
     }
     // }

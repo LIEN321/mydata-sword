@@ -1,4 +1,5 @@
-import { Form, Input, Button, Table, Select, Popconfirm } from 'antd';
+import { Form, Input, Button, Table, Popconfirm } from 'antd';
+import React from 'react';
 import style from './StandardData.less';
 
 const EditableContext = React.createContext();
@@ -30,7 +31,7 @@ class EditableCell extends React.Component {
 
   save = e => {
     const { record, handleSave } = this.props;
-    this.form.validateFields((error, values) => {
+    this.form.validateFields((error) => {
       if (error && error[e.currentTarget.key]) {
         return;
       }
@@ -138,13 +139,12 @@ class TaskVarMappingTable extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     let { varMappings } = nextProps;
-    if (varMappings) {
-    } else {
+    if (!varMappings) {
       varMappings = [];
     }
 
     this.setState({
-      varMappings: varMappings,
+      varMappings,
       count: varMappings.length,
       readonly: nextProps.readonly ? nextProps.readonly : false,
     });
@@ -174,18 +174,9 @@ class TaskVarMappingTable extends React.Component {
     const index = newData.findIndex(item => key === item.key);
     const item = newData[index];
     item[dataIndex] = value;
-    // newData.splice(index, 1, {
-    //   ...item,
-    //   ...row,
-    // });
     this.setState({ varMappings: newData });
 
     this.props.handleSave(item);
-
-    
-    console.info("key = " + key);
-    console.info("dataIndex = " + dataIndex);
-    console.info("value = " + value);
   };
 
   handleDelete = key => {

@@ -1,4 +1,5 @@
-import { Form, Input, Button, Table, Switch, Popconfirm } from 'antd';
+import { Form, Input, Button, Table, Switch, Popconfirm, InputNumber } from 'antd';
+import React from 'react';
 import style from './StandardData.less';
 
 const EditableContext = React.createContext();
@@ -29,14 +30,12 @@ class EditableCell extends React.Component {
   };
 
   save = e => {
-    const { record, handleSave } = this.props;
-    this.form.validateFields((error, values) => {
+    const { record } = this.props;
+    this.form.validateFields((error) => {
       if (error && error[e.currentTarget.id]) {
         return;
       }
       this.toggleEdit();
-      // 以下两行代码 单独执行都可实现更新单元格内容
-      // handleSave(record.key, this.props.dataIndex, e.target.value);
       record[this.props.dataIndex] = e.target.value;
       // ----------------------------------------------------------
     });
@@ -44,7 +43,7 @@ class EditableCell extends React.Component {
 
   handleSwitchIsId = () => {
     const { record, handleSwitchIsId } = this.props;
-    if (record.isId == 1) {
+    if (record.isId === 1) {
       record.isId = 0;
     } else {
       record.isId = 1;
@@ -55,8 +54,8 @@ class EditableCell extends React.Component {
   getInput = () => {
     if (this.props.inputType === 'number') {
       return <InputNumber />;
-    } else if (this.props.inputType === 'switch') {
-      return <Switch ref={node => (this.input = node)} checked={this.props.record.isId == 1} checkedChildren="是" unCheckedChildren="否" onClick={() => this.handleSwitchIsId()} />
+    } if (this.props.inputType === 'switch') {
+      return <Switch ref={node => (this.input = node)} checked={this.props.record.isId === 1} checkedChildren="是" unCheckedChildren="否" onClick={() => this.handleSwitchIsId()} />
     }
     return <Input ref={node => (this.input = node)} onPressEnter={this.save} onBlur={this.save} placeholder={`请输入${this.props.title}`} />;
   };
@@ -142,7 +141,7 @@ class EditableTable extends React.Component {
         dataIndex: 'isId',
         width: '15%',
         render: (text, record) => {
-          return record.isId == 1 ? "是" : "否";
+          return record.isId === 1 ? "是" : "否";
         },
         editable: !this.state.readonly,
       },
@@ -175,7 +174,7 @@ class EditableTable extends React.Component {
     }
 
     this.setState({
-      dataFields: dataFields,
+      dataFields,
       count: dataFields.length,
       readonly: nextProps.readonly ? nextProps.readonly : false,
     });
@@ -224,12 +223,12 @@ class EditableTable extends React.Component {
   };
 
   handleSwitchIsId = (key, isId) => {
-    if (isId == 0) {
+    if (isId === 0) {
       return;
     }
     const { dataFields } = this.state;
     dataFields.map(field => {
-      if (field.key != key) {
+      if (field.key !== key) {
         field.isId = 0;
       }
     });
@@ -237,8 +236,6 @@ class EditableTable extends React.Component {
   }
 
   render() {
-    const { dataSource } = this.state;
-
     const components = {
       body: {
         row: EditableFormRow,

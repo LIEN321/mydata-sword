@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Form, Input, Card, Button, Radio } from 'antd';
+import { Form, Input, Card, Button } from 'antd';
 import { connect } from 'dva';
 import Panel from '../../../components/Panel';
 import styles from '../../../layouts/Sword.less';
@@ -12,10 +12,6 @@ const FormItem = Form.Item;
 }))
 @Form.create()
 class AppAdd extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
-
   handleSubmit = e => {
     e.preventDefault();
     const { dispatch, form } = this.props;

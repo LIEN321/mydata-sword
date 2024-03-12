@@ -26,6 +26,13 @@ export function DATA_TASKS(payload) {
   };
 }
 
+export function ENV_TASKS(payload) {
+  return {
+    type: `${TASK_NAMESPACE}/fetchEnvTasks`,
+    payload,
+  };
+}
+
 export function TASK_DETAIL(id) {
   return {
     type: `${TASK_NAMESPACE}/fetchDetail`,

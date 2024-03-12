@@ -1,4 +1,5 @@
-import { Form, Input, Button, Table, Switch, Popconfirm } from 'antd';
+import { Form, Input, Button, Table, Popconfirm, InputNumber } from 'antd';
+import React from 'react';
 import style from './StandardData.less';
 
 const EditableContext = React.createContext();
@@ -30,7 +31,7 @@ class EditableCell extends React.Component {
 
   save = e => {
     const { record, handleSave } = this.props;
-    this.form.validateFields((error, values) => {
+    this.form.validateFields((error) => {
       if (error && error[e.currentTarget.key]) {
         return;
       }
@@ -143,13 +144,12 @@ class ApiEditableTable extends React.Component {
   componentWillReceiveProps(nextProps) {
 
     let { tableValues } = nextProps;
-    if (tableValues) {
-    } else {
+    if (!tableValues) {
       tableValues = [];
     }
 
     this.setState({
-      tableValues: tableValues,
+      tableValues,
       count: tableValues.length,
       readonly: nextProps.readonly ? nextProps.readonly : false,
     });
@@ -196,8 +196,6 @@ class ApiEditableTable extends React.Component {
   };
 
   render() {
-    const { dataSource } = this.state;
-
     const components = {
       body: {
         row: EditableFormRow,

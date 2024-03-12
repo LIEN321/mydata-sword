@@ -41,17 +41,6 @@ class TaskEdit extends PureComponent {
     };
   }
 
-  renderWarning = task => {
-    if (task.taskStatus == 1) {
-      notification['warning']({
-        message: '请注意',
-        description:
-          '任务运行中，请在提交修改后手动重启！',
-        duration: 10,
-      });
-    }
-  }
-
   componentWillMount() {
     const {
       dispatch,
@@ -72,8 +61,8 @@ class TaskEdit extends PureComponent {
     } = nextProps;
 
     this.setState({
-      envList: envList,
-      apiList: apiList,
+      envList,
+      apiList,
     });
 
     const { initStatus, apiUrl, opType } = this.state;
@@ -82,8 +71,8 @@ class TaskEdit extends PureComponent {
       this.loadDataFieldList(detail.dataId);
       this.setState({
         fieldMappings: detail.fieldMapping,
-        isShowSubscribed: detail.opType != TASK_TYPE_PRODUCER,
-        isShowTaskPeriod: detail.isSubscribed != TASK_SUBSCRIBED,
+        isShowSubscribed: detail.opType !== TASK_TYPE_PRODUCER,
+        isShowTaskPeriod: detail.isSubscribed !== TASK_SUBSCRIBED,
         initStatus: true,
         filters: detail.dataFilter,
         varMappings: detail.fieldVarMapping,
@@ -97,30 +86,23 @@ class TaskEdit extends PureComponent {
       this.findEnv(detail.envId);
     }
     if (!opType) {
-      this.setState({ opType: detail.opType == 1 ? "提供数据" : "消费数据" });
+      this.setState({ opType: detail.opType === 1 ? "提供数据" : "消费数据" });
       this.findApi(detail.apiId);
     }
-
   }
 
-  findEnv(envId) {
-    const newEnvList = [...this.state.envList];
-    const index = newEnvList.findIndex(env => env.id === envId);
-    const env = newEnvList[index];
-    this.state.currentEnv = env;
-    return env;
-  }
-
-  findApi(apiId) {
-    const newApiList = [...this.state.apiList];
-    const index = newApiList.findIndex(api => api.id === apiId);
-    const api = newApiList[index];
-    this.state.currentApi = api;
-    return api;
+  renderWarning = task => {
+    if (task.taskStatus === 1) {
+      notification.warning({
+        message: '请注意',
+        description:
+          '任务运行中，请在提交修改后手动重启！',
+        duration: 10,
+      });
+    }
   }
 
   handleChangeEnv = envId => {
-    const env = this.findEnv(envId);
     this.updateApiUrl();
   }
 
@@ -133,8 +115,8 @@ class TaskEdit extends PureComponent {
     }
     this.updateApiUrl();
 
-    const opType = api.opType;
-    if (opType == TASK_TYPE_PRODUCER) {
+    const {opType} = api;
+    if (opType === TASK_TYPE_PRODUCER) {
       // 提供数据
       this.setState({ isShowSubscribed: false, isShowTaskPeriod: true });
     } else {
@@ -165,7 +147,7 @@ class TaskEdit extends PureComponent {
   }
 
   async loadDataFieldList(dataId) {
-    const dataFieldResponse = await dataFields({ dataId: dataId });
+    const dataFieldResponse = await dataFields({ dataId });
     if (dataFieldResponse.success) {
       this.setState({ dataFieldList: dataFieldResponse.data });
     }
@@ -264,6 +246,22 @@ class TaskEdit extends PureComponent {
     const varMappings = [...this.state.varMappings];
     this.setState({ varMappings: varMappings.filter(item => item.key !== key) });
   };
+
+  findApi(apiId) {
+    const newApiList = [...this.state.apiList];
+    const index = newApiList.findIndex(api => api.id === apiId);
+    const api = newApiList[index];
+    this.state.currentApi = api;
+    return api;
+  }
+
+  findEnv(envId) {
+    const newEnvList = [...this.state.envList];
+    const index = newEnvList.findIndex(env => env.id === envId);
+    const env = newEnvList[index];
+    this.state.currentEnv = env;
+    return env;
+  }
 
   render() {
     const {

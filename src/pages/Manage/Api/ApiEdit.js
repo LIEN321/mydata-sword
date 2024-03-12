@@ -22,7 +22,6 @@ class ApiEdit extends PureComponent {
       reqParams: [],
       
       visible: false,
-      envList: [],
     };
   }
 
@@ -41,33 +40,24 @@ class ApiEdit extends PureComponent {
     const {
       api: {
         detail,
-        init: { envList },
       },
     } = nextProps;
 
     const { reqHeaders, reqParams } = detail;
 
-    // if(!(this.state.reqHeaders && this.state.reqHeaders.length > 0)){
     if (reqHeaders && reqHeaders.length > 0) {
-      reqHeaders.filter((item, index, self) => { item.key = index });
+      reqHeaders.filter((item, index) => { item.key = index });
       this.setState({
-        reqHeaders: reqHeaders,
+        reqHeaders,
       });
     }
-    // }
 
-    // if(!(this.state.reqParams && this.state.reqParams.length > 0)){
     if (reqParams && reqParams.length > 0) {
-      reqParams.filter((item, index, self) => { item.key = index });
+      reqParams.filter((item, index) => { item.key = index });
       this.setState({
-        reqParams: reqParams,
+        reqParams,
       });
     }
-    // }
-
-    this.setState({
-      envList: envList,
-    });
   }
 
   handleSubmit = e => {

@@ -1,15 +1,11 @@
 import React, { PureComponent } from 'react';
-import { Card, Col, Collapse, Row, Divider, Tag, Statistic, List } from 'antd';
-import styles from '../../../layouts/Sword.less';
-import PageHeaderWrapper from '../../../components/PageHeaderWrapper';
-import ThirdRegister from '../../../components/ThirdRegister';
+import { Card, Col, Row, Statistic, List } from 'antd';
 import { Link } from 'umi';
 import { connect } from 'dva';
+import styles from '../../../layouts/Sword.less';
+import PageHeaderWrapper from '../../../components/PageHeaderWrapper';
 import { WORKPLACE_STAT, WORKPLACE_TASK } from '@/actions/workplace';
-import Item from 'antd/lib/list/Item';
 import mdStyle from '../../../layouts/Mydata.less'
-
-const { Panel } = Collapse;
 
 @connect(({ workplace }) => ({
   workplace,
@@ -27,27 +23,25 @@ class Workplace extends PureComponent {
       workplace: { stat, task },
     } = this.props;
 
-    console.info(task);
-
     return (
       <PageHeaderWrapper>
         <Card className={styles.card} bordered={false}>
           {/* mydata概要统计 */}
           <Row gutter={24}>
             <Col span={4}>
-              <Card title="项目" bordered={false} extra={<Link to={'/manage/project'}>更多</Link>}>
+              <Card title="项目" bordered={false} extra={<Link to="/manage/project">更多</Link>}>
                 <Row gutter={24}>
                   <Col span={24}>
-                    <Statistic title="项目数量" value={stat.projectCount}></Statistic>
+                    <Statistic title="项目数量" value={stat.projectCount} />
                   </Col>
                 </Row>
               </Card>
             </Col>
             <Col span={4}>
-              <Card title="数据" bordered={false} extra={<Link to={'/manage/data'}>更多</Link>}>
+              <Card title="数据" bordered={false} extra={<Link to="/manage/data">更多</Link>}>
                 <Row gutter={24}>
                   <Col span={12}>
-                    <Statistic title="数据项" value={stat.dataCount}></Statistic>
+                    <Statistic title="数据项" value={stat.dataCount} />
                   </Col>
                   {/* <Col span={12}>
                     <Statistic title="业务数据" value={stat.bizDataCount}></Statistic>
@@ -56,42 +50,42 @@ class Workplace extends PureComponent {
               </Card>
             </Col>
             <Col span={4}>
-              <Card title="应用" bordered={false} extra={<Link to={'/manage/app'}>更多</Link>}>
+              <Card title="应用" bordered={false} extra={<Link to="/manage/app">更多</Link>}>
                 <Row gutter={24}>
                   <Col span={24}>
-                    <Statistic title="应用" value={stat.appCount}></Statistic>
+                    <Statistic title="应用" value={stat.appCount} />
                   </Col>
                 </Row>
               </Card>
             </Col>
             <Col span={6}>
-              <Card title="API" bordered={false} extra={<Link to={'/manage/api'}>更多</Link>}>
+              <Card title="API" bordered={false} extra={<Link to="/manage/api">更多</Link>}>
                 <Row gutter={24}>
                   <Col span={6}>
-                    <Statistic title="API" value={stat.apiCount}></Statistic>
+                    <Statistic title="API" value={stat.apiCount} />
                   </Col>
                   <Col span={9}>
-                    <Statistic title="提供数据" value={stat.producerCount}></Statistic>
+                    <Statistic title="提供数据" value={stat.producerCount} />
                   </Col>
                   <Col span={9}>
-                    <Statistic title="消费数据" value={stat.consumerCount}></Statistic>
+                    <Statistic title="消费数据" value={stat.consumerCount} />
                   </Col>
                 </Row>
               </Card>
             </Col>
             <Col span={6}>
-              <Card title="任务" bordered={false} extra={<Link to={'/manage/task'}>更多</Link>}>
+              <Card title="任务" bordered={false} extra={<Link to="/manage/task">更多</Link>}>
                 <Col span={6}>
-                  <Statistic title="任务" value={stat.taskCount}></Statistic>
+                  <Statistic title="任务" value={stat.taskCount} />
                 </Col>
                 <Col span={6}>
-                  <Statistic title="运行" value={stat.runningCount}></Statistic>
+                  <Statistic title="运行" value={stat.runningCount} />
                 </Col>
                 <Col span={6}>
-                  <Statistic title="异常" value={stat.failedCount}></Statistic>
+                  <Statistic title="异常" value={stat.failedCount} />
                 </Col>
                 <Col span={6}>
-                  <Statistic title="停止" value={stat.stoppedCount}></Statistic>
+                  <Statistic title="停止" value={stat.stoppedCount} />
                 </Col>
               </Card>
             </Col>
@@ -112,7 +106,7 @@ class Workplace extends PureComponent {
                         title={
                           <Row>
                             <Col span={12}>{item.taskName}</Col>
-                            <Col span={12} style={{textAlign:'right'}} className={mdStyle.taskRunning}>{item.lastSuccessTime}</Col>
+                            <Col span={12} style={{ textAlign: 'right' }} className={mdStyle.taskRunning}>{item.lastSuccessTime}</Col>
                           </Row>
                         }
                         description={`项目：${item.projectName} | 环境：${item.envName}`}
@@ -134,7 +128,7 @@ class Workplace extends PureComponent {
                         title={
                           <Row>
                             <Col span={12}>{item.taskName}</Col>
-                            <Col span={12} style={{textAlign:'right'}} className={mdStyle.taskFailed}>{item.lastRunTime}</Col>
+                            <Col span={12} style={{ textAlign: 'right' }} className={mdStyle.taskFailed}>{item.lastRunTime}</Col>
                           </Row>
                         }
                         description={`项目：${item.projectName} | 环境：${item.envName}`}

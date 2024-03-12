@@ -67,7 +67,7 @@ class ApiView extends PureComponent {
               <span>{detail.apiName}</span>
             </FormItem>
             <FormItem {...formItemLayout} label="API类型">
-              <span>{detail.opType == 1 ? "提供数据" : "消费数据"}</span>
+              <span>{detail.opType === 1 ? "提供数据" : "消费数据"}</span>
             </FormItem>
             <FormItem {...formItemLayout} label="请求方法">
               <span>{detail.apiMethod}</span>
@@ -84,13 +84,13 @@ class ApiView extends PureComponent {
             <FormItem {...formItemLayout} label="Headers">
               <ApiEditableTable
                 tableValues={detail.reqHeaders}
-                readonly={true}
+                readonly
               />
             </FormItem>
             <FormItem {...formItemLayout} label="Params">
               <ApiEditableTable
                 tableValues={detail.reqParams}
-                readonly={true}
+                readonly
               />
             </FormItem>
           </Card>

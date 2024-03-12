@@ -1,7 +1,6 @@
 import React, { Fragment, PureComponent } from 'react';
 import { connect } from 'dva';
 import { Button, Card, Col, Divider, Form, Input, message, Modal, Row } from 'antd';
-import Panel from '../../../components/Panel';
 import { ENVVAR_LIST } from '../../../actions/envvar';
 import Grid from '../../../components/Sword/Grid';
 import styles from '../../../layouts/Sword.less';
@@ -23,19 +22,12 @@ class EnvVar extends PureComponent {
     detail: {},
   };
 
-  componentDidMount() {
-    const {
-      dispatch, envId
-    } = this.props;
-    // dispatch(ENVVAR_LIST({ envId }));
-  }
-
   // ============ 查询 ===============
   handleSearch = params => {
     const { dispatch } = this.props;
-    const { envId } = this.props;
+    const { env } = this.props;
     this.setState({ params });
-    const search = { envId: envId, varName: params.varName };
+    const search = { envId: env.id, varName: params.varName };
     dispatch(ENVVAR_LIST(search));
   };
 
@@ -95,7 +87,7 @@ class EnvVar extends PureComponent {
         okType: 'danger',
         cancelText: '取消',
         onOk() {
-          removeEnvVar({ ids: id, envId: envId, varName: varName }).then(resp => {
+          removeEnvVar({ ids: id, envId, varName }).then(resp => {
             if (resp.success) {
               message.success(resp.msg);
               refresh(params);
@@ -116,7 +108,7 @@ class EnvVar extends PureComponent {
       this.handleStateCancel();
       return;
     }
-    const { form, envId } = this.props;
+    const { form, env } = this.props;
 
     const {
       params,
@@ -125,7 +117,7 @@ class EnvVar extends PureComponent {
 
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        let formData = Object.assign(values, { envId })
+        let formData = Object.assign(values, { envId : env.id })
         if (!func.isEmpty(id)) {
           formData = Object.assign(values, { id });
         }
@@ -150,6 +142,7 @@ class EnvVar extends PureComponent {
       detail: { id: '' }
     });
   };
+  // ------------------------------------------------------------
 
   renderLeftButton = () => (
     <Button icon="plus" type="primary" onClick={() => this.handleClick('env_var_add')}>
@@ -158,8 +151,6 @@ class EnvVar extends PureComponent {
   );
 
   render() {
-    const code = 'envVar';
-
     const {
       form,
       loading,
@@ -182,47 +173,48 @@ class EnvVar extends PureComponent {
       {
         title: '变量名',
         dataIndex: 'varName',
-        width: '200px',
+        width: '150px',
       },
       {
         title: '变量值',
         dataIndex: 'varValue',
-        width: '500px',
+        width: '400px',
+      },
+      {
+        title: '更新时间',
+        dataIndex: 'updateTime',
+        width: '160px',
       },
       {
         title: '操作',
         dataIndex: 'action',
-        width: '100px',
-        render: (text, record) => (
-          <Fragment>
-            <div style={{ textAlign: 'center' }}>
-              <Fragment key="edit">
-                <a title="修改" onClick={() => this.handleClick('env_var_edit', record)}>
-                  修改
-                </a>
-              </Fragment>
-              <Divider type="vertical" />
-              <Fragment key="delete">
-                <a title="删除" onClick={() => this.handleClick('env_var_delete', record)}>
-                  删除
-                </a>
-              </Fragment>
-              {/* <Divider type="vertical" />
-              <Fragment key="view">
-                <a title="查看" onClick={() => this.handleClick('env_var_view', record)}>
-                  查看
-                </a>
-              </Fragment> */}
-            </div>
-          </Fragment>
-        ),
+        width: '120px',
+        render: (text, record) => {
+          return (
+            <Fragment>
+              <div style={{ textAlign: 'center' }}>
+                <Fragment key="edit">
+                  <a title="修改" onClick={() => this.handleClick('env_var_edit', record)}>
+                    修改
+                  </a>
+                </Fragment>
+                <Divider type="vertical" />
+                <Fragment key="delete">
+                  <a title="删除" onClick={() => this.handleClick('env_var_delete', record)}>
+                    删除
+                  </a>
+                </Fragment>
+              </div>
+            </Fragment>
+          )
+        },
       },
     ];
 
     return (
       <div>
         <Grid
-          // code={code}
+          enableRowSelection={false}
           form={form}
           onSearch={this.handleSearch}
           renderSearchForm={this.renderSearchForm}

@@ -52,29 +52,12 @@ class TaskAdd extends PureComponent {
     } = nextProps;
 
     this.setState({
-      envList: envList,
-      apiList: apiList,
+      envList,
+      apiList,
     });
   }
 
-  findEnv(envId) {
-    const newEnvList = [...this.state.envList];
-    const index = newEnvList.findIndex(env => env.id === envId);
-    const env = newEnvList[index];
-    this.state.currentEnv = env;
-    return env;
-  }
-
-  findApi(apiId) {
-    const newApiList = [...this.state.apiList];
-    const index = newApiList.findIndex(api => api.id === apiId);
-    const api = newApiList[index];
-    this.state.currentApi = api;
-    return api;
-  }
-
   handleChangeEnv = envId => {
-    const env = this.findEnv(envId);
     this.updateApiUrl();
   }
 
@@ -82,14 +65,14 @@ class TaskAdd extends PureComponent {
     const api = this.findApi(apiId);
     this.state.currentApi = api;
     if (api) {
-      this.state.opType = api.opType == 1 ? "提供数据" : "消费数据";
+      this.state.opType = api.opType === 1 ? "提供数据" : "消费数据";
     } else {
       this.state.opType = "";
     }
     this.updateApiUrl();
 
-    const opType = api.opType;
-    if (opType == TASK_TYPE_PRODUCER) {
+    const {opType} = api;
+    if (opType === TASK_TYPE_PRODUCER) {
       // 提供数据
       this.setState({ isShowSubscribed: false, isShowTaskPeriod: true });
     } else {
@@ -120,7 +103,7 @@ class TaskAdd extends PureComponent {
   }
 
   async loadDataFieldList(dataId) {
-    const dataFieldResponse = await dataFields({ dataId: dataId });
+    const dataFieldResponse = await dataFields({ dataId });
     if (dataFieldResponse.success) {
       this.setState({ dataFieldList: dataFieldResponse.data });
     }
@@ -160,7 +143,7 @@ class TaskAdd extends PureComponent {
 
   handleChangeSubscribed = e => {
     const targetValue = e.target.value;
-    if (targetValue == TASK_SUBSCRIBED) {
+    if (targetValue === TASK_SUBSCRIBED) {
       // 订阅
       this.setState({ isShowTaskPeriod: false });
     } else {
@@ -210,6 +193,22 @@ class TaskAdd extends PureComponent {
     const varMappings = [...this.state.varMappings];
     this.setState({ varMappings: varMappings.filter(item => item.key !== key) });
   };
+
+  findApi(apiId) {
+    const newApiList = [...this.state.apiList];
+    const index = newApiList.findIndex(api => api.id === apiId);
+    const api = newApiList[index];
+    this.state.currentApi = api;
+    return api;
+  }
+
+  findEnv(envId) {
+    const newEnvList = [...this.state.envList];
+    const index = newEnvList.findIndex(env => env.id === envId);
+    const env = newEnvList[index];
+    this.state.currentEnv = env;
+    return env;
+  }
 
   render() {
     const {

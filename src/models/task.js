@@ -1,7 +1,7 @@
 import { message } from 'antd';
 import router from 'umi/router';
 import { TASK_NAMESPACE } from '../actions/task';
-import { list, submit, detail, remove, taskLogList, dataTasks } from '../services/task';
+import { list, submit, detail, remove, taskLogList, dataTasks, envTasks } from '../services/task';
 import { select as envSelect } from '../services/env';
 import { select as dataSelect } from '../services/data';
 import { select as apiSelect } from '../services/md_api';
@@ -15,6 +15,7 @@ export default {
       pagination: false,
     },
     dataTasks: { producerTasks: [], consumerTasks: [] },
+    envTasks: { producerTasks: [], consumerTasks: [] },
     detail: {},
     init: {
       envList: [],
@@ -50,6 +51,17 @@ export default {
           type: 'saveDataTasks',
           payload: {
             dataTasks: response.data,
+          },
+        });
+      }
+    },
+    *fetchEnvTasks({ payload }, { call, put }) {
+      const response = yield call(envTasks, payload);
+      if (response.success) {
+        yield put({
+          type: 'saveEnvTasks',
+          payload: {
+            envTasks: response.data,
           },
         });
       }
@@ -91,16 +103,17 @@ export default {
     *fetchInit({ payload }, { call, put }) {
       const responseEnv = yield call(envSelect, payload);
       const responseApi = yield call(apiSelect, payload);
-      const responsedData = yield call(dataSelect, payload);
-      if (
-        responseEnv.success && responseApi.success && responsedData.success
+      // const responsedData = yield call(dataSelect, payload);
+      if (responseEnv.success
+        && responseApi.success
+        // && responsedData.success
       ) {
         yield put({
           type: 'saveInit',
           payload: {
             envList: responseEnv.data,
             apiList: responseApi.data,
-            dataList: responsedData.data,
+            // dataList: responsedData.data,
           },
         });
       }
@@ -144,6 +157,12 @@ export default {
       return {
         ...state,
         dataTasks: action.payload.dataTasks,
+      };
+    },
+    saveEnvTasks(state, action) {
+      return {
+        ...state,
+        envTasks: action.payload.envTasks,
       };
     },
     saveDetail(state, action) {

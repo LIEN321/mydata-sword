@@ -21,7 +21,7 @@ class Env extends PureComponent {
     this.state = {
       drawerTitle: '',
       drawerVisible: false,
-      envId: null,
+      currentEnv: {},
     };
   }
 
@@ -67,7 +67,7 @@ class Env extends PureComponent {
       okType: 'danger',
       cancelText: '取消',
       async onOk() {
-        const response = await syncTask({ id: id });
+        const response = await syncTask({ id });
         if (response.success) {
           message.success(response.msg);
           dispatch(ENV_LIST());
@@ -80,14 +80,14 @@ class Env extends PureComponent {
   };
 
   handleBtnCallBack = payload => {
-    const { btn, keys, rows } = payload;
+    const { btn, rows } = payload;
     if (btn.code === 'env_var') {
       // alert('env_var click');
       // alert(rows[0].id);
       this.setState({
         drawerTitle: rows[0].envName,
         drawerVisible: true,
-        envId : rows[0].id,
+        currentEnv: rows[0],
       });
     }
   };
@@ -105,12 +105,17 @@ class Env extends PureComponent {
       env: { data },
     } = this.props;
 
-    const { drawerTitle, drawerVisible, envId } = this.state;
+    const { drawerTitle, drawerVisible, currentEnv } = this.state;
 
     const columns = [
       {
         title: '所属项目',
         dataIndex: 'projectName',
+      },
+      {
+        title: '顺序',
+        dataIndex: 'sort',
+        width: '50px',
       },
       {
         title: '环境名称',
@@ -129,10 +134,10 @@ class Env extends PureComponent {
         title: '同步任务时间',
         dataIndex: 'syncTaskTime',
         width: '250px',
-        render: (text, record, index) => {
+        render: (text, record) => {
           const { id, syncTaskTime, updateTime } = record;
           let color = 'green';
-          if (syncTaskTime == "") {
+          if (syncTaskTime === "") {
             color = 'gray'
           }
           else
@@ -144,13 +149,11 @@ class Env extends PureComponent {
             <Divider type="vertical" />
             <a onClick={() => {
               this.syncTask(id);
-            }}>更新</a>
+            }}
+            >更新
+            </a>
           </>
         },
-      },
-      {
-        title: '顺序',
-        dataIndex: 'sort',
       },
     ];
 
@@ -171,10 +174,10 @@ class Env extends PureComponent {
           title={`[${drawerTitle}] 变量管理`}
           visible={drawerVisible}
           width={1000}
-          //closable={false}
+          // closable={false}
           onClose={this.onCloseDrawer}
         >
-          {drawerVisible && <EnvVar envId={envId} />}
+          {drawerVisible && <EnvVar env={currentEnv} />}
         </Drawer>
       </Panel>
     );

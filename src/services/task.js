@@ -10,6 +10,10 @@ export async function dataTasks(params) {
   return request(`/api/mydata-manage/task/data_tasks?${stringify(params)}`);
 }
 
+export async function envTasks(params) {
+  return request(`/api/mydata-manage/task/env_tasks?${stringify(params)}`);
+}
+
 export async function submit(params) {
   return request('/api/mydata-manage/task/submit', {
     method: 'POST',
@@ -48,4 +52,11 @@ export async function executeTask(taskId) {
 
 export async function taskLogList(params) {
   return request(`/api/mydata-manage/task/logs?${stringify(params)}`);
+}
+
+export async function copyTask(params) {
+  return request('/api/mydata-manage/task/copy_task', {
+    method: 'POST',
+    body: func.toFormData(params),
+  });
 }

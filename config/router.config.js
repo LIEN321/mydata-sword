@@ -77,21 +77,6 @@ export default [
         ],
       },
       {
-        path: '/desk',
-        routes: [
-          {
-            path: '/desk/notice',
-            routes: [
-              { path: '/desk/notice', redirect: '/desk/notice/list' },
-              { path: '/desk/notice/list', component: './Desk/Notice/Notice' },
-              { path: '/desk/notice/add', component: './Desk/Notice/NoticeAdd' },
-              { path: '/desk/notice/edit/:id', component: './Desk/Notice/NoticeEdit' },
-              { path: '/desk/notice/view/:id', component: './Desk/Notice/NoticeView' },
-            ],
-          },
-        ],
-      },
-      {
         path: '/base',
         routes: [
           {
