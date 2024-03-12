@@ -27,8 +27,6 @@ class Workplace extends PureComponent {
       workplace: { stat, task },
     } = this.props;
 
-    console.info(task);
-
     return (
       <PageHeaderWrapper>
         <Card className={styles.card} bordered={false}>

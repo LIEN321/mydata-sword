@@ -155,7 +155,6 @@ class EnvTaskForm extends PureComponent {
         const { varMappings } = this.state;
         if (varMappings) {
           varMappings.map(m => {
-            console.info(m);
             const obj = {};
             fieldVarMapping[m.k] = m.v;
           });

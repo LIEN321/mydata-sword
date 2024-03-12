@@ -203,15 +203,6 @@ class TaskDataFilterTable extends React.Component {
     this.setState({ filters: newData });
 
     this.props.handleSave(item);
-
-    
-    console.info("key = " + key);
-    console.info("dataIndex = " + dataIndex);
-    console.info("value = " + value);
-
-    this.state.filters.map(f => {
-      console.info(f.k + " " + f.op + " " + f.v);
-    });
   };
 
   handleDelete = key => {
