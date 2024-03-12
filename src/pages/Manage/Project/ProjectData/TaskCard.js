@@ -1,15 +1,18 @@
-import { Button, Card, Icon, message, Modal, Popover, Table, Tag } from "antd";
+import { Button, Card, Col, Form, Icon, message, Modal, Popover, Row, Select, Table, Tag } from "antd";
 import { PureComponent } from "react";
 import mdStyle from '../../../../layouts/Mydata.less';
 import styles from './style.less';
-import { executeTask, startTask, stopTask, remove } from '../../../../services/task';
+import { executeTask, startTask, stopTask, remove, copyTask } from '../../../../services/task';
 import { TASK_LOG_LIST, TASK_STATUS_RUNNING, TASK_TYPE_PRODUCER, TASK_TYPE_CONSUMER } from '../../../../actions/task';
 import { connect } from "dva";
+import FormItem from "antd/lib/form/FormItem";
+import form from "@/locales/en-US/form";
 
 @connect(({ task, loading }) => ({
     task,
     loading: loading.models.task,
 }))
+@Form.create()
 class TaskCard extends PureComponent {
     // task, env, handleLoadTasks, handleEditTask, closeTaskForm
 
@@ -18,6 +21,10 @@ class TaskCard extends PureComponent {
 
         this.state = {
             logModalVisible: false,
+            copyModalVisible: false,
+
+            taskId: null,
+            envId: null,
         };
     }
 
@@ -139,14 +146,62 @@ class TaskCard extends PureComponent {
         closeTaskForm();
     }
 
+    openCopyModal = (id) => {
+        this.setState({ copyModalVisible: true, taskId: id });
+    }
+
+    closeCopyModal = () => {
+        this.setState({ copyModalVisible: false, taskId: null, envId: null })
+    }
+
+    handleSelectEnv = (envId) => {
+        this.setState({ envId });
+    }
+
+    handleCopyTask = e => {
+        e.preventDefault();
+        const { form } = this.props;
+        const { taskId, envId } = this.state;
+
+        form.validateFieldsAndScroll((err, values) => {
+            if (!err) {
+                copyTask({ taskId: taskId, envId: envId }).then(resp => {
+                    if (resp.success) {
+                        message.success("复制成功！");
+                        form.resetFields();
+                        this.closeCopyModal();
+                    } else {
+                        message.error(resp.msg || '复制失败');
+                    }
+                });
+            }
+        });
+    }
+
     render() {
         const code = 'task';
 
         const {
+            form: { getFieldDecorator },
             task: { logs, dataTasks },
             env,
             currentTask,
+            envList,
         } = this.props;
+
+        const { copyModalVisible } = this.state;
+
+        const formItemLayout = {
+            labelCol: {
+                xs: { span: 24 },
+                sm: { span: 4 },
+            },
+            wrapperCol: {
+                xs: { span: 24 },
+                sm: { span: 12 },
+                md: { span: 20 },
+            },
+        };
 
         const taskStatusStyle = [{}, mdStyle.runningCard, mdStyle.failedCard, mdStyle.stoppedCard];
         const logColumns = [
@@ -183,11 +238,14 @@ class TaskCard extends PureComponent {
                 // hoverable
                 className={[styles.card, taskStatusStyle[currentTask.taskStatus]]}
                 actions={[
-                    currentTask.taskStatus == TASK_STATUS_RUNNING ? <Icon type="pause" onClick={() => { this.handleStop(currentTask.id) }} /> : <Icon type="play-circle" onClick={() => { this.handleStart(currentTask.id) }} />,
-                    <Icon type="redo" onClick={() => { this.handleExecute(currentTask.id); }} />,
-                    <Icon type="history" onClick={() => { this.showLogList(currentTask); }} />,
-                    <Icon type="edit" onClick={() => { this.handleEditTask(currentTask) }} />,
-                    <Icon type="delete" onClick={() => { this.handleDelete(currentTask.id) }} />,
+                    currentTask.taskStatus == TASK_STATUS_RUNNING ?
+                        <Popover content="停止"><Icon type="pause" onClick={() => { this.handleStop(currentTask.id) }} /></Popover>
+                        : <Popover content="启动"><Icon type="play-circle" onClick={() => { this.handleStart(currentTask.id) }} /></Popover>,
+                    <Popover content="执行一次"><Icon type="redo" onClick={() => { this.handleExecute(currentTask.id); }} /></Popover>,
+                    <Popover content="运行日志"><Icon type="history" onClick={() => { this.showLogList(currentTask); }} /></Popover>,
+                    <Popover content="编辑"><Icon type="edit" onClick={() => { this.handleEditTask(currentTask) }} /></Popover>,
+                    <Popover content="删除"><Icon type="delete" onClick={() => { this.handleDelete(currentTask.id) }} /></Popover>,
+                    <Popover content="复制"><Icon type="copy" onClick={() => { this.openCopyModal(currentTask.id) }} /></Popover>,
                 ]}
                 extra={currentTask.refEnvId ? (currentTask.opType == TASK_TYPE_PRODUCER ? <Popover content="其他环境提供数据"><Icon type="login" /></Popover> : <Popover content="其他环境消费数据"><Icon type="logout" /></Popover>) : <></>}
             >
@@ -217,6 +275,36 @@ class TaskCard extends PureComponent {
                     expandedRowRender={record => <div style={{ 'overflow-wrap': 'anywhere' }} dangerouslySetInnerHTML={{ __html: `${record.taskDetail.replaceAll('\n', '</br>')}`, }}></div>}
                 />}
             </Modal>
+
+            {copyModalVisible && <Modal
+                title="复制任务"
+                visible={copyModalVisible}
+                footer={[<Button key="submit" type="primary" onClick={this.handleCopyTask}>复制</Button>]}
+                onCancel={this.closeCopyModal}
+            >
+                <Form style={{ marginTop: 8 }}>
+                    <FormItem {...formItemLayout} label="复制到：">
+                        {getFieldDecorator('envId', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '请选择环境',
+                                },
+                            ],
+                        })
+                            (<Select allowClear placeholder="请选择环境" onChange={this.handleSelectEnv}>
+                                {envList.map(e =>
+                                    // e.id != env.id ?
+                                    <Select.Option key={e.id} value={e.id}>
+                                        {e.envName} ({e.envPrefix})
+                                    </Select.Option>
+                                    //  : <></>
+                                )}
+                            </Select>)
+                        }
+                    </FormItem>
+                </Form>
+            </Modal>}
         </>
     }
 }

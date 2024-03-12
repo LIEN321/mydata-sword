@@ -65,7 +65,7 @@ class EnvTask extends PureComponent {
   // ------------------------------------------------------------
 
   renderTaskCard = (task) => {
-    const { env } = this.props;
+    const { env, envList } = this.props;
 
     return <TaskCard
       currentTask={task}
@@ -73,6 +73,7 @@ class EnvTask extends PureComponent {
       handleLoadTasks={this.handleLoadTasks}
       handleEditTask={this.handleEditTask}
       closeTaskForm={this.closeTaskForm}
+      envList={envList}
     />
   };
 

@@ -53,3 +53,10 @@ export async function executeTask(taskId) {
 export async function taskLogList(params) {
   return request(`/api/mydata-manage/task/logs?${stringify(params)}`);
 }
+
+export async function copyTask(params) {
+  return request('/api/mydata-manage/task/copy_task', {
+    method: 'POST',
+    body: func.toFormData(params),
+  });
+}

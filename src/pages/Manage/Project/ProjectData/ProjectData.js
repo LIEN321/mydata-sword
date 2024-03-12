@@ -590,6 +590,7 @@ class ProjectData extends PureComponent {
           data={currentData}
           projectId={projectId}
           handleRefresh={handleRefresh => (this.handleRefresh = handleRefresh)}
+          envList={envList}
         />
         }
 
@@ -610,6 +611,7 @@ class ProjectData extends PureComponent {
           handleCloseTask={this.handleCloseEnvTask}
           env={currentEnv}
           handleRefresh={handleRefresh => (this.handleRefresh = handleRefresh)}
+          envList={envList}
         />
         }
       </div>
