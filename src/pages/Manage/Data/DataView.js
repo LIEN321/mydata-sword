@@ -72,7 +72,7 @@ class DataView extends PureComponent {
             <FormItem {...formItemLayout} label="字段列表">
               <EditableTable
                 dataFields={detail.dataFields}
-                readonly={true}
+                readonly
               />
             </FormItem>
           </Card>

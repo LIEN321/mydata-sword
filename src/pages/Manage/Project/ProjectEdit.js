@@ -6,7 +6,7 @@ import styles from '../../../layouts/Sword.less';
 import { PROJECT_DETAIL, PROJECT_SUBMIT } from '../../../actions/project';
 
 const FormItem = Form.Item;
-const TextArea = Input.TextArea;
+const {TextArea} = Input;
 
 @connect(({ project, loading }) => ({
   project,
@@ -39,7 +39,6 @@ class ProjectEdit extends PureComponent {
           id,
           ...values,
         };
-        console.log(params);
         dispatch(PROJECT_SUBMIT(params));
       }
     });

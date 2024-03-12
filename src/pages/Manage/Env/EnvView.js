@@ -75,13 +75,13 @@ class EnvView extends PureComponent {
             <FormItem {...formItemLayout} label="全局Headers">
               <EnvEditableTable
                 tableValues={detail.globalHeaders}
-                readonly={true}
+                readonly
               />
             </FormItem>
             <FormItem {...formItemLayout} label="全局Params">
               <EnvEditableTable
                 tableValues={detail.globalParams}
-                readonly={true}
+                readonly
               />
             </FormItem>
           </Card>

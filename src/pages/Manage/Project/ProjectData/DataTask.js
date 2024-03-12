@@ -1,14 +1,10 @@
-import React, { PureComponent, Fragment, forwardRef } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Button, Col, Form, Input, Row, Tag, message, Modal, Divider, Table, Card, List, Icon, notification, Drawer } from 'antd';
-import Panel from '../../../../components/Panel';
-import { TASK_LIST, TASK_LOG_LIST, DATA_TASKS, TASK_STATUS_RUNNING } from '../../../../actions/task';
-import Grid from '../../../../components/Sword/Grid';
+import { Button, Col, Form, Row, Divider, Card, Icon, notification, Drawer } from 'antd';
+import {   DATA_TASKS, TASK_TYPE_PRODUCER, TASK_TYPE_CONSUMER } from '../../../../actions/task';
 import DataTaskForm from './DataTaskForm';
-import { TASK_TYPE_PRODUCER, TASK_TYPE_CONSUMER } from '../../../../actions/task';
-import TaskCard from './TaskCard';
 
-const FormItem = Form.Item;
+import TaskCard from './TaskCard';
 
 @connect(({ task, loading }) => ({
   task,
@@ -22,7 +18,6 @@ class DataTask extends PureComponent {
     this.state = {
       currentTask: {},
       taskFormVisible: false,
-      logModalVisible: false,
     };
   }
 
@@ -33,7 +28,7 @@ class DataTask extends PureComponent {
   // 查询数据项的任务列表
   handleLoadTasks = () => {
     const { dispatch, env, data, projectId } = this.props;
-    const params = { projectId: projectId, envId: env.id, dataId: data.id };
+    const params = { projectId, envId: env.id, dataId: data.id };
     dispatch(DATA_TASKS(params));
   }
 
@@ -48,12 +43,14 @@ class DataTask extends PureComponent {
 
   // 显示新增任务表单
   handleAddTask = (opType, isRefEnv) => {
-    this.setState({ opType: opType, taskFormVisible: true, currentTask: {}, isRefEnv: isRefEnv });
+    this.setState({ opType, taskFormVisible: true, currentTask: {}, isRefEnv });
   };
+
   // 显示编辑任务表单
   handleEditTask = (task) => {
     this.setState({ opType: task.opType, taskFormVisible: true, currentTask: task });
   };
+
   // 关闭任务表单
   closeTaskForm = () => {
     this.setState({ opType: null, taskFormVisible: false, currentTask: {} });
@@ -75,11 +72,7 @@ class DataTask extends PureComponent {
   };
 
   render() {
-    const code = 'task';
-
     const {
-      form,
-      loading,
       task: { dataTasks },
       env,
       data,

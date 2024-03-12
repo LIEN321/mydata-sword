@@ -3,7 +3,6 @@ import { Form, Card, Button, Select, Modal } from 'antd';
 import { connect } from 'dva';
 import styles from '../../../layouts/Sword.less';
 import { API_DEBUG } from '../../../actions/api';
-import api from '@/models/api';
 
 const FormItem = Form.Item;
 
@@ -16,18 +15,9 @@ class ApiDebug extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      visible: false,
       apiUrl: '',
       contentType: '',
     };
-  }
-
-  findEnv(envId) {
-    const newEnvList = [...this.props.envList];
-    const index = newEnvList.findIndex(env => env.id === envId);
-    const env = newEnvList[index];
-    this.state.currentEnv = env;
-    return env;
   }
 
   handleChangeEnv = envId => {
@@ -39,13 +29,6 @@ class ApiDebug extends PureComponent {
     this.setState({ contentType : value });
   }
 
-  updateApiUrl(env) {
-    const apiUri = this.props.apiUri;
-    let apiUrl = env.envPrefix + apiUri;
-
-    this.setState({ apiUrl });
-  }
-
   debug = () => {
     const { dispatch } = this.props;
 
@@ -53,7 +36,7 @@ class ApiDebug extends PureComponent {
     const httpUri = this.state.apiUrl;
     const httpHeaders = this.props.reqHeaders;
     const httpParams = this.props.reqParams;
-    const contentType = this.state.contentType;
+    const {contentType} = this.state;
 
     const params = {
       httpMethod,
@@ -64,6 +47,21 @@ class ApiDebug extends PureComponent {
     };
 
     dispatch(API_DEBUG(params));
+  }
+
+  updateApiUrl(env) {
+    const {apiUri} = this.props;
+    const apiUrl = env.envPrefix + apiUri;
+
+    this.setState({ apiUrl });
+  }
+
+  findEnv(envId) {
+    const newEnvList = [...this.props.envList];
+    const index = newEnvList.findIndex(env => env.id === envId);
+    const env = newEnvList[index];
+    this.state.currentEnv = env;
+    return env;
   }
 
   render() {
@@ -108,7 +106,7 @@ class ApiDebug extends PureComponent {
               </Select>
             </FormItem>
             <FormItem {...formItemLayout} label="选择Content-Type">
-              <Select allowClear placeholder="请选择Content-Type" defaultValue={""} onChange={this.handleChangeContentType}>
+              <Select allowClear placeholder="请选择Content-Type" defaultValue="" onChange={this.handleChangeContentType}>
                 <Select.Option value="">raw</Select.Option>
                 <Select.Option value="application/json">application/json</Select.Option>
               </Select>

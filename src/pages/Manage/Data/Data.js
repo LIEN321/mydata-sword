@@ -4,7 +4,6 @@ import { Button, Col, Form, Input, Row, Modal, Table } from 'antd';
 import Panel from '../../../components/Panel';
 import { DATA_LIST, BIZ_FIELD_LIST, BIZ_DATA_LIST } from '../../../actions/data';
 import Grid from '../../../components/Sword/Grid';
-import { bizFieldList } from '@/services/data';
 
 const FormItem = Form.Item;
 
@@ -22,6 +21,7 @@ class Data extends PureComponent {
       bizDataModalVisible: false,
     };
   }
+
   // ============ 查询 ===============
   handleSearch = params => {
     const { dispatch } = this.props;
@@ -66,11 +66,13 @@ class Data extends PureComponent {
     dispatch(BIZ_DATA_LIST({ dataId: id }));
     this.setState({ bizDataModalVisible: true, currentData: params });
   };
-  handleSearchBizData = (pagination, filters, sorter) => {
+
+  handleSearchBizData = (pagination) => {
     const { dispatch } = this.props;
     const { currentData } = this.state;
     dispatch(BIZ_DATA_LIST({ ...pagination, dataId: currentData.id }));
   };
+
   closeBizData = () => {
     this.setState({ bizDataModalVisible: false, currentData: {} });
   };
@@ -80,7 +82,6 @@ class Data extends PureComponent {
 
     const {
       form,
-      loading,
       data: { data, bizField, bizData },
     } = this.props;
 
@@ -105,10 +106,10 @@ class Data extends PureComponent {
       // },
     ];
 
-    let bizDataColumns = [];
+    const bizDataColumns = [];
     if (bizField) {
       for (let i = 0; i < bizField.length; i++) {
-        let field = bizField[i];
+        const field = bizField[i];
         bizDataColumns.push({
           title: field.fieldName,
           dataIndex: field.fieldCode,

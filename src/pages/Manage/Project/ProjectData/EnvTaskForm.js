@@ -1,12 +1,10 @@
 import React, { PureComponent } from 'react';
 import { Form, Input, Card, Button, Select, Radio, Modal, message, notification } from 'antd';
 import { connect } from 'dva';
-import Panel from '../../../../components/Panel';
 import styles from '../../../../layouts/Sword.less';
-import { TASK_SUBMIT, TASK_INIT_API, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER, TASK_DETAIL } from '../../../../actions/task';
+import { TASK_INIT_API, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER } from '../../../../actions/task';
 import { submit as submitTask, detail as taskDetail } from '../../../../services/task';
 import TaskVarMappingTable from '../../Task/TaskVarMappingTable';
-import form from '@/locales/en-US/form';
 
 const FormItem = Form.Item;
 
@@ -21,7 +19,6 @@ class EnvTaskForm extends PureComponent {
     this.state = {
       detail: null,
       apiUrl: '',
-      opType: null,
 
       envList: [],
       currentEnv: null,
@@ -31,7 +28,6 @@ class EnvTaskForm extends PureComponent {
 
       varMappings: [{ key: 0 }],
 
-      isShowSubscribed: false,
       isShowTaskPeriod: true,
     };
   }
@@ -47,11 +43,7 @@ class EnvTaskForm extends PureComponent {
           this.setState({ detail });
           this.setState({ apiUrl: detail.apiUrl });
           this.setState({
-            fieldMappings: detail.fieldMapping,
-            isShowSubscribed: detail.opType != TASK_TYPE_PRODUCER,
-            isShowTaskPeriod: detail.isSubscribed != TASK_SUBSCRIBED,
-            initStatus: true,
-            filters: detail.dataFilter,
+            isShowTaskPeriod: detail.isSubscribed !== TASK_SUBSCRIBED,
             varMappings: detail.fieldVarMapping,
           });
           this.renderWarning(detail);
@@ -60,12 +52,12 @@ class EnvTaskForm extends PureComponent {
       // dispatch(TASK_DETAIL(currentTask.id));
     }
 
-    if (opType == TASK_TYPE_PRODUCER) {
+    if (opType === TASK_TYPE_PRODUCER) {
       // 提供数据
-      this.setState({ isShowSubscribed: false, isShowTaskPeriod: true });
+      this.setState({ isShowTaskPeriod: true });
     } else {
       // 消费数据
-      this.setState({ isShowSubscribed: true, isShowTaskPeriod: false });
+      this.setState({ isShowTaskPeriod: false });
     }
   }
 
@@ -78,19 +70,9 @@ class EnvTaskForm extends PureComponent {
     } = nextProps;
 
     this.setState({
-      envList: envList,
-      apiList: apiList,
+      envList,
+      apiList,
     });
-
-    const { initStatus, apiUrl, detail } = this.state;
-  }
-
-  findEnv(envId) {
-    const newEnvList = [...this.state.envList];
-    const index = newEnvList.findIndex(env => env.id === envId);
-    const env = newEnvList[index];
-    this.state.currentEnv = env;
-    return env;
   }
 
   findApi(apiId) {
@@ -102,7 +84,6 @@ class EnvTaskForm extends PureComponent {
   }
 
   handleChangeEnv = envId => {
-    const env = this.findEnv(envId);
     this.updateApiUrl();
   }
 
@@ -137,7 +118,7 @@ class EnvTaskForm extends PureComponent {
 
   handleSubmit = e => {
     e.preventDefault();
-    const { dispatch, form, env, data, projectId, closeTaskForm, currentTask } = this.props;
+    const { form, env, projectId, closeTaskForm, currentTask } = this.props;
 
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
@@ -151,11 +132,10 @@ class EnvTaskForm extends PureComponent {
         params.envId = env.id;
         params.projectId = projectId;
 
-        let fieldVarMapping = {};
+        const fieldVarMapping = {};
         const { varMappings } = this.state;
         if (varMappings) {
           varMappings.map(m => {
-            const obj = {};
             fieldVarMapping[m.k] = m.v;
           });
         }
@@ -202,9 +182,17 @@ class EnvTaskForm extends PureComponent {
     closeTaskForm();
   }
 
+  findEnv(envId) {
+    const newEnvList = [...this.state.envList];
+    const index = newEnvList.findIndex(env => env.id === envId);
+    const env = newEnvList[index];
+    this.state.currentEnv = env;
+    return env;
+  }
+
   renderWarning = task => {
-    if (task.taskStatus == 1) {
-      notification['warning']({
+    if (task.taskStatus === 1) {
+      notification.warning({
         message: '请注意',
         description:
           '任务运行中，请在提交修改后手动重启！',
@@ -221,8 +209,6 @@ class EnvTaskForm extends PureComponent {
         init: { apiList },
         //   detail,
       },
-      env,
-      projectId,
       opType,
     } = this.props;
 
@@ -240,16 +226,10 @@ class EnvTaskForm extends PureComponent {
       },
     };
 
-    const action = (
-      <Button type="primary" onClick={this.handleSubmit} loading={submitting}>
-        提交
-      </Button>
-    );
-
     return (
 
       <Modal
-        title={`定时任务`}
+        title="定时任务"
         width="80%"
         visible={this.props.taskFormVisible}
         onOk={this.handleSubmit}
@@ -291,7 +271,7 @@ class EnvTaskForm extends PureComponent {
               {apiUrl}
             </FormItem>
             <FormItem {...formItemLayout} label="任务类型">
-              {opType == TASK_TYPE_PRODUCER ? "提供数据" : "消费数据"}
+              {opType === TASK_TYPE_PRODUCER ? "提供数据" : "消费数据"}
             </FormItem>
             {this.state.isShowTaskPeriod && (<FormItem {...formItemLayout} label="任务周期">
               {getFieldDecorator('taskPeriod', {

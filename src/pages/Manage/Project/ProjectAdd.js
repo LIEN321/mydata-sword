@@ -6,7 +6,7 @@ import styles from '../../../layouts/Sword.less';
 import { PROJECT_SUBMIT } from '../../../actions/project';
 
 const FormItem = Form.Item;
-const TextArea = Input.TextArea;
+const {TextArea} = Input;
 
 @connect(({ loading }) => ({
   submitting: loading.effects['project/submit'],

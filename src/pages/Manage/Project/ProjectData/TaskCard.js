@@ -1,12 +1,12 @@
-import { Button, Card, Col, Form, Icon, message, Modal, Popover, Row, Select, Table, Tag } from "antd";
+import React from 'react';
+import { Button, Card, Form, Icon, message, Modal, Popover, Select, Table, Tag } from "antd";
 import { PureComponent } from "react";
+import { connect } from "dva";
+import FormItem from "antd/lib/form/FormItem";
 import mdStyle from '../../../../layouts/Mydata.less';
 import styles from './style.less';
 import { executeTask, startTask, stopTask, remove, copyTask } from '../../../../services/task';
-import { TASK_LOG_LIST, TASK_STATUS_RUNNING, TASK_TYPE_PRODUCER, TASK_TYPE_CONSUMER } from '../../../../actions/task';
-import { connect } from "dva";
-import FormItem from "antd/lib/form/FormItem";
-import form from "@/locales/en-US/form";
+import { TASK_LOG_LIST, TASK_STATUS_RUNNING, TASK_TYPE_PRODUCER } from '../../../../actions/task';
 
 @connect(({ task, loading }) => ({
     task,
@@ -29,8 +29,6 @@ class TaskCard extends PureComponent {
     }
 
     handleStart = taskId => {
-        const { dispatch } = this.props;
-
         Modal.confirm({
             title: '启动确认',
             content: '是否启动所选任务?',
@@ -51,8 +49,6 @@ class TaskCard extends PureComponent {
     };
 
     handleStop = taskId => {
-        const { dispatch } = this.props;
-
         Modal.confirm({
             title: '停止确认',
             content: '是否停止所选任务?',
@@ -73,8 +69,6 @@ class TaskCard extends PureComponent {
     };
 
     handleExecute = taskId => {
-        const { dispatch } = this.props;
-
         Modal.confirm({
             title: '执行确认',
             content: '是否执行一次所选任务?',
@@ -100,11 +94,13 @@ class TaskCard extends PureComponent {
         dispatch(TASK_LOG_LIST({ taskId: id }));
         this.setState({ logModalVisible: true, currentTask: params });
     };
-    handleSearchLog = (pagination, filters, sorter) => {
+
+    handleSearchLog = (pagination) => {
         const { dispatch } = this.props;
         const { currentTask } = this.state;
         dispatch(TASK_LOG_LIST({ ...pagination, taskId: currentTask.id }));
     };
+
     // 关闭日志
     closeLogList = () => {
         this.setState({ logModalVisible: false, currentTask: {} });
@@ -163,9 +159,9 @@ class TaskCard extends PureComponent {
         const { form } = this.props;
         const { taskId, envId } = this.state;
 
-        form.validateFieldsAndScroll((err, values) => {
+        form.validateFieldsAndScroll((err) => {
             if (!err) {
-                copyTask({ taskId: taskId, envId: envId }).then(resp => {
+                copyTask({ taskId, envId }).then(resp => {
                     if (resp.success) {
                         message.success("复制成功！");
                         form.resetFields();
@@ -179,11 +175,9 @@ class TaskCard extends PureComponent {
     }
 
     render() {
-        const code = 'task';
-
         const {
             form: { getFieldDecorator },
-            task: { logs, dataTasks },
+            task: { logs },
             env,
             currentTask,
             envList,
@@ -220,8 +214,8 @@ class TaskCard extends PureComponent {
                 dataIndex: 'taskResult',
                 width: 100,
                 render: taskResult => {
-                    let color = taskResult == 1 ? 'green' : 'red';
-                    let status = taskResult == 1 ? '成功' : '失败';
+                    const color = taskResult === 1 ? 'green' : 'red';
+                    const status = taskResult === 1 ? '成功' : '失败';
                     return (
                         <Tag color={color}>
                             {status}
@@ -244,10 +238,10 @@ class TaskCard extends PureComponent {
                     <Popover content="执行一次"><Icon type="redo" onClick={() => { this.handleExecute(currentTask.id); }} /></Popover>,
                     <Popover content="运行日志"><Icon type="history" onClick={() => { this.showLogList(currentTask); }} /></Popover>,
                     <Popover content="编辑"><Icon type="edit" onClick={() => { this.handleEditTask(currentTask) }} /></Popover>,
-                    <Popover content="删除"><Icon type="delete" onClick={() => { this.handleDelete(currentTask.id) }} /></Popover>,
                     <Popover content="复制"><Icon type="copy" onClick={() => { this.openCopyModal(currentTask.id) }} /></Popover>,
+                    <Popover content="删除"><Icon type="delete" onClick={() => { this.handleDelete(currentTask.id) }} /></Popover>,
                 ]}
-                extra={currentTask.refEnvId ? (currentTask.opType == TASK_TYPE_PRODUCER ? <Popover content="其他环境提供数据"><Icon type="login" /></Popover> : <Popover content="其他环境消费数据"><Icon type="logout" /></Popover>) : <></>}
+                extra={currentTask.refEnvId ? (currentTask.opType === TASK_TYPE_PRODUCER ? <Popover content="其他环境提供数据"><Icon type="login" /></Popover> : <Popover content="其他环境消费数据"><Icon type="logout" /></Popover>) : <></>}
             >
                 {currentTask.refEnvId ? <p>其他环境：{currentTask.refEnvName}</p> : <></>}
                 <p>{currentTask.apiUrl.replace(env.envPrefix, '')}</p>
@@ -272,7 +266,7 @@ class TaskCard extends PureComponent {
                     dataSource={logs.list}
                     pagination={logs.pagination}
                     onChange={this.handleSearchLog}
-                    expandedRowRender={record => <div style={{ 'overflow-wrap': 'anywhere' }} dangerouslySetInnerHTML={{ __html: `${record.taskDetail.replaceAll('\n', '</br>')}`, }}></div>}
+                    expandedRowRender={record => <div style={{ 'overflow-wrap': 'anywhere' }} dangerouslySetInnerHTML={{ __html: `${record.taskDetail.replaceAll('\n', '</br>')}`, }} />}
                 />}
             </Modal>
 

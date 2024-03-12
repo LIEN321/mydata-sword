@@ -4,7 +4,6 @@ import { Button, Col, Form, Input, Row, Divider, Drawer } from 'antd';
 import Panel from '../../../components/Panel';
 import { PROJECT_LIST } from '../../../actions/project';
 import Grid from '../../../components/Sword/Grid';
-import router from 'umi/router';
 import ProjectData from './ProjectData/ProjectData';
 
 const FormItem = Form.Item;
@@ -21,6 +20,7 @@ class Project extends PureComponent {
       dataManageVisible: false,
     };
   }
+
   // ============ 查询 ===============
   handleSearch = params => {
     const { dispatch } = this.props;

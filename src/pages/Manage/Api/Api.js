@@ -56,7 +56,7 @@ class Api extends PureComponent {
       okType: 'danger',
       cancelText: '取消',
       async onOk() {
-        const response = await syncTask({ id: id });
+        const response = await syncTask({ id });
         if (response.success) {
           message.success(response.msg);
           dispatch(API_LIST());
@@ -94,7 +94,7 @@ class Api extends PureComponent {
         title: 'API类型',
         dataIndex: 'opType',
         render: opType => {
-          return opType == 1 ? "提供数据" : "消费数据";
+          return opType === 1 ? "提供数据" : "消费数据";
         },
       },
       {
@@ -116,10 +116,10 @@ class Api extends PureComponent {
       {
         title: '同步任务时间',
         dataIndex: 'syncTaskTime',
-        render: (text, record, index) => {
+        render: (text, record) => {
           const { id, syncTaskTime, updateTime } = record;
           let color = 'green';
-          if (syncTaskTime == "") {
+          if (syncTaskTime === "") {
             color = 'gray'
           }
           else if (syncTaskTime < updateTime) {
@@ -130,7 +130,9 @@ class Api extends PureComponent {
             <Divider type="vertical" />
             <a onClick={() => {
               this.syncTask(id);
-            }}>更新</a>
+            }}
+            >更新
+            </a>
           </>
         },
       },

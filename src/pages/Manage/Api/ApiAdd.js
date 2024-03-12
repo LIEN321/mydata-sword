@@ -22,25 +22,12 @@ class ApiAdd extends PureComponent {
       reqParams: [],
 
       visible: false,
-      envList: [],
     };
   }
 
   componentWillMount() {
     const { dispatch } = this.props;
     dispatch(API_INIT());
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const {
-      api: {
-        init: { envList },
-      },
-    } = nextProps;
-
-    this.setState({
-      envList: envList,
-    });
   }
 
   handleSubmit = e => {

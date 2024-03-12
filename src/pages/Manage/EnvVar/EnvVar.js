@@ -1,7 +1,6 @@
 import React, { Fragment, PureComponent } from 'react';
 import { connect } from 'dva';
 import { Button, Card, Col, Divider, Form, Input, message, Modal, Row } from 'antd';
-import Panel from '../../../components/Panel';
 import { ENVVAR_LIST } from '../../../actions/envvar';
 import Grid from '../../../components/Sword/Grid';
 import styles from '../../../layouts/Sword.less';
@@ -22,12 +21,6 @@ class EnvVar extends PureComponent {
     params: {},
     detail: {},
   };
-
-  componentDidMount() {
-    const {
-      dispatch,
-    } = this.props;
-  }
 
   // ============ 查询 ===============
   handleSearch = params => {
@@ -94,7 +87,7 @@ class EnvVar extends PureComponent {
         okType: 'danger',
         cancelText: '取消',
         onOk() {
-          removeEnvVar({ ids: id, envId: envId, varName: varName }).then(resp => {
+          removeEnvVar({ ids: id, envId, varName }).then(resp => {
             if (resp.success) {
               message.success(resp.msg);
               refresh(params);
@@ -158,13 +151,10 @@ class EnvVar extends PureComponent {
   );
 
   render() {
-    const code = 'envVar';
-
     const {
       form,
       loading,
       envVar: { data },
-      env,
     } = this.props;
 
     const { stateVisible, detail, viewMode } = this.state;
@@ -224,7 +214,6 @@ class EnvVar extends PureComponent {
     return (
       <div>
         <Grid
-          // code={code}
           enableRowSelection={false}
           form={form}
           onSearch={this.handleSearch}

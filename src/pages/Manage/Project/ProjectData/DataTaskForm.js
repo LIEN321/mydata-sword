@@ -1,15 +1,13 @@
 import React, { PureComponent } from 'react';
-import { Form, Input, Card, Button, Select, Radio, Modal, message, notification } from 'antd';
+import { Form, Input, Card, Select, Radio, Modal, message, notification } from 'antd';
 import { connect } from 'dva';
-import Panel from '../../../../components/Panel';
 import styles from '../../../../layouts/Sword.less';
-import { TASK_SUBMIT, TASK_INIT_API, TASK_SUBSCRIBED, TASK_TYPE_PRODUCER, TASK_DETAIL, TASK_INIT } from '../../../../actions/task';
+import { TASK_SUBSCRIBED, TASK_TYPE_PRODUCER, TASK_INIT } from '../../../../actions/task';
 import { submit as submitTask, detail as taskDetail } from '../../../../services/task';
 import TaskFieldMappingTable from '../../Task/TaskFieldMappingTable';
 import { dataFields } from '../../../../services/data';
 import TaskDataFilterTable from '../../Task/TaskDataFilterTable';
 import TaskVarMappingTable from '../../Task/TaskVarMappingTable';
-import form from '@/locales/en-US/form';
 
 const FormItem = Form.Item;
 
@@ -24,7 +22,6 @@ class DataTaskForm extends PureComponent {
     this.state = {
       detail: null,
       apiUrl: '',
-      opType: null,
 
       envList: [],
       currentEnv: null,
@@ -55,8 +52,8 @@ class DataTaskForm extends PureComponent {
           this.setState({ apiUrl: detail.apiUrl });
           this.setState({
             fieldMappings: detail.fieldMapping,
-            isShowSubscribed: detail.opType != TASK_TYPE_PRODUCER,
-            isShowTaskPeriod: detail.isSubscribed != TASK_SUBSCRIBED,
+            isShowSubscribed: detail.opType !== TASK_TYPE_PRODUCER,
+            isShowTaskPeriod: detail.isSubscribed !== TASK_SUBSCRIBED,
             initStatus: true,
             filters: detail.dataFilter,
             varMappings: detail.fieldVarMapping,
@@ -67,7 +64,7 @@ class DataTaskForm extends PureComponent {
       // dispatch(TASK_DETAIL(currentTask.id));
     }
 
-    if (opType == TASK_TYPE_PRODUCER) {
+    if (opType === TASK_TYPE_PRODUCER) {
       // 提供数据
       this.setState({ isShowSubscribed: false, isShowTaskPeriod: true });
     } else {
@@ -85,11 +82,11 @@ class DataTaskForm extends PureComponent {
     } = nextProps;
 
     this.setState({
-      envList: envList,
-      apiList: apiList,
+      envList,
+      apiList,
     });
 
-    const { initStatus, apiUrl, detail } = this.state;
+    const { initStatus, detail } = this.state;
 
     // if (!apiUrl && detail) {
     //   this.setState({ apiUrl: detail.apiUrl });
@@ -107,22 +104,6 @@ class DataTaskForm extends PureComponent {
 
       // this.renderWarning(detail);
     }
-  }
-
-  findEnv(envId) {
-    const newEnvList = [...this.state.envList];
-    const index = newEnvList.findIndex(env => env.id === envId);
-    const env = newEnvList[index];
-    this.state.currentEnv = env;
-    return env;
-  }
-
-  findApi(apiId) {
-    const newApiList = [...this.state.apiList];
-    const index = newApiList.findIndex(api => api.id === apiId);
-    const api = newApiList[index];
-    this.state.currentApi = api;
-    return api;
   }
 
   handleChangeEnv = envId => {
@@ -143,8 +124,9 @@ class DataTaskForm extends PureComponent {
   }
 
   updateApiUrl() {
-    const { form, env, isRefEnv } = this.props;
-    let { currentApi, currentEnv } = this.state;
+    const { form, env } = this.props;
+    let { currentApi } = this.state;
+    const { currentEnv } = this.state;
 
     let apiUrl = '';
 
@@ -167,7 +149,7 @@ class DataTaskForm extends PureComponent {
   }
 
   async loadDataFieldList(dataId) {
-    const dataFieldResponse = await dataFields({ dataId: dataId });
+    const dataFieldResponse = await dataFields({ dataId });
     if (dataFieldResponse.success) {
       this.setState({ dataFieldList: dataFieldResponse.data });
     }
@@ -191,7 +173,7 @@ class DataTaskForm extends PureComponent {
 
   handleSubmit = e => {
     e.preventDefault();
-    const { dispatch, form, env, data, projectId, closeTaskForm, currentTask } = this.props;
+    const { form, env, data, projectId, closeTaskForm, currentTask } = this.props;
 
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
@@ -209,11 +191,10 @@ class DataTaskForm extends PureComponent {
         params.dataId = data.id;
         params.projectId = projectId;
 
-        let fieldVarMapping = {};
+        const fieldVarMapping = {};
         const { varMappings } = this.state;
         if (varMappings) {
           varMappings.map(m => {
-            const obj = {};
             fieldVarMapping[m.k] = m.v;
           });
         }
@@ -235,7 +216,7 @@ class DataTaskForm extends PureComponent {
 
   handleChangeSubscribed = e => {
     const targetValue = e.target.value;
-    if (targetValue == TASK_SUBSCRIBED) {
+    if (targetValue === TASK_SUBSCRIBED) {
       // 订阅
       this.setState({ isShowTaskPeriod: false });
     } else {
@@ -292,9 +273,25 @@ class DataTaskForm extends PureComponent {
     closeTaskForm();
   }
 
+  findApi(apiId) {
+    const newApiList = [...this.state.apiList];
+    const index = newApiList.findIndex(api => api.id === apiId);
+    const api = newApiList[index];
+    this.state.currentApi = api;
+    return api;
+  }
+
+  findEnv(envId) {
+    const newEnvList = [...this.state.envList];
+    const index = newEnvList.findIndex(env => env.id === envId);
+    const env = newEnvList[index];
+    this.state.currentEnv = env;
+    return env;
+  }
+
   renderWarning = task => {
-    if (task.taskStatus == 1) {
-      notification['warning']({
+    if (task.taskStatus === 1) {
+      notification.warning({
         message: '请注意',
         description:
           '任务运行中，请在提交修改后手动重启！',
@@ -306,14 +303,10 @@ class DataTaskForm extends PureComponent {
   render() {
     const {
       form: { getFieldDecorator },
-      submitting,
       task: {
         init: { envList, apiList },
         //   detail,
       },
-      env,
-      data,
-      projectId,
       opType,
       isRefEnv,
     } = this.props;
@@ -332,16 +325,10 @@ class DataTaskForm extends PureComponent {
       },
     };
 
-    const action = (
-      <Button type="primary" onClick={this.handleSubmit} loading={submitting}>
-        提交
-      </Button>
-    );
-
     return (
 
       <Modal
-        title={`定时任务`}
+        title="定时任务"
         width="80%"
         visible={this.props.taskFormVisible}
         onOk={this.handleSubmit}
@@ -402,7 +389,7 @@ class DataTaskForm extends PureComponent {
               {apiUrl}
             </FormItem>
             <FormItem {...formItemLayout} label="任务类型">
-              {opType == TASK_TYPE_PRODUCER ? "提供数据" : "消费数据"}
+              {opType === TASK_TYPE_PRODUCER ? "提供数据" : "消费数据"}
             </FormItem>
             {/* <FormItem {...formItemLayout} label="数据项">
               {getFieldDecorator('dataId', {

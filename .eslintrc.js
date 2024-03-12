@@ -34,6 +34,9 @@ module.exports = {
     'no-nested-ternary': 0,
     'linebreak-style': 0,
     'camelcase': 1,
+    'no-unused-vars': 1, // 不能有声明后未被使用的变量或参数
+    'import/extensions': 0,
+    'react/destructuring-assignment': 0
   },
   settings: {
     polyfills: ['fetch', 'promises', 'url', 'object-assign'],

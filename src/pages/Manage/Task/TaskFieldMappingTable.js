@@ -1,4 +1,5 @@
-import { Form, Input, Button, Table, Select, Popconfirm } from 'antd';
+import { Form, Input, Table } from 'antd';
+import React from 'react';
 import style from './StandardData.less';
 
 const EditableContext = React.createContext();
@@ -30,7 +31,7 @@ class EditableCell extends React.Component {
 
   save = e => {
     const { record, handleSave } = this.props;
-    this.form.validateFields((error, values) => {
+    this.form.validateFields((error) => {
       if (error && error[e.currentTarget.id]) {
         return;
       }
@@ -103,7 +104,6 @@ class TaskFieldMappingTable extends React.Component {
     super(props);
     this.state = {
       fieldMappings: [],
-      count: 0,
       readonly: props.readonly ? props.readonly : false
     };
 
@@ -171,14 +171,13 @@ class TaskFieldMappingTable extends React.Component {
     }
 
     this.setState({
-      fieldMappings: fieldMappings,
-      count: fieldMappings.length,
+      fieldMappings,
       readonly: nextProps.readonly ? nextProps.readonly : false,
     });
   }
 
   componentWillUnmount() {
-    this.setState({ fieldMappings: [], count: 0 });
+    this.setState({ fieldMappings: [] });
   }
 
   // handleAdd = () => {

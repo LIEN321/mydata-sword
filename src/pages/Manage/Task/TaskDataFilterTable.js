@@ -1,4 +1,5 @@
 import { Form, Input, Button, Table, Select, Popconfirm } from 'antd';
+import React from 'react';
 import style from './StandardData.less';
 
 const EditableContext = React.createContext();
@@ -30,7 +31,7 @@ class EditableCell extends React.Component {
 
   save = e => {
     const { record, handleSave } = this.props;
-    this.form.validateFields((error, values) => {
+    this.form.validateFields((error) => {
       if (error && error[e.currentTarget.key]) {
         return;
       }
@@ -159,13 +160,12 @@ class TaskDataFilterTable extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     let { filters } = nextProps;
-    if (filters) {
-    } else {
+    if (!filters) {
       filters = [];
     }
 
     this.setState({
-      filters: filters,
+      filters,
       count: filters.length,
       readonly: nextProps.readonly ? nextProps.readonly : false,
     });
