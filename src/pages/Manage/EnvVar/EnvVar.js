@@ -340,16 +340,6 @@ class EnvVar extends PureComponent {
                   </FormItem>
                 </Col>
               </Row>
-              {detail.id ?
-                <></> : <Row gutter={24}>
-                  <Col span={20}>
-                    <FormItem {...tailFormItemLayout}>
-                      {getFieldDecorator('isHidden', {
-                        initialValue: detail.isHidden,
-                      })(<Checkbox>变量值隐藏明文</Checkbox>)}
-                    </FormItem>
-                  </Col>
-                </Row>}
             </Card>
           </Form>
         </Modal>
