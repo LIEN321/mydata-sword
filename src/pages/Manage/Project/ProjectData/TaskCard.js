@@ -156,7 +156,7 @@ class TaskCard extends PureComponent {
 
     handleCopyTask = e => {
         e.preventDefault();
-        const { form } = this.props;
+        const { form, env, handleLoadTasks } = this.props;
         const { taskId, envId } = this.state;
 
         form.validateFieldsAndScroll((err) => {
@@ -164,6 +164,9 @@ class TaskCard extends PureComponent {
                 copyTask({ taskId, envId }).then(resp => {
                     if (resp.success) {
                         message.success("复制成功！");
+                        if(envId == env.id){
+                            handleLoadTasks();
+                        }
                         form.resetFields();
                         this.closeCopyModal();
                     } else {
