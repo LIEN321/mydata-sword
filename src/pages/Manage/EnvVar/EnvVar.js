@@ -27,7 +27,7 @@ class EnvVar extends PureComponent {
     const { dispatch } = this.props;
     const { env } = this.props;
     this.setState({ params });
-    const search = { envId: env.id, varName: params.varName };
+    const search = { envId: env.id, ...params };
     dispatch(ENVVAR_LIST(search));
   };
 
