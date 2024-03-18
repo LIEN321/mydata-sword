@@ -106,14 +106,6 @@ class DataTask extends PureComponent {
           <Col span={6} style={{ textAlign: 'center' }}>
             <Card title="提供数据">
               <div style={{ textAlign: 'left' }}>
-                <Row gutter={[16, 16]}>
-                  {dataTasks.producerTasks.map(t => (
-                    <Col span={24}>
-                      {this.renderTaskCard(t)}
-                    </Col>
-                  ))}
-                </Row>
-                <Divider />
                 <Row gutter={24}>
                   <Col span={12}>
                     <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(TASK_TYPE_PRODUCER, false)}>
@@ -126,6 +118,14 @@ class DataTask extends PureComponent {
                     </Button>
                   </Col>
                 </Row>
+                <Divider />
+                <Row gutter={[16, 16]}>
+                  {dataTasks.producerTasks.map(t => (
+                    <Col span={24}>
+                      {this.renderTaskCard(t)}
+                    </Col>
+                  ))}
+                </Row>
               </div>
             </Card>
           </Col>
@@ -135,14 +135,6 @@ class DataTask extends PureComponent {
           <Col span={17} style={{ textAlign: 'center' }}>
             <Card title="消费数据">
               <div style={{ textAlign: 'left' }}>
-                <Row gutter={[16, 16]}>
-                  {dataTasks.consumerTasks.map(t => (
-                    <Col span={8}>
-                      {this.renderTaskCard(t)}
-                    </Col>
-                  ))}
-                </Row>
-                <Divider />
                 <Row gutter={24}>
                   <Col span={12}>
                     <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(TASK_TYPE_CONSUMER, false)}>
@@ -154,6 +146,14 @@ class DataTask extends PureComponent {
                       <Icon type="plus" /> 其他环境
                     </Button>
                   </Col>
+                </Row>
+                <Divider />
+                <Row gutter={[16, 16]}>
+                  {dataTasks.consumerTasks.map(t => (
+                    <Col span={8}>
+                      {this.renderTaskCard(t)}
+                    </Col>
+                  ))}
                 </Row>
               </div>
 

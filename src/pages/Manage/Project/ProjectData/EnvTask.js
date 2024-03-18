@@ -96,6 +96,10 @@ class EnvTask extends PureComponent {
           width="60%"
         >
           <div style={{ textAlign: 'left' }}>
+            <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(TASK_TYPE_PRODUCER)}>
+              <Icon type="plus" /> 新增任务
+            </Button>
+            <Divider />
             <Row gutter={[16, 16]}>
               {envTasks.producerTasks.map(t => (
                 <Col span={6}>
@@ -103,10 +107,6 @@ class EnvTask extends PureComponent {
                 </Col>
               ))}
             </Row>
-            <Divider />
-            <Button type='dashed' style={{ width: '100%', height: '50px' }} onClick={() => this.handleAddTask(TASK_TYPE_PRODUCER)}>
-              <Icon type="plus" /> 新增任务
-            </Button>
           </div>
         </Drawer>}
 
