@@ -62,6 +62,9 @@ class TenantView extends PureComponent {
             <FormItem {...formItemLayout} label="租户ID">
               <span>{detail.tenantId}</span>
             </FormItem>
+            <FormItem {...formItemLayout} label="租户编号">
+              <span>{detail.tenantCode}</span>
+            </FormItem>
             <FormItem {...formItemLayout} label="租户名称">
               <span>{detail.tenantName}</span>
             </FormItem>
@@ -74,9 +77,9 @@ class TenantView extends PureComponent {
             <FormItem {...formItemLayout} label="联系地址">
               <span>{detail.address}</span>
             </FormItem>
-            <FormItem {...formItemLayout} label="绑定域名">
+            {/* <FormItem {...formItemLayout} label="绑定域名">
               <span>{detail.domain}</span>
-            </FormItem>
+            </FormItem> */}
           </Card>
         </Form>
       </Panel>
