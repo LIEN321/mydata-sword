@@ -23,3 +23,17 @@ export async function remove(params) {
     body: func.toFormData(params),
   });
 }
+
+export async function hide(params) {
+  return request('/api/mydata-manage/env_var/hide', {
+    method: 'POST',
+    body: func.toFormData(params),
+  });
+}
+
+export async function show(params) {
+  return request('/api/mydata-manage/env_var/show', {
+    method: 'POST',
+    body: func.toFormData(params),
+  });
+}
