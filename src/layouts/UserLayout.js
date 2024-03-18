@@ -27,7 +27,7 @@ const links = [
 
 const copyright = (
   <Fragment>
-    MyData v0.7.2 Copyright <Icon type="copyright" /> 2024 LIEN{' '}
+    MyData v0.7.3 Copyright <Icon type="copyright" /> 2024 LIEN{' '}
     <a
       key="github"
       title="git"

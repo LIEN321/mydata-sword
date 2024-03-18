@@ -1,10 +1,10 @@
 import React, { Fragment, PureComponent } from 'react';
 import { connect } from 'dva';
-import { Button, Card, Col, Divider, Form, Input, message, Modal, Row } from 'antd';
+import { Button, Card, Checkbox, Col, Divider, Form, Icon, Input, message, Modal, Row } from 'antd';
 import { ENVVAR_LIST } from '../../../actions/envvar';
 import Grid from '../../../components/Sword/Grid';
 import styles from '../../../layouts/Sword.less';
-import { submit as submitEnvVar, detail as envVarDetail, remove as removeEnvVar } from '../../../services/envvar';
+import { submit as submitEnvVar, detail as envVarDetail, remove as removeEnvVar, hide as hideEnvVar, show as showEnvVar } from '../../../services/envvar';
 import func from '../../../utils/Func';
 
 const FormItem = Form.Item;
@@ -20,6 +20,8 @@ class EnvVar extends PureComponent {
     viewMode: false,
     params: {},
     detail: {},
+    showVarVisible: false,
+    envVarId: null,
   };
 
   // ============ 查询 ===============
@@ -27,7 +29,7 @@ class EnvVar extends PureComponent {
     const { dispatch } = this.props;
     const { env } = this.props;
     this.setState({ params });
-    const search = { envId: env.id, varName: params.varName };
+    const search = { envId: env.id, ...params };
     dispatch(ENVVAR_LIST(search));
   };
 
@@ -117,7 +119,7 @@ class EnvVar extends PureComponent {
 
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        let formData = Object.assign(values, { envId : env.id })
+        let formData = Object.assign(values, { envId: env.id })
         if (!func.isEmpty(id)) {
           formData = Object.assign(values, { id });
         }
@@ -136,6 +138,8 @@ class EnvVar extends PureComponent {
   };
 
   handleStateCancel = () => {
+    const { form } = this.props;
+    form.resetFields();
     this.setState({
       stateVisible: false,
       viewMode: false,
@@ -144,6 +148,64 @@ class EnvVar extends PureComponent {
   };
   // ------------------------------------------------------------
 
+  // 隐藏变量值
+  handleHideVar = record => {
+    const { id } = record;
+    const { params } = this.state;
+    const refresh = this.handleSearch;
+    Modal.confirm({
+      title: '操作确认',
+      content: '确定隐藏该变量值吗?',
+      okText: '确定',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk() {
+        hideEnvVar({ id }).then(resp => {
+          if (resp.success) {
+            message.success(resp.msg);
+            refresh(params);
+          } else {
+            message.error(resp.msg || '操作失败');
+          }
+        });
+      },
+      onCancel() { },
+    });
+  };
+
+  // 显示变量值
+  handleShowVar = e => {
+    e.preventDefault();
+    const refresh = this.handleSearch;
+
+    const { params, envVarId } = this.state;
+    const { form } = this.props;
+    form.validateFieldsAndScroll((err, values) => {
+      if (!err) {
+        let formData = Object.assign(values, { id: envVarId })
+        showEnvVar(formData).then(resp => {
+          if (resp.success) {
+            message.success(resp.msg);
+            form.resetFields();
+            this.closeVarModal();
+            refresh(params);
+          } else {
+            message.error(resp.msg || '操作失败');
+          }
+        });
+      }
+    });
+  };
+
+  showVarModal = (record) => {
+    this.setState({ showVarVisible: true, envVarId: record.id });
+  };
+
+  closeVarModal = () => {
+    this.setState({ showVarVisible: false });
+  }
+
+  // ------------------------------------------------------------
   renderLeftButton = () => (
     <Button icon="plus" type="primary" onClick={() => this.handleClick('env_var_add')}>
       新增
@@ -157,7 +219,7 @@ class EnvVar extends PureComponent {
       envVar: { data },
     } = this.props;
 
-    const { stateVisible, detail, viewMode } = this.state;
+    const { stateVisible, detail, viewMode, showVarVisible } = this.state;
     const { getFieldDecorator } = form;
 
     const formItemLayout = {
@@ -166,6 +228,19 @@ class EnvVar extends PureComponent {
       },
       wrapperCol: {
         span: 16,
+      },
+    };
+
+    const tailFormItemLayout = {
+      wrapperCol: {
+        xs: {
+          span: 24,
+          offset: 0,
+        },
+        sm: {
+          span: 16,
+          offset: 8,
+        },
       },
     };
 
@@ -179,6 +254,21 @@ class EnvVar extends PureComponent {
         title: '变量值',
         dataIndex: 'varValue',
         width: '400px',
+      },
+      {
+        width: '50px',
+        render: (text, record) => {
+          return (
+            <Fragment key="op">
+              {
+                record.isHidden ?
+                  <a title="变量值恢复明文显示" onClick={() => this.showVarModal(record)}><Icon type="eye" /></a>
+                  :
+                  <a title="变量值不显示明文" onClick={() => this.handleHideVar(record)}><Icon type="eye-invisible" /></a>
+              }
+            </Fragment>
+          );
+        },
       },
       {
         title: '更新时间',
@@ -253,6 +343,28 @@ class EnvVar extends PureComponent {
             </Card>
           </Form>
         </Modal>
+        {showVarVisible && <Modal
+          title="该操作需要身份认证"
+          width={400}
+          visible={showVarVisible}
+          onOk={this.handleShowVar}
+          onCancel={this.closeVarModal}
+        >
+          <Form style={{ marginTop: 8 }}>
+            <FormItem {...formItemLayout} label="请输入登录密码">
+              {getFieldDecorator('password', {
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入登录密码',
+                  },
+                ],
+              })
+                (<Input.Password placeholder="请输入登录密码" />)
+              }
+            </FormItem>
+          </Form>
+        </Modal>}
       </div>
     );
   }

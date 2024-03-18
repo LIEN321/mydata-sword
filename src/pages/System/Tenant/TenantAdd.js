@@ -51,6 +51,16 @@ class TenantAdd extends PureComponent {
       <Panel title="新增" back="/system/tenant" action={action}>
         <Form hideRequiredMark style={{ marginTop: 8 }}>
           <Card className={styles.card} bordered={false}>
+            <FormItem {...formItemLayout} label="租户编号">
+              {getFieldDecorator('tenantCode', {
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入租户编号',
+                  },
+                ],
+              })(<Input placeholder="请输入租户编号" />)}
+            </FormItem>
             <FormItem {...formItemLayout} label="租户名称">
               {getFieldDecorator('tenantName', {
                 rules: [
@@ -86,9 +96,9 @@ class TenantAdd extends PureComponent {
                 <TextArea style={{ minHeight: 32 }} rows={3} placeholder="请输入联系地址" />
               )}
             </FormItem>
-            <FormItem {...formItemLayout} label="绑定域名">
+            {/* <FormItem {...formItemLayout} label="绑定域名">
               {getFieldDecorator('domain')(<Input placeholder="请输入绑定域名" />)}
-            </FormItem>
+            </FormItem> */}
           </Card>
         </Form>
       </Panel>

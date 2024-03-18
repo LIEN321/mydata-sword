@@ -55,6 +55,8 @@ class EditableCell extends React.Component {
         <Select.Option value=">=">&gt;=</Select.Option>
         <Select.Option value="<">&lt;</Select.Option>
         <Select.Option value="<=">&lt;=</Select.Option>
+        <Select.Option value="nn">not null</Select.Option>
+        <Select.Option value="ne">not empty</Select.Option>
       </Select>;
     }
     return <Input ref={node => (this.input = node)} onPressEnter={this.save} onBlur={this.save} placeholder={`请输入${this.props.title}`} />;
@@ -65,19 +67,20 @@ class EditableCell extends React.Component {
     const { children, dataIndex, record, title } = this.props;
     const { editing } = this.state;
     return editing ? (
-      <Form.Item style={{ margin: 0 }}>
-        {form.getFieldDecorator(dataIndex, {
-          rules: [
-            {
-              required: true,
-              message: `请输入${title}`,
-            },
-          ],
-          initialValue: record[dataIndex],
-        })(
-          this.getInput()
-        )}
-      </Form.Item>
+      (dataIndex == 'k' || dataIndex == 'op' || (dataIndex == 'v'&& record.op != '' && record.op != 'nn' && record.op != 'ne')) ?
+        <Form.Item style={{ margin: 0 }}>
+          {form.getFieldDecorator(dataIndex, {
+            rules: [
+              {
+                required: true,
+                message: `请输入${title}`,
+              },
+            ],
+            initialValue: record[dataIndex],
+          })(
+            this.getInput()
+          )}
+        </Form.Item> : <></>
     ) : (
       <div
         className={style.editableCellValueWrap}
@@ -124,7 +127,7 @@ class TaskDataFilterTable extends React.Component {
 
     this.columns = [
       {
-        title: '条件名',
+        title: '字段编号',
         dataIndex: 'k',
         width: '25%',
         editable: !this.state.readonly,

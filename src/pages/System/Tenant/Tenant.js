@@ -70,6 +70,10 @@ class Tenant extends PureComponent {
         dataIndex: 'tenantId',
       },
       {
+        title: '租户编号',
+        dataIndex: 'tenantCode',
+      },
+      {
         title: '租户名称',
         dataIndex: 'tenantName',
       },

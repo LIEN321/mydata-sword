@@ -156,7 +156,7 @@ class TaskCard extends PureComponent {
 
     handleCopyTask = e => {
         e.preventDefault();
-        const { form } = this.props;
+        const { form, env, handleLoadTasks } = this.props;
         const { taskId, envId } = this.state;
 
         form.validateFieldsAndScroll((err) => {
@@ -164,6 +164,9 @@ class TaskCard extends PureComponent {
                 copyTask({ taskId, envId }).then(resp => {
                     if (resp.success) {
                         message.success("复制成功！");
+                        if(envId == env.id){
+                            handleLoadTasks();
+                        }
                         form.resetFields();
                         this.closeCopyModal();
                     } else {
@@ -241,9 +244,9 @@ class TaskCard extends PureComponent {
                     <Popover content="复制"><Icon type="copy" onClick={() => { this.openCopyModal(currentTask.id) }} /></Popover>,
                     <Popover content="删除"><Icon type="delete" onClick={() => { this.handleDelete(currentTask.id) }} /></Popover>,
                 ]}
-                extra={currentTask.refEnvId ? (currentTask.opType === TASK_TYPE_PRODUCER ? <Popover content="其他环境提供数据"><Icon type="login" /></Popover> : <Popover content="其他环境消费数据"><Icon type="logout" /></Popover>) : <></>}
+                extra={currentTask.refEnvId ? (currentTask.opType === TASK_TYPE_PRODUCER ? <Popover content="其他环境提供数据"><Icon type="login" />{currentTask.refEnvName}</Popover> : <Popover content="其他环境消费数据"><Icon type="logout" />{currentTask.refEnvName}</Popover>) : <></>}
             >
-                {currentTask.refEnvId ? <p>其他环境：{currentTask.refEnvName}</p> : <></>}
+                {/* {currentTask.refEnvId ? <p>其他环境：{currentTask.refEnvName}</p> : <></>} */}
                 <p>{currentTask.apiUrl.replace(env.envPrefix, '')}</p>
                 <p>运行周期：{currentTask.taskPeriod}</p>
                 <p>最后执行：{currentTask.lastRunTime}</p>

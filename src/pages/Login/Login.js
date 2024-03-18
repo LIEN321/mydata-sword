@@ -5,7 +5,7 @@ import { Checkbox, Alert, Icon, Row, Col, Card } from 'antd';
 import Login from '../../components/Login';
 import styles from './Login.less';
 import { tenantMode, captchaMode, authUrl } from '../../defaultSettings';
-import { getQueryString, getTopUrl, validateNull } from '@/utils/utils';
+import { getQueryString, getSubdomain, getTopUrl, validateNull } from '@/utils/utils';
 
 const { Tab, TenantId, UserName, Password, Captcha, Submit } = Login;
 
@@ -22,6 +22,7 @@ class LoginPage extends Component {
 
   componentDidMount() {
     const domain = getTopUrl();
+    const subDomain = getSubdomain();
     const redirectUrl = '/oauth/redirect/';
     const {
       dispatch,
@@ -49,7 +50,7 @@ class LoginPage extends Component {
       });
       dispatch({
         type: 'tenant/fetchInfo',
-        payload: { domain },
+        payload: { domain: subDomain },
       });
     }
   }
@@ -147,7 +148,7 @@ class LoginPage extends Component {
             ) : null}
             <UserName
               name="account"
-              defaultValue="admin"
+              defaultValue=""
               placeholder={`${formatMessage({ id: 'app.login.userName' })}: admin`}
               rules={[
                 {
@@ -158,7 +159,7 @@ class LoginPage extends Component {
             />
             <Password
               name="password"
-              defaultValue="admin"
+              defaultValue=""
               placeholder={`${formatMessage({ id: 'app.login.password' })}: admin`}
               rules={[
                 {

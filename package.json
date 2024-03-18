@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "presite": "cd functions && npm install",
-    "start": "cross-env MOCK=none PORT=1888 umi dev",
+    "start": "cross-env MOCK=none PORT=80 umi dev",
     "start:no-mock": "cross-env MOCK=none PORT=1888 umi dev",
     "start:mock": "cross-env APP_TYPE=site PORT=1888 umi dev",
     "build": "umi build",

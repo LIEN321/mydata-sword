@@ -6,6 +6,7 @@ import { BIZ_FIELD_LIST, BIZ_DATA_LIST, PROJECT_DATA_LIST, DATA_INIT } from '../
 import Grid from '../../../../components/Sword/Grid';
 import { detail as dataDetail, submit as submitData, remove as removeData } from '../../../../services/data';
 import { detail as envVarDetail } from '../../../../services/envvar';
+import { projectEnv } from '../../../../services/env';
 import styles from '../../../../layouts/Sword.less';
 import EditableTable from '../../Data/EditableTable';
 import func from '@/utils/Func';
@@ -30,7 +31,7 @@ class ProjectData extends PureComponent {
       bizDataModalVisible: false,
 
       // 运行环境列表
-      // envList: {},
+      envList: {},
       // 当前所选环境id
       // currentEnvId: null,
       currentEnv: null,
@@ -59,9 +60,23 @@ class ProjectData extends PureComponent {
     this.handleInit();
   }
 
+  componentWillReceiveProps(nextProps) {
+  }
+
   handleInit = () => {
     const { dispatch, projectId, } = this.props;
-    dispatch(DATA_INIT({ projectId }));
+    // dispatch(DATA_INIT({ projectId }));
+    projectEnv({ projectId }).then(resp => {
+      if (resp.success) {
+        const envList = resp.data;
+        this.setState({ envList });
+
+        const { currentEnv } = this.state;
+        if (envList.length > 0 && currentEnv == null) {
+          this.handleChangeEnv(envList[0].id);
+        }
+      }
+    });
   }
 
   // ============ 查询 ===============
@@ -83,16 +98,15 @@ class ProjectData extends PureComponent {
   renderSearchForm = onReset => {
     const {
       form,
-      data: { init: { envList } },
     } = this.props;
     const { getFieldDecorator } = form;
-    const { currentEnv } = this.state;
+    const { currentEnv, envList } = this.state;
 
     return (
       <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
         <Col md={12} sm={24}>
           <span style={{ color: 'red' }}>*</span><span style={{ fontWeight: 'bold' }}>选择环境：</span>
-          <Select allowClear placeholder="请选择所属环境" onChange={this.handleChangeEnv} style={{ width: 200 }}>
+          {envList.length > 0 ? <Select placeholder="请选择所属环境" onChange={this.handleChangeEnv} style={{ width: 200 }} defaultValue={envList.length > 0 ? envList[0].id : null}>
             {envList.map(e => (
               <Select.Option key={e.id} value={e.id}>
                 <Row style={{ width: '168px' }}>
@@ -101,7 +115,8 @@ class ProjectData extends PureComponent {
                 </Row>
               </Select.Option>
             ))}
-          </Select>
+          </Select> : <>请先创建创建！</>}
+
 
           <Divider type='vertical' />
           <Button icon="plus" type="primary" onClick={() => this.handleAddEnv()} style={{ marginRight: '12px' }}>
@@ -287,11 +302,7 @@ class ProjectData extends PureComponent {
   }
 
   findEnv(envId) {
-    const {
-      data: {
-        init: { envList },
-      },
-    } = this.props;
+    const { envList } = this.state;
     const newEnvList = [...envList];
     const index = newEnvList.findIndex(env => env.id === envId);
     const env = newEnvList[index];
@@ -341,27 +352,9 @@ class ProjectData extends PureComponent {
   // ------------------------------------------------------------
 
   renderLeftButton = () => {
-    // const {
-    //   data: {
-    //     init: { envList },
-    //   },
-    // } = this.props;
-    // return (
-    //   <Fragment>
-    //     <span style={{ fontWeight: 'bold' }}>选择环境查看集成情况：</span>
-    //     <Select allowClear placeholder="请选择所属环境" onChange={this.handleChangeEnv} style={{ width: 200 }}>
-    //       {envList.map(e => (
-    //         <Select.Option key={e.id} value={e.id}>
-    //           {e.envName}
-    //         </Select.Option>
-    //       ))}
-    //     </Select>
-    //     <Divider type='vertical' />
     return <Button icon="plus" type="primary" onClick={() => this.handleClick('data_add')}>
       新增数据项
     </Button>
-    //   </Fragment>
-    // );
   }
 
   renderRightButton = () => { };
@@ -374,14 +367,12 @@ class ProjectData extends PureComponent {
     const {
       form,
       loading,
-      data: { data, bizField, bizData,
-        init: { envList },
-      },
+      data: { data, bizField, bizData },
+      projectId,
     } = this.props;
     const { getFieldDecorator } = form;
 
-    const { currentData, detail, dataFields, currentEnv, dataTaskVisible, envDrawerVisible, envTaskVisible } = this.state;
-    const { projectId } = this.props;
+    const { currentData, detail, dataFields, currentEnv, dataTaskVisible, envDrawerVisible, envTaskVisible, envList } = this.state;
 
     const columns = [
       {
