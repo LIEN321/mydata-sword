@@ -259,6 +259,8 @@ class TaskFieldMappingTable extends React.Component {
             onChange: this.cancel,
             position: "none"
           }}
+          size="small"
+          scroll={{ y: 230 }}
         />
       </div>
     );
