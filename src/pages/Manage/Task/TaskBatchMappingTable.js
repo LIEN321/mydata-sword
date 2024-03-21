@@ -57,8 +57,11 @@ class EditableCell extends React.Component {
         </Radio.Group>
       </>;
     }
-    if(dataIndex === 'v' || dataIndex === 'step'){
+    if(dataIndex === 'v'){
       return <InputNumber min={0} ref={node => (this.input = node)} onPressEnter={this.save} onBlur={this.save} placeholder={`请输入${this.props.title}`} />;
+    }
+    if(dataIndex === 'step'){
+      return <InputNumber min={1} ref={node => (this.input = node)} onPressEnter={this.save} onBlur={this.save} placeholder={`请输入${this.props.title}`} />;
     }
     return <Input ref={node => (this.input = node)} onPressEnter={this.save} onBlur={this.save} placeholder={`请输入${this.props.title}`} />;
   };
