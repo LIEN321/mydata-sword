@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Form, Input, Card, Select, Radio, Modal, message, notification, Tabs, Switch, InputNumber } from 'antd';
 import { connect } from 'dva';
 import styles from '../../../../layouts/Sword.less';
-import { TASK_SUBSCRIBED, TASK_TYPE_PRODUCER, TASK_INIT } from '../../../../actions/task';
+import { TASK_SUBSCRIBED, TASK_TYPE_PRODUCER, TASK_INIT, TASK_TYPE_CONSUMER } from '../../../../actions/task';
 import { submit as submitTask, detail as taskDetail } from '../../../../services/task';
 import TaskFieldMappingTable from '../../Task/TaskFieldMappingTable';
 import { dataFields } from '../../../../services/data';
@@ -517,6 +517,13 @@ class DataTaskForm extends PureComponent {
                       initialValue: detail && detail.batchInterval ? detail.batchInterval : 2,
                     })(<InputNumber min={1} max={100} placeholder="请输入间隔" />)}<span className="ant-form-text"> 秒</span>
                   </FormItem>
+                  {opType === TASK_TYPE_CONSUMER ?
+                    <FormItem {...formItemLayout} label="分批数量">
+                      {getFieldDecorator('batchSize', {
+                        initialValue: detail && detail.batchSize ? detail.batchSize : 1000,
+                      })(<InputNumber min={1} max={1000} placeholder="请输入数量" />)}
+                    </FormItem>
+                    : <></>}
                   <FormItem {...formItemLayout} label="分批参数">
                     <TaskBatchParamTable
                       batchParams={this.state.batchParams}

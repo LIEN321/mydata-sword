@@ -164,7 +164,7 @@ class TaskCard extends PureComponent {
                 copyTask({ taskId, envId }).then(resp => {
                     if (resp.success) {
                         message.success("复制成功！");
-                        if(envId == env.id){
+                        if (envId == env.id) {
                             handleLoadTasks();
                         }
                         form.resetFields();
@@ -244,7 +244,17 @@ class TaskCard extends PureComponent {
                     <Popover content="复制"><Icon type="copy" onClick={() => { this.openCopyModal(currentTask.id) }} /></Popover>,
                     <Popover content="删除"><Icon type="delete" onClick={() => { this.handleDelete(currentTask.id) }} /></Popover>,
                 ]}
-                extra={currentTask.refEnvId ? (currentTask.opType === TASK_TYPE_PRODUCER ? <Popover content="其他环境提供数据"><Icon type="login" />{currentTask.refEnvName}</Popover> : <Popover content="其他环境消费数据"><Icon type="logout" />{currentTask.refEnvName}</Popover>) : <></>}
+                extra={currentTask.refEnvId ?
+                    (currentTask.envId == env.id ?
+                        (currentTask.opType === TASK_TYPE_PRODUCER ?
+                            <Popover content={`${currentTask.refEnvName}环境提供`}>{currentTask.refEnvName}<Icon type="login" /></Popover>
+                            : <Popover content={`${currentTask.refEnvName}环境消费`}><Icon type="logout" />{currentTask.refEnvName}</Popover>)
+                        : (currentTask.refOpType === TASK_TYPE_PRODUCER ?
+                            <Popover content={`${currentTask.envName}环境提供`}>{currentTask.envName}<Icon type="login" /></Popover>
+                            : <Popover content={`${currentTask.envName}环境消费`}><Icon type="logout" />{currentTask.envName}</Popover>)
+                    )
+                    :
+                    <></>}
             >
                 {/* {currentTask.refEnvId ? <p>其他环境：{currentTask.refEnvName}</p> : <></>} */}
                 <p>{currentTask.apiUrl.replace(env.envPrefix, '')}</p>
